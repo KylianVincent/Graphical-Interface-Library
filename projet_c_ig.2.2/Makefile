@@ -5,6 +5,7 @@ CC		= gcc
 OBJDIR		= ./objs
 TESTS		= ./tests
 INCLUDES	= ./include
+SRC		= ./src
 INCFLAGS	:= -I${INCLUDES}
 #OPTFLAGS	:= -Os -DNDEBUG
 OPTFLAGS	:= -g
@@ -70,6 +71,9 @@ all : ${TARGETS}
 
 ########## Test-programs
 
+${OBJDIR}/ei_%.o : ${SRC}/ei_%.c
+	${CC} ${CCFLAGS} ${INCFLAGS} -c -o $@ $<
+
 # minimal
 
 minimal : ${OBJDIR}/minimal.o ${LIBEIBASE}
@@ -80,8 +84,8 @@ ${OBJDIR}/minimal.o : ${TESTS}/minimal.c
 
 # frame
 
-frame : ${OBJDIR}/frame.o ${LIBEIBASE} ${LIBEI}
-	${LINK} -o frame ${OBJDIR}/frame.o ${LIBEI} ${LIBS}
+frame : ${OBJDIR}/frame.o ${OBJDIR}/ei_application.o ${OBJDIR}/ei_geometrymanager.o ${OBJDIR}/ei_widget.o ${OBJDIR}/ei_event.o ${LIBEIBASE} ${LIBEI}
+	${LINK} -o frame ${OBJDIR}/ei_application.o ${OBJDIR}/ei_geometrymanager.o ${OBJDIR}/ei_widget.o ${OBJDIR}/ei_event.o  ${OBJDIR}/frame.o ${LIBEI} ${LIBS}
 
 ${OBJDIR}/frame.o : ${TESTS}/frame.c
 	${CC} ${CCFLAGS} ${INCFLAGS} ${TESTS}/frame.c -o ${OBJDIR}/frame.o
