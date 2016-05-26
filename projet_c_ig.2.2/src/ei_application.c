@@ -3,13 +3,20 @@
 
 
 /* void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen); */
-
+void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen){
+        hw_init;
+        /* TO DO */
+}
 
 /* void ei_app_free(); */
-
+void ei_app_free(){
+        /* Corps vide */
+}
 
 /* void ei_app_run(); */
-
+void ei_app_run(){
+        getchar();
+}
 
 /* void ei_app_invalidate_rect(ei_rect_t* rect); */
 
