@@ -4,8 +4,17 @@
 
 /* void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen); */
 void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen){
-        hw_init;
-        /* TO DO */
+	ei_surface_t main_window;
+	ei_color_t black = {0x00, 0x00, 0x00, 0xff};
+
+        hw_init();
+	main_window = hw_create_window(main_window_size, fullscreen);
+	hw_surface_lock(main_window);
+	ei_fill(main_window, &black, NULL);
+	ei_surface_unlock(main_window);
+
+	//hw_quit();
+        
 }
 
 /* void ei_app_free(); */
