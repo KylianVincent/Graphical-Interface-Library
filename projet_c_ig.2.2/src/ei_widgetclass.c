@@ -1,4 +1,6 @@
 #include "ei_widgetclass.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 
 
@@ -6,7 +8,10 @@
 
 
 /* ei_widgetclass_t* ei_widgetclass_from_name (ei_widgetclass_name_t name); */
-
+ei_widgetclass_t* ei_widgetclass_from_name (ei_widgetclass_name_t name)
+{
+        return NULL;
+}
 
 /* void   ei_frame_register_class  (); */
 
