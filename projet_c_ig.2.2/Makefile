@@ -13,7 +13,7 @@ CCFLAGS		:= -c ${OPTFLAGS} -Wall -std=c99
 
 # The list of objects to include in the library
 
-LIBEIOBJS	:= 	
+LIBEIOBJS	:= 	${OBJDIR}/ei_application.o ${OBJDIR}/ei_geometrymanager.o ${OBJDIR}/ei_widget.o ${OBJDIR}/ei_event.o 
 
 
 
@@ -71,8 +71,8 @@ all : ${TARGETS}
 
 ########## Test-programs
 
-${OBJDIR}/ei_%.o : ${SRC}/ei_%.c
-	${CC} ${CCFLAGS} ${INCFLAGS} -c -o $@ $<
+${OBJDIR}/ei_%.o : ${SRC}/ei_%.c ${INCLUDES}/ei_%.h
+	${CC} ${CCFLAGS} ${INCFLAGS} -o $@ $<
 
 # minimal
 
@@ -84,8 +84,8 @@ ${OBJDIR}/minimal.o : ${TESTS}/minimal.c
 
 # frame
 
-frame : ${OBJDIR}/frame.o ${OBJDIR}/ei_application.o ${OBJDIR}/ei_geometrymanager.o ${OBJDIR}/ei_widget.o ${OBJDIR}/ei_event.o ${LIBEIBASE} ${LIBEI}
-	${LINK} -o frame ${OBJDIR}/ei_application.o ${OBJDIR}/ei_geometrymanager.o ${OBJDIR}/ei_widget.o ${OBJDIR}/ei_event.o  ${OBJDIR}/frame.o ${LIBEI} ${LIBS}
+frame : ${OBJDIR}/frame.o ${LIBEIOBJS} ${LIBEIBASE} ${LIBEI}
+	${LINK} -o frame ${OBJDIR}/frame.o ${LIBEIOBJS} ${LIBEI} ${LIBS}
 
 ${OBJDIR}/frame.o : ${TESTS}/frame.c
 	${CC} ${CCFLAGS} ${INCFLAGS} ${TESTS}/frame.c -o ${OBJDIR}/frame.o
