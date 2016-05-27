@@ -63,7 +63,7 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
                          ei_surface_t* img, ei_rect_t** img_rect,
                          ei_anchor_t* img_anchor){
 
-        ei_frame_t* frame = (ei_frame_t) widget;        
+        ei_frame_t* frame = (ei_frame_t*) widget;        
         
         /* Color */
         if (color == NULL){
