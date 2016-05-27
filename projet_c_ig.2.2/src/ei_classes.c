@@ -14,7 +14,7 @@ ei_frame_t* frame_allocfunc(){
 }
 
 
-ei_frame_t* frame_releasefunc(struct ei_widget_t* widget){
+void frame_releasefunc(struct ei_widget_t* widget){
 
 	ei_frame_t* frame  = (ei_frame_t*) widget; /*on caste le widget pour acceder à toute la zone mémoire*/
 	
@@ -34,14 +34,14 @@ ei_frame_t* frame_releasefunc(struct ei_widget_t* widget){
 	free(&(frame->img_anchor));
 }
 
-ei_frame_t* frame_drawfunc(struct ei_widget_t*	frame,
+void frame_drawfunc(struct ei_widget_t*	frame,
 			   ei_surface_t		surface,
 			   ei_surface_t		pick_surface,
 			   ei_rect_t*		clipper){
 
 	int x=frame->screen_location.top_left.x; /*Origine du dessin*/
 	int y=frame->screen_location.top_left.y;
-	
+
 	ei_linked_point_t points[4];
 	int coords[]={x, y, 
 		      x+(frame->requested_size).width, y,
@@ -52,12 +52,12 @@ ei_frame_t* frame_drawfunc(struct ei_widget_t*	frame,
 		points[i/2].point.x	= coords[i];
 		points[i/2].point.y	= coords[i + 1];
 
-		if (i < 3)
+		if (i < 6)
 			points[i/2].next	= &(points[i/2+1]);
 		else
 			points[i/2].next	= NULL;	
 	}
-	
+
 	hw_surface_lock(surface);
 	hw_surface_lock(pick_surface);
 	ei_draw_polygon(surface, points, ((ei_frame_t*) frame)->color, clipper);
@@ -71,7 +71,7 @@ ei_frame_t* frame_drawfunc(struct ei_widget_t*	frame,
 
 }
 
-ei_frame_t* frame_setdefaultsfunc(struct ei_widget_t* widget){
+void frame_setdefaultsfunc(struct ei_widget_t* widget){
 	ei_frame_t* frame  = (ei_frame_t*) widget; /*on caste le widget pour acceder à toute la zone mémoire*/
 	/*frame->requested_size=(0,0);*/
 	frame->color= ei_default_background_color;
@@ -84,7 +84,4 @@ ei_frame_t* frame_setdefaultsfunc(struct ei_widget_t* widget){
 	frame->img=NULL;
 	frame->img_rect=NULL;
 	frame->img_anchor=ei_anc_center;
-	
-
-
 }

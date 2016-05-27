@@ -26,13 +26,13 @@ typedef struct ei_frame_t{
 
 struct ei_frame_t* frame_allocfunc ();
 
-struct ei_frame_t* frame_releasefunc (struct ei_widget_t* widget);
+void frame_releasefunc (struct ei_widget_t* widget);
 
 
-struct ei_frame_t* frame_drawfunc(struct ei_widget_t* frame,
+void frame_drawfunc(struct ei_widget_t* frame,
 		     ei_surface_t		surface,
 		     ei_surface_t		pick_surface,
 		     ei_rect_t*		clipper);
 
 
-struct ei_frame_t* frame_setdefaultsfunc(struct ei_widget_t* widget);
+void frame_setdefaultsfunc(struct ei_widget_t* widget);

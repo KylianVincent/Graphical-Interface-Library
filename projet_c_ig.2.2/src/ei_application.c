@@ -9,15 +9,19 @@ ei_surface_t main_window;
 ei_surface_t main_window_picking;
 ei_widget_t* root_frame=NULL;
 
+
 /* void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen); */
 void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen){
 
         hw_init();
 	main_window = hw_create_window(main_window_size, fullscreen);
 	main_window_picking=hw_surface_create(main_window,main_window_size,EI_TRUE);
+        /* Creation du widget frame */
+        ei_frame_register_class();
+
         /* Initialisation de root_frame */
-        //root_frame = ei_widget_create((ei_widgetclass_name_t) "frame", NULL);
-        //ei_frame_configure(root_frame, main_window_size, &ei_default_background_color, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+        root_frame = ei_widget_create("frame", NULL);
+        ei_frame_configure(root_frame, main_window_size, &ei_default_background_color, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
         
 }
 
@@ -31,7 +35,12 @@ void ei_app_run_rec(ei_widget_t* w)
         if (w == NULL) {
                 return;
         }
-        w->wclass->drawfunc(w, main_window, main_window_picking, w->parent->content_rect);
+        if (w->parent != NULL) {
+                (*w->wclass->drawfunc)(w, main_window, main_window_picking, w->parent->content_rect);
+        }
+        else {
+                (*w->wclass->drawfunc)(w, main_window, main_window_picking, w->content_rect);
+        }
         ei_widget_t* cour = w->children_head;
         while (cour != NULL) {
                 ei_app_run_rec(cour);
@@ -56,7 +65,7 @@ void ei_app_run(){
 
 ei_widget_t* ei_app_root_widget()
 {
-        return(NULL);
+        return((ei_widget_t *) root_frame);
 }
 
 /* ei_surface_t ei_app_root_surface(); */
