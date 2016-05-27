@@ -1,12 +1,44 @@
 #include "ei_widget.h"
+#include "ei_widgetclass.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 
+uint32_t free_pick = 0;
+
+ei_color_t * def_pick_color(uint32_t pick_id)
+{
+        /* Ici, on retourne une couleur dépendant du pick_id */
+        /* N'a pas trop d'importance mais bien pour le débug */
+        ei_color_t* couleur = calloc(1, sizeof(ei_color_t));
+        couleur->red = (char) 7*pick_id;
+        couleur->green = (char) 19*pick_id;
+        couleur->blue = (char) 41*pick_id;
+        couleur->alpha = 0xFF;
+        return couleur;
+}
 
 /* ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name, ei_widget_t* parent); */
 ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name, ei_widget_t* parent){
-        /* Corps vide */
-        return NULL;
+        ei_widget_t *widget = NULL;
+        ei_widgetclass_t* wclass = ei_widgetclass_from_name(class_name);
+        widget = (ei_widget_t *) wclass->allocfunc();
+        widget->wclass = wclass;
+        widget->pick_id = free_pick;
+        free_pick++;
+        widget->pick_color = def_pick_color(widget->pick_id);
+        if (parent != NULL) {
+                widget->parent = parent;
+                if (parent->children_tail != NULL) {
+                        parent->children_tail->next_sibling = widget;
+                        parent->children_tail = widget;
+                }
+                else {
+                        parent->children_head = widget;
+                        parent->children_tail = widget;
+                }
+        }
+        return widget;
 }
 
 /* void ei_widget_destroy(ei_widget_t* widget); */
