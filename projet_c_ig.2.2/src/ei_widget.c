@@ -1,6 +1,7 @@
 #include "ei_widget.h"
 #include "ei_widgetclass.h"
 #include "ei_types.h"
+#include "ei_classes.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -173,9 +174,9 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
                                 hw_text_compute_size(frame->text, frame->text_font, &(frame->requested_size.height), &(frame->requested_size.width));
                         }
                         /* Le cas : text != NULL et img != NULL est impossible (test antérieur) */
-                } else {
-                        frame->requested_size = *requested_size;
                 }
+        } else {
+                frame->requested_size = *requested_size;
         }
         
 }
