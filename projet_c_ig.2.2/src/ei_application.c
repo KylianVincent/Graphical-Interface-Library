@@ -7,10 +7,11 @@
 /* void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen); */
 void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen){
 
-	ei_surface_t main_window;
+
         hw_init();
 	main_window = hw_create_window(main_window_size, fullscreen);
-        
+	main_window_picking=hw_surface_create(,main_window,main_window_size,EI_TRUE);
+
 }
 
 /* void ei_app_free(); */
