@@ -12,18 +12,28 @@ void   ei_widgetclass_register  (ei_widgetclass_t* widgetclass)
 }
 
 /* ei_widgetclass_t* ei_widgetclass_from_name (ei_widgetclass_name_t name); */
-struct ei_widgetclass_t* ei_widgetclass_from_name (ei_widgetclass_name_t name)
-{
-        struct ei_widgetclass_t* cour = classes;
-        while (cour->name[0] != name[0] && cour != NULL)
-        {
-                cour = cour->next;
-        }
-        if (cour == NULL) {
-                perror("Widget introuvable");
-                exit(1);
-        }
-        return cour;
+struct ei_widgetclass_t* ei_widgetclass_from_name (ei_widgetclass_name_t name){
+    
+
+	ei_widgetclass_t *cour=classes;
+
+	while (cour != NULL){
+	
+		int32_t i = 0;
+
+		while ( i<20 && name[i] == cour->name[i] ){
+			i++;
+		}
+
+		if (i==19) {
+			return cour->name;
+		}
+
+		cour=cour->next;
+	}
+	perror("classe inconnue");
+	exit(1);
+  
 }
 
 /* void   ei_frame_register_class  (); */
