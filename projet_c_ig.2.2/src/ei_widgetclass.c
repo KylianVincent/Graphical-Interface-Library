@@ -8,22 +8,32 @@ ei_widgetclass_t *classes = NULL;
 /* void   ei_widgetclass_register  (ei_widgetclass_t* widgetclass); */
 void   ei_widgetclass_register  (ei_widgetclass_t* widgetclass)
 {
-        
+
 }
 
 /* ei_widgetclass_t* ei_widgetclass_from_name (ei_widgetclass_name_t name); */
-struct ei_widgetclass_t* ei_widgetclass_from_name (ei_widgetclass_name_t name)
-{
-        struct ei_widgetclass_t* cour = classes;
-        while (cour->name[0] != name[0] && cour != NULL)
-        {
-                cour = cour->next;
-        }
-        if (cour == NULL) {
-                perror("Widget introuvable");
-                exit(1);
-        }
-        return cour;
+struct ei_widgetclass_t* ei_widgetclass_from_name (ei_widgetclass_name_t name){
+    
+
+	ei_widgetclass_t *cour=classes;
+
+	while (cour != NULL){
+	
+		int32_t i = 0;
+
+		while ( i<20 && name[i] == cour->name[i] && name[i] != '\0'){
+			i++;
+		}
+
+		if (name[i] == '\0' && cour->name[i] == '\0') {
+			return cour;
+		}
+
+		cour=cour->next;
+	}
+	perror("classe inconnue");
+	exit(1);
+  
 }
 
 /* void   ei_frame_register_class  (); */
@@ -32,7 +42,10 @@ void   ei_frame_register_class  ()
         ei_widgetclass_t* frame = NULL;
         frame = calloc(1, sizeof(ei_widgetclass_t));
         /* A changer, ceci est temporaire */
-        frame->name[0] = 'f';
+        char name_frame[] = "frame";
+        for (uint32_t i = 0; i < 6; i++){
+                frame->name[i] = name_frame[i];
+        }
         frame->allocfunc = frame_allocfunc;
         frame->releasefunc = frame_releasefunc;
         frame->drawfunc = frame_drawfunc;
