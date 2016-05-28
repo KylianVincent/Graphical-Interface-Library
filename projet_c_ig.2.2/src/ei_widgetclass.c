@@ -32,7 +32,10 @@ void   ei_frame_register_class  ()
         ei_widgetclass_t* frame = NULL;
         frame = calloc(1, sizeof(ei_widgetclass_t));
         /* A changer, ceci est temporaire */
-        frame->name[0] = 'f';
+        char name_frame[] = "frame";
+        for (uint32_t i = 0; i < 20; i++){
+                frame->name[i] = name_frame[i];
+        }
         frame->allocfunc = frame_allocfunc;
         frame->releasefunc = frame_releasefunc;
         frame->drawfunc = frame_drawfunc;
