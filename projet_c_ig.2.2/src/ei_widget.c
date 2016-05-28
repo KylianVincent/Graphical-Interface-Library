@@ -2,6 +2,7 @@
 #include "ei_widgetclass.h"
 #include "ei_types.h"
 #include "ei_classes.h"
+#include "ei_utils.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -40,7 +41,13 @@ ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name, ei_widget_t* pa
                         parent->children_head = widget;
                         parent->children_tail = widget;
                 }
+                widget->screen_location.top_left = widget->parent->screen_location.top_left;
         }
+        else 
+        {
+                widget->screen_location.top_left = ei_point_zero();
+        }
+        widget->content_rect = &(widget->screen_location);
         return widget;
 }
 
@@ -163,20 +170,21 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
                 if (/*** Non définie ***/ true){
                         if (text == NULL){
                                 if (img == NULL){
-                                        (frame->requested_size).height = 0;
-                                        (frame->requested_size).width = 0;
+                                        (widget->requested_size).height = 0;
+                                        (widget->requested_size).width = 0;
                                 } else {
                                         /* Taille minimale pour l'image */
-                                        frame->requested_size = hw_surface_get_size(img);
+                                        widget->requested_size = hw_surface_get_size(img);
                                 }
                         } else if (img == NULL) {
                                 /* Taille minimale pour le texte*/
-                                hw_text_compute_size(frame->text, frame->text_font, &(frame->requested_size.height), &(frame->requested_size.width));
+                                hw_text_compute_size(frame->text, frame->text_font, &(widget->requested_size.height), &(widget->requested_size.width));
                         }
                         /* Le cas : text != NULL et img != NULL est impossible (test antérieur) */
                 }
         } else {
-                frame->requested_size = *requested_size;
+                widget->requested_size = *requested_size;
+                widget->screen_location.size = widget->requested_size;
         }
         
 }

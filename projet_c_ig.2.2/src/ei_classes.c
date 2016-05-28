@@ -18,7 +18,6 @@ void frame_releasefunc(struct ei_widget_t* widget){
 
 	ei_frame_t* frame  = (ei_frame_t*) widget; /*on caste le widget pour acceder à toute la zone mémoire*/
 	
-	free(&(frame->requested_size));
 	free(&(frame->color));
 	free(&(frame->border_width));
 	free(&(frame->relief));
@@ -41,7 +40,7 @@ void frame_drawfunc(struct ei_widget_t*	frame,
 
 	int x=frame->screen_location.top_left.x; /*Origine du dessin*/
 	int y=frame->screen_location.top_left.y;
-
+        printf("%hu\n", ((ei_frame_t*) frame)->color);
 	ei_linked_point_t points[4];
 	int coords[]={x, y, 
 		      x+(frame->requested_size).width, y,

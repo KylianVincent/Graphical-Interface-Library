@@ -46,7 +46,6 @@ void ei_app_run_rec(ei_widget_t* w)
                 ei_app_run_rec(cour);
                 cour = cour->next_sibling;
         }
-        ei_app_run_rec(w->next_sibling);
 }
 
 /* void ei_app_run(); */
