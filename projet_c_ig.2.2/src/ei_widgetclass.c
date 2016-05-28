@@ -8,7 +8,7 @@ ei_widgetclass_t *classes = NULL;
 /* void   ei_widgetclass_register  (ei_widgetclass_t* widgetclass); */
 void   ei_widgetclass_register  (ei_widgetclass_t* widgetclass)
 {
-        
+
 }
 
 /* ei_widgetclass_t* ei_widgetclass_from_name (ei_widgetclass_name_t name); */
@@ -21,12 +21,12 @@ struct ei_widgetclass_t* ei_widgetclass_from_name (ei_widgetclass_name_t name){
 	
 		int32_t i = 0;
 
-		while ( i<20 && name[i] == cour->name[i] ){
+		while ( i<20 && name[i] == cour->name[i] && name[i] != '\0'){
 			i++;
 		}
 
-		if (i==19) {
-			return cour->name;
+		if (name[i] == '\0' && cour->name[i] == '\0') {
+			return cour;
 		}
 
 		cour=cour->next;
@@ -43,7 +43,7 @@ void   ei_frame_register_class  ()
         frame = calloc(1, sizeof(ei_widgetclass_t));
         /* A changer, ceci est temporaire */
         char name_frame[] = "frame";
-        for (uint32_t i = 0; i < 20; i++){
+        for (uint32_t i = 0; i < 6; i++){
                 frame->name[i] = name_frame[i];
         }
         frame->allocfunc = frame_allocfunc;
