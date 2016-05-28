@@ -1,4 +1,7 @@
 #include "ei_geometrymanager.h"
+#include <stdlib.h>
+#include <stdio.h>
+
 
 /* void   ei_geometrymanager_register (ei_geometrymanager_t* geometrymanager); */
 
@@ -32,6 +35,10 @@ void   ei_place   (ei_widget_t*  widget,
         float*   rel_y,
         float*   rel_width,
         float*   rel_height){
-        /* Corps vide */
+        if (x != NULL && y != NULL) {
+                widget->screen_location.top_left.x = *x;
+                widget->screen_location.top_left.y = *y;
+        }
+/* A compléter et modifier*/
 }
 

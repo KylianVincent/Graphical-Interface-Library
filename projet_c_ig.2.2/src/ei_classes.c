@@ -43,9 +43,9 @@ void frame_drawfunc(struct ei_widget_t*	frame,
         printf("%hu\n", ((ei_frame_t*) frame)->color);
 	ei_linked_point_t points[4];
 	int coords[]={x, y, 
-		      x+(frame->requested_size).width, y,
-		      x+(frame->requested_size).width,y+(frame->requested_size).width,
-		      x, y+(frame->requested_size).width};
+		      x+(frame->screen_location.size).width, y,
+		      x+(frame->screen_location.size).width,y+(frame->screen_location.size).width,
+		      x, y+(frame->screen_location.size).width};
 		      
 	for (int i = 0; i < 8; i+=2) {
 		points[i/2].point.x	= coords[i];
