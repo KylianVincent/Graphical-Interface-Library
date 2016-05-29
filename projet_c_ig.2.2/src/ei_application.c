@@ -12,7 +12,12 @@ ei_widget_t* root_frame=NULL;
 
 
 /* void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen); */
-void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen){
+void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen)
+{
+        if (!fullscreen && main_window_size == NULL){
+                perror("La taille de la fenêtre n'est pas définie.\n");
+                exit(1);
+        }
 
         hw_init();
 	main_window = hw_create_window(main_window_size, fullscreen);

@@ -23,7 +23,7 @@ typedef struct ei_frame_t{
 
 /*Definition de fonction spécifiques à la classe frame*/
 
-struct ei_frame_t* frame_allocfunc ();
+void* frame_allocfunc ();
 
 void frame_releasefunc (struct ei_widget_t* widget);
 

@@ -3,11 +3,11 @@
 #include "hw_interface.h"
 #include "ei_classes.h"
 
-ei_frame_t* frame_allocfunc(){
+void* frame_allocfunc(){
 
 	struct ei_frame_t *frame = calloc(1, sizeof(struct ei_frame_t));
 	if (frame != NULL){
-		return frame;	
+		return (void*) frame;	
 	}
 	perror("Erreur allocation frame. \n");
 	exit(1);
@@ -152,7 +152,6 @@ void frame_drawfunc(struct ei_widget_t*	frame,
 
 void frame_setdefaultsfunc(struct ei_widget_t* widget){
 	ei_frame_t* frame  = (ei_frame_t*) widget; /*on caste le widget pour acceder à toute la zone mémoire*/
-	/*frame->requested_size=(0,0);*/
 	frame->color= ei_default_background_color;
 	frame->border_width=0;
 	frame->relief=ei_relief_none;
