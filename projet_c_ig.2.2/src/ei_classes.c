@@ -82,7 +82,7 @@ void frame_drawfunc(struct ei_widget_t*	frame,
 		ei_linked_point_t points_triangle1[4];
 		ei_linked_point_t points_triangle2[4];
 		
-		/*création des deux tringles créant l'imptression de relief*/
+		/*création des deux triangles créant l'impression de relief*/
 		int coords_triangle1[]={x, y, 
 					x+width, y,
 					x, y+height};
@@ -112,7 +112,7 @@ void frame_drawfunc(struct ei_widget_t*	frame,
 		}
 		ei_color_t color_triangle1=((ei_frame_t*)frame)->color;
 		ei_color_t color_triangle2=((ei_frame_t*)frame)->color;
-		/*delta permet de modifier uniformément la couleyr des triangles*/
+		/*delta permet de modifier uniformément la couleur des triangles*/
 		unsigned char delta;
 		
 		if (((ei_frame_t*)frame)->relief ==1){

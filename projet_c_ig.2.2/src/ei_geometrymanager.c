@@ -22,6 +22,22 @@ ei_geometrymanager_t* ei_geometrymanager_from_name (ei_geometrymanager_name_t na
 }
 
 /* void   ei_geometrymanager_unmap (ei_widget_t*  widget); */
+void   ei_geometrymanager_unmap (ei_widget_t*  widget){
+        /* Release du widget */
+        (*widget->geom_params->manager->releasefunc)(widget);
+        
+        /* Libération du champ dédié dans le widget, on ne libère pas le geometry manager lié qui peut être utilisé */
+        free(widget->geom_params);
+
+        /* Invalidation de la localisation ?? */
+        /* TO DO */
+
+        /* Mise à 0 des composantes screen_location */
+        widget->screen_location.top_left.x = 0;
+        widget->screen_location.top_left.y = 0;
+        widget->screen_location.size.width = 0;
+        widget->screen_location.size.height = 0;
+}
 
 
 /* void    ei_register_placer_manager  (); */
@@ -62,12 +78,14 @@ void   ei_place   (ei_widget_t*  widget,
         /* Gestion de l'affiliation à un geometry manager */
         if (widget->geom_params == NULL){
                 /* Ajout au register manager */
+                /* TO DO */
 
                 strcpy(widget->geom_params->manager->name, "placer");
         } else if (! strcmp(widget->geom_params->manager->name, "placer")){
                 /* Appel de la fonction de release */
-                //*(widget->geom_params->releasefunc)();
+                //*(widget->geom_params->releasefunc)(widget);
                 /* Ajout au register manager */
+                /* TO DO */
 
                 strcpy(widget->geom_params->manager->name, "placer");
         } /* Sinon le widget est déjà géré par le placer */
@@ -112,6 +130,35 @@ void   ei_place   (ei_widget_t*  widget,
                 widget->screen_location.size.height += (*rel_height) * widget->parent->screen_location.size.height;
         }
 
-        
+        /* Anchor */
+        /* Mise à jour de la position : top_left */
+        if (anchor != NULL){
+                switch (*anchor) {
+                        /* TO DO */
+                case ei_anc_center :
+                        break;
+                case ei_anc_north :
+                        break;
+                case ei_anc_northeast :
+                        break;
+                case ei_anc_east :
+                        break;
+                case ei_anc_southeast :
+                        break;
+                case ei_anc_south :
+                        break;
+                case ei_anc_southwest :
+                        break;
+                case ei_anc_west :
+                        break;
+                case ei_anc_northwest :
+                        /* Rien à faire, calcul initial valide */
+                        break;
+                case ei_anc_none :
+                        break;
+                }
+        }
+        /* Default to : ei_anc_northwest, le point est donc bien placé par défaut*/
+                
 }
 
