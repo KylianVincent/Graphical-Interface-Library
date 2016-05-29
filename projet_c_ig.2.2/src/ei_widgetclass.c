@@ -25,7 +25,7 @@ struct ei_widgetclass_t* ei_widgetclass_from_name (ei_widgetclass_name_t name){
 			i++;
 		}
 
-		if (name[i] == '\0' && cour->name[i] == '\0') {
+		if (i==20 || (name[i] == '\0' && cour->name[i] == '\0')) {
 			return cour;
 		}
 
@@ -41,7 +41,6 @@ void   ei_frame_register_class  ()
 {
         ei_widgetclass_t* frame = NULL;
         frame = calloc(1, sizeof(ei_widgetclass_t));
-        /* A changer, ceci est temporaire */
         char name_frame[] = "frame";
         for (uint32_t i = 0; i < 6; i++){
                 frame->name[i] = name_frame[i];

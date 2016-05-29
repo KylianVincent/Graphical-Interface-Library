@@ -2,6 +2,7 @@
 #include "hw_interface.h"
 #include "ei_utils.h"
 #include "ei_types.h"
+#include "ei_widgetclass.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -11,7 +12,12 @@ ei_widget_t* root_frame=NULL;
 
 
 /* void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen); */
-void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen){
+void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen)
+{
+        if (!fullscreen && main_window_size == NULL){
+                perror("La taille de la fenêtre n'est pas définie.\n");
+                exit(1);
+        }
 
         hw_init();
 	main_window = hw_create_window(main_window_size, fullscreen);
@@ -27,7 +33,10 @@ void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen){
 
 /* void ei_app_free(); */
 void ei_app_free(){
-        /* Corps vide */
+        ei_widget_destroy(root_frame);
+        hw_surface_free(main_window_picking);
+        hw_surface_free(main_window);
+        hw_quit();
 }
 
 void ei_app_run_rec(ei_widget_t* w)
