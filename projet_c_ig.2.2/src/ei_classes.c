@@ -16,21 +16,25 @@ ei_frame_t* frame_allocfunc(){
 
 void frame_releasefunc(struct ei_widget_t* widget){
 
-	ei_frame_t* frame  = (ei_frame_t*) widget; /*on caste le widget pour acceder à toute la zone mémoire*/
-	
-	free(&(frame->color));
-	free(&(frame->border_width));
-	free(&(frame->relief));
+        if (widget != NULL)
+        {
+                free(widget->pick_color);
+                ei_frame_t* frame  = (ei_frame_t*) widget; /*on caste le widget pour acceder à toute la zone mémoire*/
+                free(frame);
+        }
+	/* free(&(frame->color)); */
+	/* free(&(frame->border_width)); */
+	/* free(&(frame->relief)); */
 
-	free(frame->text);
-/*on ne libère pas la police (elle est utilisée par toutes les autres fonctions)*/
-	free(&(frame->text_color));
-	free(&(frame->text_anchor));
-	free(frame->img);
+	/* free(frame->text); */
 
-	free(frame->img_rect);
+	/* free(&(frame->text_color)); */
+	/* free(&(frame->text_anchor)); */
+	/* free(frame->img); */
 
-	free(&(frame->img_anchor));
+	/* free(frame->img_rect); */
+
+	/* free(&(frame->img_anchor)); */
 }
 
 void frame_drawfunc(struct ei_widget_t*	frame,
@@ -40,7 +44,7 @@ void frame_drawfunc(struct ei_widget_t*	frame,
 
 	int x=frame->screen_location.top_left.x; /*Origine du dessin*/
 	int y=frame->screen_location.top_left.y;
-        printf("%hu\n", ((ei_frame_t*) frame)->color);
+        
 	ei_linked_point_t points[4];
 	int coords[]={x, y, 
 		      x+(frame->screen_location.size).width, y,

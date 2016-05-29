@@ -2,6 +2,7 @@
 #include "hw_interface.h"
 #include "ei_utils.h"
 #include "ei_types.h"
+#include "ei_widgetclass.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -27,7 +28,10 @@ void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen){
 
 /* void ei_app_free(); */
 void ei_app_free(){
-        /* Corps vide */
+        ei_widget_destroy(root_frame);
+        hw_surface_free(main_window_picking);
+        hw_surface_free(main_window);
+        hw_quit();
 }
 
 void ei_app_run_rec(ei_widget_t* w)

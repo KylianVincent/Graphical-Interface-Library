@@ -52,6 +52,17 @@ ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name, ei_widget_t* pa
 }
 
 /* void ei_widget_destroy(ei_widget_t* widget); */
+void ei_widget_destroy(ei_widget_t* widget)
+{
+        ei_widget_t* cour = widget->children_head;
+        (*widget->wclass->releasefunc)(widget);
+        while (cour != NULL)
+        {
+                ei_widget_t* temp = cour;
+                cour = cour->next_sibling;
+                ei_widget_destroy(temp);
+        }
+}
 
 
 /* ei_widget_t* ei_widget_pick(ei_point_t*	where); */
