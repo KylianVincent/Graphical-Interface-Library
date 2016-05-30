@@ -77,6 +77,12 @@ ei_point_t calcul_point_ancrage(struct ei_widget_t* widget, ei_anchor_t *anchor)
 
 }
 
+void free_linked_point(ei_linked_point_t* pts);
+
+/* Trace un bouton complet ou seulement la partie haut ou basse */
+/* mode = 0 : complet  //  mode = -1 : basse  //  mode = 1 : haute  */
+ei_linked_point_t* rounded_frame(ei_rect_t rect, int radius, int8_t mode);
+
 /* ----------FRAME------------*/
 
 void* frame_allocfunc(){
