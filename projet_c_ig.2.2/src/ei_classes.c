@@ -79,7 +79,7 @@ ei_point_t calcul_point_ancrage(struct ei_widget_t* widget, ei_anchor_t *anchor)
 
 /*fonction de dessin de texte sur surface*/
 
-void draw_text(ei_widget_t *widget, ei_surface_t surface, ei_rect_t *clipper){
+void draw_texte(ei_widget_t *widget, ei_surface_t surface, ei_rect_t *clipper){
 	
 	ei_frame_t *frame=(ei_frame_t*) widget;
 	
@@ -93,6 +93,26 @@ void draw_text(ei_widget_t *widget, ei_surface_t surface, ei_rect_t *clipper){
 			     frame->text_font,
 			     &(frame->text_color),
 			     clipper);
+	}
+}
+
+
+void draw_img(ei_widget_t *widget, ei_surface_t surface ){
+
+	ei_frame_t *frame=(ei_frame_t*) widget;
+	ei_rect_t rect_dest;
+	rect_dest.top_left= calcul_point_ancrage(widget, &(frame->img_anchor));
+	rect_dest.size.width=frame->img_rect->size.width;
+	rect_dest.size.height=frame->img_rect->size.height;
+
+	int img_OK=ei_copy_surface(surface,
+				   &rect_dest,
+				   frame->img,
+				   frame->img_rect,
+				   EI_FALSE); /*pas sur !!!!!!!*/
+	if (img_OK == 1){
+		perror("problème d'insertion d'image");
+		exit(1);
 	}
 }
 
@@ -153,6 +173,8 @@ void frame_drawfunc(struct ei_widget_t*	frame,
 	ei_linked_point_t *cadre=rounded_frame(frame->screen_location,0,0);
 
 	/*On trace le cadre en relief*/
+	hw_surface_lock(surface);
+	hw_surface_lock(pick_surface);
 
 	if (b != 0){
 	
@@ -178,50 +200,26 @@ void frame_drawfunc(struct ei_widget_t*	frame,
 		ei_color_t color_sup= eclaircir_assombrir(((ei_frame_t*)frame)->color,50,signe);
 		ei_color_t color_inf=eclaircir_assombrir(((ei_frame_t*)frame)->color,50,-signe);
 
-	/*blocage de la surface pour le dessin des cadre inferieurs*/
 
-	hw_surface_lock(surface);
-	hw_surface_lock(pick_surface);
-
-	ei_draw_polygon(surface, cadre_inferieur_bas, color_inf, clipper);
-	ei_draw_polygon(surface, cadre_inferieur_haut, color_sup, clipper);
-	
-	/*Affichage du texte*/
-
-	draw_text(frame, surface, clipper);
-
-	/*gestion de l'affichage d'une image*/	
-
-	}else if (((ei_frame_t*) frame)->img != NULL){
-		printf("img \n");
-
-		ei_rect_t rect_dest;
-		rect_dest.top_left= calcul_point_ancrage(frame, &(((ei_frame_t*) frame)->img_anchor));
-		rect_dest.size.width=(((ei_frame_t*)frame)->img_rect)->size.width;
-		rect_dest.size.height=(((ei_frame_t*)frame))->img_rect->size.height;
-
-		int img_OK=ei_copy_surface(surface,
-					   &rect_dest,
-					   ((ei_frame_t*) frame)->img,
-					   ((ei_frame_t*) frame)->img_rect,
-					   EI_FALSE); /*pas sur !!!!!!!*/
-		if (img_OK == 1){
-			perror("problème d'insertion d'image");
-			exit(1);
-		}
-
-
+		ei_draw_polygon(surface, cadre_inferieur_bas, color_inf, clipper);
+		ei_draw_polygon(surface, cadre_inferieur_haut, color_sup, clipper);
 	}
+
 	ei_draw_polygon(surface, cadre, ((ei_frame_t *)frame)->color, clipper);
+	
+	if (((ei_frame_t*) frame)->text != NULL){
+		draw_texte(frame, surface, clipper);
+	}else if (((ei_frame_t*) frame)->img != NULL){
+		draw_img(frame, surface);
+	}
+
 	ei_draw_polygon(pick_surface, cadre, *(frame->pick_color), clipper);
 
 	hw_surface_unlock(surface);
 	hw_surface_unlock(pick_surface);
 
 	hw_surface_update_rects(surface, NULL);
-	hw_surface_update_rects(pick_surface, NULL);
-
-		 
+	hw_surface_update_rects(pick_surface, NULL);		 
 
 }
 
