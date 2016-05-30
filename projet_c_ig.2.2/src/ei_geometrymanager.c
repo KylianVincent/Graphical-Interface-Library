@@ -9,7 +9,9 @@ ei_geometrymanager_t *geometrymanagers = NULL;
 
 /* void   ei_geometrymanager_register (ei_geometrymanager_t* geometrymanager); */
 void   ei_geometrymanager_register (ei_geometrymanager_t* geometrymanager){
-        //ei_register_placer_manager();
+        /* Pour enregistrer un geometry manager externe */
+        geometrymanager->next = geometrymanagers;
+        geometrymanagers = geometrymanager;
 }
 
 /* ei_geometrymanager_t* ei_geometrymanager_from_name (ei_geometrymanager_name_t name); */
