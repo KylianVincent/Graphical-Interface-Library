@@ -26,7 +26,7 @@ typedef struct ei_frame_t{
 	ei_anchor_t		img_anchor;
 }ei_frame_t;
 
-/* Definition du type ei_bouton_t */
+/* Definition du type ei_button_t */
 
 typedef struct ei_button_t{
         ei_widget_t             widget;
@@ -52,7 +52,6 @@ ei_point_t calcul_point_ancrage(struct ei_widget_t* widget, ei_anchor_t *anchor)
 
 
 /*Definition de fonctions spécifiques à la classe frame*/
-
 void* frame_allocfunc ();
 
 void frame_releasefunc (struct ei_widget_t* widget);
