@@ -6,8 +6,8 @@
 #include "ei_utils.h"
 
 #ifndef M_PI
- #define M_PI 3.14159265358979323846
-#endif 
+#define M_PI 3.141592653589793
+#endif
 
 /*Definition du type ei_frame_t*/
 
@@ -66,7 +66,6 @@ void frame_setdefaultsfunc(struct ei_widget_t* widget);
 void* button_allocfunc ();
 
 void button_releasefunc (struct ei_widget_t* widget);
-
 
 void button_drawfunc(struct ei_widget_t* widget,
 		     ei_surface_t		surface,
