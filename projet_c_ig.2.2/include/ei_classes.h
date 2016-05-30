@@ -42,8 +42,13 @@ typedef struct ei_button_t{
 	ei_anchor_t		img_anchor;
         int                     corner_radius;
         ei_callback_t           callback;
+
         void*                   user_param;
 }ei_button_t;
+/*fonctions auxiliaires globales*/
+
+ei_point_t calcul_point_ancrage(struct ei_widget_t* widget, ei_anchor_t *anchor); 
+/*si ancrage vaut null ou ei_anc_none, alors cas pas défault (northwest)*/
 
 
 /*Definition de fonctions spécifiques à la classe frame*/

@@ -1,5 +1,81 @@
 #include "ei_classes.h"
 #include <math.h>
+/*-------FONCTIONS AUXILIAIRES-------------*/
+
+ei_point_t calcul_point_ancrage(struct ei_widget_t* widget, ei_anchor_t *anchor){
+
+	/*simplification expressions*/
+
+	int x=widget->screen_location.top_left.x; 
+	int y=widget->screen_location.top_left.y;
+
+	int width=(widget->screen_location.size).width;
+	int height=(widget->screen_location.size).height;
+
+	ei_point_t ancrage;
+
+	if (anchor != NULL){
+                switch (*anchor) {
+
+                case ei_anc_center :
+			ancrage.x= x + width/2; 
+			ancrage.y= y + height/2;
+                        break;
+
+                case ei_anc_north :
+			ancrage.x= x + width/2; 
+			ancrage.y= y;
+                        break;
+
+                case ei_anc_northeast :
+			ancrage.x= x + width; 
+			ancrage.y= y;
+                        break;
+
+                case ei_anc_east :
+			ancrage.x= x + width; 
+			ancrage.y= y + height/2;
+                        break;
+
+                case ei_anc_southeast :
+			ancrage.x= x + width; 
+			ancrage.y= y + height;
+                        break;
+
+                case ei_anc_south :
+			ancrage.x= x + width/2; 
+			ancrage.y= y + height;
+                        break;
+
+                case ei_anc_southwest :
+			ancrage.x= x; 
+			ancrage.y= y + height;
+                        break;
+
+                case ei_anc_west :
+			ancrage.x= x; 
+			ancrage.y= y +height/2;
+                        break;
+
+                case ei_anc_northwest :
+			ancrage.x= x; 
+			ancrage.y= y;
+                        break;
+
+                case ei_anc_none :
+			/*cas par défault northwest*/
+			ancrage.x= x; 
+			ancrage.y= y;
+                        break;
+                }
+        }else{
+		/*cas par défault northwest*/
+		ancrage.x= x; 
+		ancrage.y= y;
+	}
+	return ancrage;
+
+}
 
 /* ----------FRAME------------*/
 
@@ -22,19 +98,6 @@ void frame_releasefunc(struct ei_widget_t* widget){
                 ei_frame_t* frame  = (ei_frame_t*) widget; /*on caste le widget pour acceder à toute la zone mémoire*/
                 free(frame);
         }
-	/* free(&(frame->color)); */
-	/* free(&(frame->border_width)); */
-	/* free(&(frame->relief)); */
-
-	/* free(frame->text); */
-
-	/* free(&(frame->text_color)); */
-	/* free(&(frame->text_anchor)); */
-	/* free(frame->img); */
-
-	/* free(frame->img_rect); */
-
-	/* free(&(frame->img_anchor)); */
 }
 
 void frame_drawfunc(struct ei_widget_t*	frame,
@@ -138,6 +201,42 @@ void frame_drawfunc(struct ei_widget_t*	frame,
 
 
 	ei_draw_polygon(surface, points, ((ei_frame_t*) frame)->color, clipper);
+	
+	/*gestion de l'affichage du texte*/
+	
+	if (((ei_frame_t*) frame)->text != NULL){
+
+		ei_point_t ancrage= calcul_point_ancrage(frame, &(((ei_frame_t*) frame)->text_anchor));
+
+		ei_draw_text(surface,
+			     &(ancrage),
+			     ((ei_frame_t*) frame)->text,
+			     ((ei_frame_t*) frame)->text_font,
+			     &(((ei_frame_t*) frame)->text_color),
+			     clipper);
+
+	 /*gestion de l'affichage d'une image*/	
+	}else if (((ei_frame_t*) frame)->img != NULL){
+		printf("img \n");
+
+		ei_rect_t rect_dest;
+		rect_dest.top_left= calcul_point_ancrage(frame, &(((ei_frame_t*) frame)->img_anchor));
+		rect_dest.size.width=(((ei_frame_t*)frame)->img_rect)->size.width;
+		rect_dest.size.width=(((ei_frame_t*)frame))->img_rect->size.height;
+
+		int img_OK=ei_copy_surface(surface,
+					   &rect_dest,
+					   ((ei_frame_t*) frame)->img,
+					   ((ei_frame_t*) frame)->img_rect,
+					   EI_FALSE); /*pas sur !!!!!!!*/
+		if (img_OK == 1){
+			perror("problème d'insertion d'image");
+			exit(1);
+		}
+
+
+	}
+	
 	ei_draw_polygon(pick_surface, points, *(frame->pick_color), clipper);
 
 	hw_surface_unlock(surface);
@@ -227,7 +326,7 @@ void button_drawfunc(struct ei_widget_t* widget,
 
 void button_setdefaultsfunc(struct ei_widget_t* widget)
 {
-        ei_button_t* button  = (ei_button_t*) widget; 
+        ei_button_t* button  = (ei_button_t*) widget;
 	button->color = ei_default_background_color;
 	button->border_width = k_default_button_border_width;
         button->corner_radius = k_default_button_corner_radius;
