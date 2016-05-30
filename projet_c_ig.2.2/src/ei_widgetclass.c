@@ -2,6 +2,7 @@
 #include "ei_classes.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 ei_widgetclass_t *classes = NULL;
 
@@ -18,17 +19,9 @@ struct ei_widgetclass_t* ei_widgetclass_from_name (ei_widgetclass_name_t name){
 	ei_widgetclass_t *cour=classes;
 
 	while (cour != NULL){
-	
-		int32_t i = 0;
-
-		while ( i<20 && name[i] == cour->name[i] && name[i] != '\0'){
-			i++;
-		}
-
-		if (i==20 || (name[i] == '\0' && cour->name[i] == '\0')) {
-			return cour;
-		}
-
+                if (strcmp(cour->name, name) == 0){
+                        return cour;
+                }
 		cour=cour->next;
 	}
 	perror("classe inconnue");

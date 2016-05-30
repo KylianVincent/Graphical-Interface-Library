@@ -1,4 +1,6 @@
 #include "ei_geometrymanager.h"
+#include "ei_geometryclasses.h"
+#include "ei_types.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -6,13 +8,15 @@
 ei_geometrymanager_t *geometrymanagers = NULL;
 
 /* void   ei_geometrymanager_register (ei_geometrymanager_t* geometrymanager); */
-
+void   ei_geometrymanager_register (ei_geometrymanager_t* geometrymanager){
+        //ei_register_placer_manager();
+}
 
 /* ei_geometrymanager_t* ei_geometrymanager_from_name (ei_geometrymanager_name_t name); */
 ei_geometrymanager_t* ei_geometrymanager_from_name (ei_geometrymanager_name_t name){
         ei_geometrymanager_t *cour = geometrymanagers;
         while (cour != NULL){
-                if (strcpy(cour->name, name)){
+                if (strcmp(cour->name, name) == 0){
                         return cour;
                 }
 		cour=cour->next;
@@ -32,7 +36,7 @@ void   ei_geometrymanager_unmap (ei_widget_t*  widget){
         /* Invalidation de la localisation ?? */
         /* TO DO */
 
-        /* Mise à 0 des composantes screen_location */
+        /* Mise à 0 des composantes de screen_location */
         widget->screen_location.top_left.x = 0;
         widget->screen_location.top_left.y = 0;
         widget->screen_location.size.width = 0;
@@ -45,9 +49,8 @@ void    ei_register_placer_manager  (){
         ei_geometrymanager_t *placer = NULL;
         placer = calloc(1, sizeof(ei_geometrymanager_t));
         strcpy(placer->name, "placer");
-        /* Questions à poser sur fonctions*/
-        placer->runfunc = NULL;
-        placer->releasefunc = NULL;
+        placer->runfunc = placer_runfunc;
+        placer->releasefunc = placer_releasefunc;
 
         placer->next = geometrymanagers;
         geometrymanagers = placer;
@@ -75,90 +78,73 @@ void   ei_place   (ei_widget_t*  widget,
         float*   rel_width,
         float*   rel_height){
 
-        /* Gestion de l'affiliation à un geometry manager */
+        /* -- Gestion de l'affiliation à un geometry manager -- */
         if (widget->geom_params == NULL){
                 /* Ajout au register manager */
-                /* TO DO */
-
-                strcpy(widget->geom_params->manager->name, "placer");
+                if ((widget->geom_params = calloc(1, sizeof(struct ei_placer_param_t))) == NULL){
+                        perror("erreur d'allocation mémoire");
+                        exit(1);
+                }
+                widget->geom_params->manager = ei_geometrymanager_from_name("placer");
         } else if (! strcmp(widget->geom_params->manager->name, "placer")){
                 /* Appel de la fonction de release */
-                //*(widget->geom_params->releasefunc)(widget);
+                (*widget->geom_params->manager->releasefunc)(widget);
                 /* Ajout au register manager */
-                /* TO DO */
-
-                strcpy(widget->geom_params->manager->name, "placer");
-        } /* Sinon le widget est déjà géré par le placer */
-
-
-        /* Position */
-        if (x != NULL){
-                widget->screen_location.top_left.x = *x;
-        } else {
-                widget->screen_location.top_left.x = 0;
+                if ((widget->geom_params = calloc(1, sizeof(struct ei_placer_param_t))) == NULL){
+                        perror("erreur d'allocation mémoire");
+                        exit(1);
+                }
+                widget->geom_params->manager = ei_geometrymanager_from_name("placer");
         }
-        if (y != NULL){
-                widget->screen_location.top_left.y = *y;
-        } else {
-                widget->screen_location.top_left.y = 0;
-        }
-
-        if (rel_x != NULL){
-                widget->screen_location.top_left.x += (*rel_x) * widget->parent->screen_location.top_left.x;
-        }
-        if (rel_y != NULL){
-                widget->screen_location.top_left.y += (*rel_y) * widget->parent->screen_location.top_left.y;
-        }
+        /* Sinon le widget est déjà géré par le placer */
         
 
-        /* Taille */
-        if (width != NULL){
-                widget->screen_location.size.width = *width;
+        /* -- Stockage/mise à jour des paramètres -- */
+        ei_placer_param_t *placer_settings = (ei_placer_param_t *) widget->geom_params;
+        if (anchor != NULL){
+                placer_settings->anchor = *anchor;
         } else {
-                widget->screen_location.size.width = widget->requested_size.width;
+                placer_settings->anchor = ei_anc_northwest;
+        }
+        if (x != NULL){
+                placer_settings->x = *x;
+        } else {
+                placer_settings->x = 0;
+        }
+        if (y != NULL){
+                placer_settings->y = *y;
+        } else {
+                placer_settings->y = 0;
+        }
+        if (width != NULL){
+                placer_settings->width = *width;
+        } else {
+                placer_settings->width = widget->requested_size.width;
         }
         if (height != NULL){
-                widget->screen_location.size.height = *height;
+                placer_settings->height = *height;
         } else {
-                widget->screen_location.size.height = widget->requested_size.height;
+                placer_settings->height = widget->requested_size.height;
         }
-
+        if (rel_x != NULL){
+                placer_settings->rel_x = *rel_x;
+        } else {
+                placer_settings->rel_x = 0.0;
+        }
+        if (rel_y != NULL){
+                placer_settings->rel_y = *rel_y;
+        } else {
+                placer_settings->rel_y = 0.0;
+        }
         if (rel_width != NULL){
-                widget->screen_location.size.width += (*rel_width) * widget->parent->screen_location.size.width;
+                placer_settings->rel_width = *rel_width;
+        } else {
+                placer_settings->rel_width = 0.0;
         }
         if (rel_height != NULL){
-                widget->screen_location.size.height += (*rel_height) * widget->parent->screen_location.size.height;
+                placer_settings->rel_height = *rel_height;
+        } else {
+                placer_settings->rel_height = 0.0;
         }
-
-        /* Anchor */
-        /* Mise à jour de la position : top_left */
-        if (anchor != NULL){
-                switch (*anchor) {
-                        /* TO DO */
-                case ei_anc_center :
-                        break;
-                case ei_anc_north :
-                        break;
-                case ei_anc_northeast :
-                        break;
-                case ei_anc_east :
-                        break;
-                case ei_anc_southeast :
-                        break;
-                case ei_anc_south :
-                        break;
-                case ei_anc_southwest :
-                        break;
-                case ei_anc_west :
-                        break;
-                case ei_anc_northwest :
-                        /* Rien à faire, calcul initial valide */
-                        break;
-                case ei_anc_none :
-                        break;
-                }
-        }
-        /* Default to : ei_anc_northwest, le point est donc bien placé par défaut*/
-                
 }
 
