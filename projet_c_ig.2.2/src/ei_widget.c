@@ -14,7 +14,7 @@ ei_color_t * def_pick_color(uint32_t pick_id)
 {
         /* Ici, on retourne une couleur dépendant du pick_id */
         ei_color_t* couleur = calloc(1, sizeof(ei_color_t));
-        char* tab = &pick_id;
+        char* tab = (char*) &pick_id;
         couleur->red = tab[0];
         couleur->green = tab[1];
         couleur->blue = tab[2];
@@ -63,12 +63,12 @@ void ei_widget_destroy(ei_widget_t* widget)
         if (widget->parent != NULL) 
         {
                 ei_widget_t* prec = widget->parent->children_head;
-                while (prec != widget && prec->next != widget)
+                while (prec != widget && prec->next_sibling != widget)
                 {
-                        prec = prec->next;
+                        prec = prec->next_sibling;
                 }
                 if (prec == widget) {
-                        widget->parent->children_head = widget->next;
+                        widget->parent->children_head = widget->next_sibling;
                         prec = NULL;
                 }
                 if (widget->parent->children_tail == widget) {
