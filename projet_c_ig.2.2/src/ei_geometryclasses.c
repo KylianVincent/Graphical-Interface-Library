@@ -14,8 +14,10 @@ void placer_screen_location(struct ei_widget_t *widget){
         widget->screen_location.top_left.x = placer_settings->x;
         widget->screen_location.top_left.y = placer_settings->y;
         /* Pour la position relative le facteur s'applique à la largeur ou hauteur du parent */
-        widget->screen_location.top_left.x += widget->parent->screen_location.top_left.x + (placer_settings->rel_x) * widget->parent->screen_location.size.width;
-        widget->screen_location.top_left.y += widget->parent->screen_location.top_left.y + (placer_settings->rel_y) * widget->parent->screen_location.size.height;
+        if (widget->parent != NULL){
+                widget->screen_location.top_left.x += widget->parent->screen_location.top_left.x + (placer_settings->rel_x) * widget->parent->screen_location.size.width;
+                widget->screen_location.top_left.y += widget->parent->screen_location.top_left.y + (placer_settings->rel_y) * widget->parent->screen_location.size.height;
+        }
 
         /* -- Taille -- */
         /*** TO DO : Utilisation de la taille relative ? Priorité face à requested size ? ***/
@@ -32,6 +34,7 @@ void placer_screen_location(struct ei_widget_t *widget){
         widget->screen_location.top_left.x = anchor_point.x;
         widget->screen_location.top_left.y = anchor_point.y;
 
+
         /* Test de la positivité des valeurs */
         if ((widget->screen_location.top_left.x < 0)
            || (widget->screen_location.top_left.y < 0)
@@ -45,7 +48,7 @@ void placer_screen_location(struct ei_widget_t *widget){
 /* void placer_runfunc(struct ei_widget_t *widget); */
 void placer_runfunc(struct ei_widget_t *widget){
         /* Calcul de la géométrie sur le widget ainsi que ses frères et fils */
-        if ((widget == NULL) || (! strcmp(widget->geom_params->manager->name, "placer"))){
+        if ((widget == NULL) || (strcmp(widget->geom_params->manager->name, "placer") != 0)){
                 return;
         }
         placer_screen_location(widget);

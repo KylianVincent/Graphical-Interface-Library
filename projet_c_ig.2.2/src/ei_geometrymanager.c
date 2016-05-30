@@ -16,7 +16,7 @@ void   ei_geometrymanager_register (ei_geometrymanager_t* geometrymanager){
 ei_geometrymanager_t* ei_geometrymanager_from_name (ei_geometrymanager_name_t name){
         ei_geometrymanager_t *cour = geometrymanagers;
         while (cour != NULL){
-                if (strcpy(cour->name, name)){
+                if (strcmp(cour->name, name) == 0){
                         return cour;
                 }
 		cour=cour->next;
@@ -36,7 +36,7 @@ void   ei_geometrymanager_unmap (ei_widget_t*  widget){
         /* Invalidation de la localisation ?? */
         /* TO DO */
 
-        /* Mise à 0 des composantes screen_location */
+        /* Mise à 0 des composantes de screen_location */
         widget->screen_location.top_left.x = 0;
         widget->screen_location.top_left.y = 0;
         widget->screen_location.size.width = 0;
@@ -78,7 +78,7 @@ void   ei_place   (ei_widget_t*  widget,
         float*   rel_width,
         float*   rel_height){
 
-        /* Gestion de l'affiliation à un geometry manager */
+        /* -- Gestion de l'affiliation à un geometry manager -- */
         if (widget->geom_params == NULL){
                 /* Ajout au register manager */
                 if ((widget->geom_params = calloc(1, sizeof(struct ei_placer_param_t))) == NULL){
@@ -98,7 +98,8 @@ void   ei_place   (ei_widget_t*  widget,
         }
         /* Sinon le widget est déjà géré par le placer */
         
-        /* Stockage/mise à jour des paramètres */
+
+        /* -- Stockage/mise à jour des paramètres -- */
         ei_placer_param_t *placer_settings = (ei_placer_param_t *) widget->geom_params;
         if (anchor != NULL){
                 placer_settings->anchor = *anchor;
