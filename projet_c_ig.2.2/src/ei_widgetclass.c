@@ -55,7 +55,23 @@ void   ei_frame_register_class  ()
 }
 
 /* void   ei_button_register_class  (); */
-
+void ei_button_register_class()
+{
+        ei_widgetclass_t* button = NULL;
+        button = calloc(1, sizeof(ei_widgetclass_t));
+        if (button == NULL) {
+                perror("Impossible d'allouer la mémoire dédiée à la classe button.\n");
+                exit(1);
+        }
+        strcpy(button->name, "button");
+        button->allocfunc = button_allocfunc;
+        button->releasefunc = button_releasefunc;
+        button->drawfunc = button_drawfunc;
+        button->setdefaultsfunc = button_setdefaultsfunc;
+        //button->geomnotifyfunc = button_geomnotifyfunc;
+        button->next = classes;
+        classes = button;
+}
 
 /* void   ei_toplevel_register_class  (); */
 

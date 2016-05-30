@@ -13,11 +13,11 @@ uint32_t free_pick = 0;
 ei_color_t * def_pick_color(uint32_t pick_id)
 {
         /* Ici, on retourne une couleur dépendant du pick_id */
-        /* N'a pas trop d'importance mais bien pour le débug */
         ei_color_t* couleur = calloc(1, sizeof(ei_color_t));
-        couleur->red = (char) 7*pick_id;
-        couleur->green = (char) 19*pick_id;
-        couleur->blue = (char) 41*pick_id;
+        char* tab = &pick_id;
+        couleur->red = tab[0];
+        couleur->green = tab[1];
+        couleur->blue = tab[2];
         couleur->alpha = 0xFF;
         return couleur;
 }
@@ -56,6 +56,29 @@ ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name, ei_widget_t* pa
 /* void ei_widget_destroy(ei_widget_t* widget); */
 void ei_widget_destroy(ei_widget_t* widget)
 {
+        if (widget == NULL) {
+                return;
+        }
+        /* On met a jour les fils du parent et les next_sibling des fils */
+        if (widget->parent != NULL) 
+        {
+                ei_widget_t* prec = widget->parent->children_head;
+                while (prec != widget && prec->next != widget)
+                {
+                        prec = prec->next;
+                }
+                if (prec == widget) {
+                        widget->parent->children_head = widget->next;
+                        prec = NULL;
+                }
+                if (widget->parent->children_tail == widget) {
+                        widget->parent->children_tail = prec;
+                }
+                if (prec != NULL) {
+                        prec->next_sibling = widget->next_sibling;
+                }
+        }
+        /* On parcourt les fils du widget et on libere widget */
         ei_widget_t* cour = widget->children_head;
         (*widget->wclass->releasefunc)(widget);
         while (cour != NULL)
@@ -70,12 +93,8 @@ void ei_widget_destroy(ei_widget_t* widget)
 /* ei_widget_t* ei_widget_pick(ei_point_t*	where); */
 
 
-/* void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,  */
-/*                          const ei_color_t* color, int* border_width,  */
-/*                          ei_relief_t* relief, char** text, ei_font_t* text_font, */
-/*                          ei_color_t* text_color, ei_anchor_t* text_anchor,  */
-/*                          ei_surface_t* img, ei_rect_t** img_rect,  */
-/*                          ei_anchor_t* img_anchor); */
+/* --------------- EI_FRAME_CONFIGURE ---------------- */
+
 void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
                          const ei_color_t* color, int* border_width,
                          ei_relief_t* relief, char** text, ei_font_t* text_font,
@@ -84,101 +103,45 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
                          ei_anchor_t* img_anchor){
 
         ei_frame_t* frame = (ei_frame_t*) widget;        
-        
-/* On peut simplifier le code ce-dessous, je le laisse au cas ou */
         /* Color */
-        if (color == NULL){
-                if (/*** Non définie ***/ false){
-                        frame->color = ei_default_background_color;
-                }
-        } else {
+        if (color != NULL){
                 frame->color = *color;
         }
-        
         /* Border */
-        if (border_width == NULL){
-                if (/*** Non définie ***/ false){
-                        frame->border_width = 0;
-                }
-        } else {
+        if (border_width != NULL){
                 frame->border_width = *border_width;
         }
-
         /* Relief */
-        if (relief == NULL){
-                if (/*** Non définie ***/ false){
-                        frame->relief = ei_relief_none;
-                }
-        } else {
+        if (relief != NULL){
                 frame->relief = *relief;
         }
-
         /* Text */
         if ((text != NULL) && (img != NULL)){
                 perror("Only one of the parameter \"text\" and \"img\" should be used");
                 exit(1);
         }
-        if (text == NULL){
-                if (/*** Non définie ***/ false){
-                        frame->text = NULL;
-                }
-        } else {
+        if (text != NULL){
                 frame->text = *text;
-                
-                /* Text -- Font */
-                if (text_font == NULL){
-                        if (/*** Non définie ***/ false){
-                                frame->text_font = ei_default_font;
-                        }
-                } else {
+                if (text_font != NULL){
                         frame->text_font = *text_font;
                 }
-                /* Text -- Color */
-                if (text_color == NULL){
-                        if (/*** Non définie ***/ false){
-                                frame->text_color = ei_font_default_color;
-                        }
-                } else {
+                if (text_color != NULL){
                         frame->text_color = *text_color;
                 }
-                /* Text -- Anchor */
-                if (text_anchor == NULL){
-                        if (/*** Non définie ***/ false){
-                                frame->text_anchor = ei_anc_center;
-                        }
-                } else {
+                if (text_anchor != NULL){
                         frame->text_anchor = *text_anchor;
                 }
         }
-
         /* Image */
-        if (img == NULL){
-                if (/*** Non définie ***/ false){
-                        frame->img = NULL;
-                }
-        } else {
+        if (img != NULL){
                 frame->img = *img;
-                
-                /* Img -- Rect */
-                if (img_rect == NULL){
-                        if (/*** Non définie ***/ false){
-                                frame->img_rect = NULL;
-                        }
-                } else {
+                if (img_rect != NULL){
                         frame->img_rect = *img_rect;
                 }
-                /* Img -- Anchor */
-                if (img_anchor == NULL){
-                        if (/*** Non définie ***/ false){
-                                frame->img_anchor = ei_anc_center;
-                        }
-                } else {
+                if (img_anchor != NULL){
                         frame->img_anchor = *img_anchor;
                 }
         }
-
-
-        
         /* Size */
         if (requested_size == NULL){
                 if (text != NULL){
@@ -200,17 +163,32 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
 }
 
 
-/* void ei_button_configure(ei_widget_t*widget, ei_size_t*requested_size, */
-/*                          const ei_color_t*color, int*border_width, */
-/*                          int*corner_radius, ei_relief_t*relief, */
-/*                          char**text, ei_font_t*text_font, */
-/*                          ei_color_t*text_color, ei_anchor_t*text_anchor, */
-/*                          ei_surface_t*img, ei_rect_t**img_rect, */
-/*                          ei_anchor_t*img_anchor, ei_callback_t*callback, */
-/*                          void**user_param); */
+/* -------------- EI_BUTTON_CONFIGURE ---------------*/
+
+void ei_button_configure(ei_widget_t*widget, ei_size_t*requested_size, 
+                         const ei_color_t*color, int*border_width,
+                         int*corner_radius, ei_relief_t*relief,
+                         char**text, ei_font_t*text_font,
+                         ei_color_t*text_color, ei_anchor_t*text_anchor,
+                         ei_surface_t*img, ei_rect_t**img_rect,
+                         ei_anchor_t*img_anchor, ei_callback_t*callback,
+                         void**user_param)
+{
+        ei_frame_configure(widget, requested_size, color, border_width, relief, text, text_font, text_color, text_anchor, img, img_rect, img_anchor);
+        ei_button_t *button = (ei_button_t*) widget;
+        if (corner_radius != NULL) {
+                button->corner_radius = *corner_radius;
+        }
+        if (callback != NULL) {
+                button->callback = *callback;
+        }
+        if (user_param != NULL) {
+                button->user_param = *user_param;
+        }
+}
 
 
-/* void ei_toplevel_configure(ei_widget_t*widget, ei_size_t*requested_size, */
+/* void ei_toplevel_configure(ei_widget_t*widget, ei_size_t*requested_size,
 /*                            ei_color_t*color, int*border_width, char**title, */
 /*                            ei_bool_t*closable, ei_axis_set_t*resizable,   */
 /*                            ei_size_t**min_size); */

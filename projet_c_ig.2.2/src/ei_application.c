@@ -24,6 +24,7 @@ void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen)
 	main_window_picking=hw_surface_create(main_window,main_window_size,EI_TRUE);
         /* Creation du widget frame */
         ei_frame_register_class();
+        ei_button_register_class();
 
         /* Initialisation de root_frame */
         root_frame = ei_widget_create("frame", NULL);
