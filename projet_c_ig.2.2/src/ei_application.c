@@ -3,6 +3,7 @@
 #include "ei_utils.h"
 #include "ei_types.h"
 #include "ei_widgetclass.h"
+#include "ei_geometryclasses.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -22,12 +23,16 @@ void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen)
         hw_init();
 	main_window = hw_create_window(main_window_size, fullscreen);
 	main_window_picking=hw_surface_create(main_window,main_window_size,EI_TRUE);
+        /* Creation du geometry manager "placer" */
+        ei_register_placer_manager();
+        
         /* Creation du widget frame */
         ei_frame_register_class();
 
         /* Initialisation de root_frame */
         root_frame = ei_widget_create("frame", NULL);
         ei_frame_configure(root_frame, main_window_size, &ei_default_background_color, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+        ei_place(root_frame, NULL, NULL, NULL, &(main_window_size->width), &(main_window_size->height), NULL, NULL, NULL, NULL);
         
 }
 
@@ -44,6 +49,8 @@ void ei_app_run_rec(ei_widget_t* w)
         if (w == NULL) {
                 return;
         }
+        
+        (*w->geom_params->manager->runfunc)(w);
         if (w->parent != NULL) {
                 (*w->wclass->drawfunc)(w, main_window, main_window_picking, w->parent->content_rect);
         }
