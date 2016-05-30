@@ -6,8 +6,8 @@
 #include "ei_utils.h"
 
 #ifndef M_PI
- #define M_PI 3.14159265358979323846
-#endif 
+#define M_PI 3.141592653589793
+#endif
 
 /*Definition du type ei_frame_t*/
 
@@ -42,8 +42,13 @@ typedef struct ei_button_t{
 	ei_anchor_t		img_anchor;
         int                     corner_radius;
         ei_callback_t           callback;
+
         void*                   user_param;
 }ei_button_t;
+/*fonctions auxiliaires globales*/
+
+ei_point_t calcul_point_ancrage(struct ei_widget_t* widget, ei_anchor_t *anchor); 
+/*si ancrage vaut null ou ei_anc_none, alors cas pas défault (northwest)*/
 
 
 /*Definition de fonctions spécifiques à la classe frame*/
@@ -65,7 +70,6 @@ void frame_setdefaultsfunc(struct ei_widget_t* widget);
 void* button_allocfunc ();
 
 void button_releasefunc (struct ei_widget_t* widget);
-
 
 void button_drawfunc(struct ei_widget_t* widget,
 		     ei_surface_t		surface,
