@@ -139,7 +139,21 @@ void draw_img(ei_widget_t *widget, ei_surface_t surface ){
                 int w1 = widget->content_rect->top_left.x+widget->content_rect->size.width-dest.top_left.x-frame->border_width;
                 int w2 = frame->img_rect->size.width;
                 dest.size.width = (w1<=w2)?w1:w2;
+                /* On doit aussi vérifier que dest.top_left appartient a content_rect */
+                if (dest.top_left.x < widget->content_rect->top_left.x) {
+                        int temp = widget->content_rect->top_left.x - dest.top_left.x;
+                        dest.size.width -= temp;
+                        src.top_left.x += temp;
+                        dest.top_left.x = widget->content_rect->top_left.x;
+                }
+                if (dest.top_left.y < widget->content_rect->top_left.y) {
+                        int temp = widget->content_rect->top_left.y - dest.top_left.y;
+                        dest.size.height -= temp;
+                        src.top_left.y += temp;
+                        dest.top_left.y = widget->content_rect->top_left.y;
+                }
                 src.size = dest.size;
+
                 int erreur=ei_copy_surface(surface, &dest, frame->img, &src, EI_TRUE);
                 if (erreur){
                         perror("Problème d'insertion d'image.\n");
@@ -430,11 +444,20 @@ void button_drawfunc(struct ei_widget_t* widget,
                 rayon_corps = 0;
         }
         ei_linked_point_t* corps = rounded_frame(*(widget->content_rect), rayon_corps, 0);
+        /* Calcule si le button est enfoncé ou non */
+        int8_t signe;
+        if (button->relief ==1){
+                signe = 1;
+        }else if  (button->relief ==2){
+                signe= -1;
+        }else{
+                signe=0;
+        }
         /* On trace les surfaces correspondantes */
         hw_surface_lock(surface);
         hw_surface_lock(pick_surface);
-        ei_draw_polygon(surface, relief_sup, eclaircir_assombrir(button->color,100,1),  clipper);
-        ei_draw_polygon(surface, relief_inf, eclaircir_assombrir(button->color,100,-1),  clipper);
+        ei_draw_polygon(surface, relief_sup, eclaircir_assombrir(button->color,100,signe),  clipper);
+        ei_draw_polygon(surface, relief_inf, eclaircir_assombrir(button->color,100,-signe),  clipper);
         ei_draw_polygon(surface, corps, button->color,  clipper);
         /* On trace aussi dans pick_surface */
         ei_draw_polygon(pick_surface, relief_inf, *(widget->pick_color),  clipper);
@@ -466,7 +489,7 @@ void button_setdefaultsfunc(struct ei_widget_t* widget)
 	widget->content_rect->size.width = widget->screen_location.size.width - button->border_width * 2;
 	widget->content_rect->size.height = widget->screen_location.size.height - button->border_width * 2;
         button->corner_radius = k_default_button_corner_radius;
-	button->relief = ei_relief_none;
+	button->relief = ei_relief_raised;
 	button->text = NULL;
 	button->text_font = ei_default_font;
 	button->text_color = ei_font_default_color;

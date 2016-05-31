@@ -157,6 +157,12 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
                 if (frame->img_rect->top_left.y+frame->img_rect->size.height > dim_img.height) {
                         frame->img_rect->size.height = dim_img.height-frame->img_rect->top_left.y;
                 }
+                if (frame->img_rect->top_left.x < 0) {
+                        frame->img_rect->top_left.x = 0;
+                }
+                if (frame->img_rect->top_left.y < 0) {
+                        frame->img_rect->top_left.y = 0;
+                }
         }
         if (img_anchor != NULL && frame->img != NULL){
                 frame->img_anchor = *img_anchor;
