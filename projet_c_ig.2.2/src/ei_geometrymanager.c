@@ -29,14 +29,16 @@ ei_geometrymanager_t* ei_geometrymanager_from_name (ei_geometrymanager_name_t na
 
 /* void   ei_geometrymanager_unmap (ei_widget_t*  widget); */
 void   ei_geometrymanager_unmap (ei_widget_t*  widget){
-        /* Release du widget */
-        (*widget->geom_params->manager->releasefunc)(widget);
+        if (widget->geom_params != NULL){
+                /* Release du widget */
+                (*widget->geom_params->manager->releasefunc)(widget);
         
-        /* Libération du champ dédié dans le widget, on ne libère pas le geometry manager lié qui peut être utilisé */
-        free(widget->geom_params);
+                /* Libération du champ dédié dans le widget, on ne libère pas le geometry manager lié qui peut être utilisé */
+                free(widget->geom_params);
 
-        /* Invalidation de la localisation ?? */
-        /* TO DO */
+                /* Invalidation de la localisation */
+                widget->geom_params = NULL;
+        }
 
         /* Mise à 0 des composantes de screen_location */
         widget->screen_location.top_left.x = 0;
@@ -88,7 +90,7 @@ void   ei_place   (ei_widget_t*  widget,
                         exit(1);
                 }
                 widget->geom_params->manager = ei_geometrymanager_from_name("placer");
-        } else if (! strcmp(widget->geom_params->manager->name, "placer")){
+        } else if (strcmp(widget->geom_params->manager->name, "placer") != 0){
                 /* Appel de la fonction de release */
                 (*widget->geom_params->manager->releasefunc)(widget);
                 /* Ajout au register manager */
