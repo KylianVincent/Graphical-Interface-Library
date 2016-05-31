@@ -65,7 +65,7 @@ endif
 # Main target of the makefile. To build specific targets, call "make <target_name>"
 
 TARGETS		=	${LIBEI} \
-			minimal frame button hello_world \
+			minimal frame frame_button button hello_world \
 			puzzle minesweeper two048 parsing
 all : ${TARGETS}
 
@@ -91,6 +91,14 @@ frame : ${OBJDIR}/frame.o ${LIBEIOBJS} ${LIBEIBASE} ${LIBEI}
 
 ${OBJDIR}/frame.o : ${TESTS}/frame.c
 	${CC} ${CCFLAGS} ${INCFLAGS} ${TESTS}/frame.c -o ${OBJDIR}/frame.o
+
+# frame_button
+
+frame_button : ${OBJDIR}/frame_button.o ${LIBEIOBJS} ${LIBEIBASE} ${LIBEI}
+	${LINK} -o frame_button ${OBJDIR}/frame_button.o ${LIBEIOBJS} ${LIBEI} ${LIBS}
+
+${OBJDIR}/frame_button.o : ${TESTS}/frame_button.c
+	${CC} ${CCFLAGS} ${INCFLAGS} ${TESTS}/frame_button.c -o ${OBJDIR}/frame_button.o
 
 # button
 

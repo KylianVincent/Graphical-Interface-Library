@@ -1,5 +1,6 @@
 #include "ei_classes.h"
 #include <math.h>
+
 /*-------FONCTIONS AUXILIAIRES-------------*/
 
 ei_point_t calcul_point_ancrage(struct ei_widget_t* widget, ei_anchor_t *anchor){
@@ -98,22 +99,26 @@ void draw_texte(ei_widget_t *widget, ei_surface_t surface, ei_rect_t *clipper){
 
 
 void draw_img(ei_widget_t *widget, ei_surface_t surface ){
-
-	ei_frame_t *frame=(ei_frame_t*) widget;
-	ei_rect_t rect_dest;
-	rect_dest.top_left= calcul_point_ancrage(widget, &(frame->img_anchor));
-	rect_dest.size.width=frame->img_rect->size.width;
-	rect_dest.size.height=frame->img_rect->size.height;
-
-	int img_OK=ei_copy_surface(surface,
-				   &rect_dest,
-				   frame->img,
-				   frame->img_rect,
-				   EI_FALSE); /*pas sur !!!!!!!*/
-	if (img_OK == 1){
-		perror("problème d'insertion d'image");
-		exit(1);
-	}
+        ei_frame_t *frame=(ei_frame_t*) widget;
+        if (frame->img != NULL) {
+                /* On calcule les rectangles à fournir à ei_copy_surface */
+                /* Car elle doit prendre des rectangles de même taille */
+                ei_rect_t dest, src;
+                dest.top_left = ancrage_text_img(widget);
+                src.top_left = frame->img_rect->top_left;
+                int h1 = widget->content_rect->top_left.y+widget->content_rect->size.height-dest.top_left.y-frame->border_width;
+                int h2 = frame->img_rect->size.height;
+                dest.size.height = (h1<=h2)?h1:h2;
+                int w1 = widget->content_rect->top_left.x+widget->content_rect->size.width-dest.top_left.x-frame->border_width;
+                int w2 = frame->img_rect->size.width;
+                dest.size.width = (w1<=w2)?w1:w2;
+                src.size = dest.size;
+                int erreur=ei_copy_surface(surface, &dest, frame->img, &src, EI_TRUE);
+                if (erreur){
+                        perror("Problème d'insertion d'image.\n");
+                        exit(1);
+                }
+        }
 }
 
 
@@ -148,6 +153,9 @@ void frame_releasefunc(struct ei_widget_t* widget){
         {
                 free(widget->pick_color);
                 ei_frame_t* frame  = (ei_frame_t*) widget; /*on caste le widget pour acceder à toute la zone mémoire*/
+                if (frame->img_rect != NULL) {
+                        free(frame->img_rect);
+                }
                 free(frame);
         }
 }
@@ -253,9 +261,14 @@ void* button_allocfunc ()
 
 void button_releasefunc (struct ei_widget_t* widget)
 {
-        free(widget->pick_color);
-        ei_button_t* button = (ei_button_t*) widget;
-        free(button);
+        if (widget != NULL) {
+                free(widget->pick_color);
+                ei_button_t* button = (ei_button_t*) widget;
+                if (button->img_rect != NULL) {
+                        free(button->img_rect);
+                }
+                free(button);
+        }
 }
 
 /* Trace un arc de points avec c:centre / r:rayon / a1:angle de début / a2:angle de fin */
@@ -392,23 +405,31 @@ void button_drawfunc(struct ei_widget_t* widget,
 {
         /* On initialise les listes de points */
         ei_button_t* button = (ei_button_t*) widget;
-        ei_linked_point_t* corps = rounded_frame(widget->screen_location, button->corner_radius, 0);
-        ei_rect_t rect_border = widget->screen_location;
-        rect_border.top_left.x -= button->border_width;
-        rect_border.top_left.y -= button->border_width;
-        rect_border.size.height += button->border_width * 2;
-        rect_border.size.width += button->border_width * 2;
-        int rayon_border = (button->corner_radius > 0)?button->corner_radius+button->border_width:0;
-        ei_linked_point_t* relief_sup = rounded_frame(rect_border, rayon_border, 1);
-        ei_linked_point_t* relief_inf = rounded_frame(rect_border, rayon_border, -1);
+        ei_linked_point_t* relief_sup = rounded_frame(widget->screen_location, button->corner_radius, 1);
+        ei_linked_point_t* relief_inf = rounded_frame(widget->screen_location, button->corner_radius, -1);
+        ei_rect_t rect_corps = widget->screen_location;
+        rect_corps.top_left.x += button->border_width;
+        rect_corps.top_left.y += button->border_width;
+        rect_corps.size.height -= button->border_width * 2;
+        rect_corps.size.width -= button->border_width * 2;
+        int rayon_corps = button->corner_radius - button->border_width;
+        if (rayon_corps<0) {
+                rayon_corps = 0;
+        }
+        ei_linked_point_t* corps = rounded_frame(rect_corps, rayon_corps, 0);
         /* On trace les surfaces correspondantes */
         hw_surface_lock(surface);
         hw_surface_lock(pick_surface);
         ei_draw_polygon(surface, relief_sup, eclaircir_assombrir(button->color,100,1),  clipper);
-        ei_draw_polygon(pick_surface, relief_sup, *(widget->pick_color),  clipper);
         ei_draw_polygon(surface, relief_inf, eclaircir_assombrir(button->color,100,-1),  clipper);
-        ei_draw_polygon(pick_surface, relief_inf, *(widget->pick_color),  clipper);
         ei_draw_polygon(surface, corps, button->color,  clipper);
+        /* On trace aussi dans pick_surface */
+        ei_draw_polygon(pick_surface, relief_inf, *(widget->pick_color),  clipper);
+        ei_draw_polygon(pick_surface, relief_sup, *(widget->pick_color),  clipper);
+        /* On affiche le texte et les images */
+        draw_texte(widget, surface, widget->content_rect);
+        //draw_img(widget, surface);
+
         hw_surface_unlock(surface);
         hw_surface_unlock(pick_surface);
         hw_surface_update_rects(surface, NULL);
