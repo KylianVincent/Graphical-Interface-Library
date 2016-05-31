@@ -61,7 +61,7 @@ typedef struct ei_toplevel_t{
 
 /*fonctions auxiliaires globales*/
 
-ei_point_t calcul_point_ancrage(struct ei_widget_t* widget, ei_anchor_t *anchor); 
+ei_point_t ancrage_text_img(struct ei_widget_t* widget); 
 /*si ancrage vaut null ou ei_anc_none, alors cas pas défault (northwest)*/
 
 

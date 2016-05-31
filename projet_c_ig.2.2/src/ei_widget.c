@@ -41,14 +41,15 @@ ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name, ei_widget_t* pa
                         parent->children_head = widget;
                         parent->children_tail = widget;
                 }
-                widget->screen_location.top_left = widget->parent->screen_location.top_left;
+                widget->screen_location.top_left = widget->parent->content_rect->top_left;
         }
         else 
         {
                 widget->screen_location.top_left = ei_point_zero();
         }
         /* widget->requested_size et widget->screen_location->size sont initialisés à 0 */
-        widget->content_rect = &(widget->screen_location);
+	
+	widget->content_rect = &(widget->screen_location);
         (*wclass->setdefaultsfunc)(widget);
         return widget;
 }
@@ -106,11 +107,7 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
         /* Color */
         if (color != NULL){
                 frame->color = *color;
-        }
-        /* Border */
-        if (border_width != NULL){
-                frame->border_width = *border_width;
-        }
+        }   
         /* Relief */
         if (relief != NULL){
                 frame->relief = *relief;
@@ -135,23 +132,50 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
         /* Image */
         if (img != NULL){
                 frame->img = *img;
-                if (img_rect != NULL){
-                        frame->img_rect = *img_rect;
+                if (img_rect == NULL) {
+                        if (frame->img_rect == NULL) {
+                                frame->img_rect = calloc(1, sizeof(ei_rect_t));
+                        }
+                        frame->img_rect->size = hw_surface_get_size(*img);
+                        frame->img_rect->top_left = ei_point_zero();
                 }
-                if (img_anchor != NULL){
-                        frame->img_anchor = *img_anchor;
+                if (img_anchor == NULL) {
+                        frame->img_anchor = ei_anc_center;
                 }
+        }
+        if (img_rect != NULL && frame->img != NULL){
+                if (frame->img_rect == NULL) {
+                        frame->img_rect = calloc(1, sizeof(ei_rect_t));
+                }
+                *(frame->img_rect) = **img_rect;
+                /* On vérifie que le rectangle ne dépasse pas l'image */
+                /* Sinon on le tronque pour éviter problèmes dans draw_img */
+                ei_size_t dim_img = hw_surface_get_size(frame->img);
+                if (frame->img_rect->top_left.x+frame->img_rect->size.width > dim_img.width) {
+                        frame->img_rect->size.width = dim_img.width-frame->img_rect->top_left.x;
+                }
+                if (frame->img_rect->top_left.y+frame->img_rect->size.height > dim_img.height) {
+                        frame->img_rect->size.height = dim_img.height-frame->img_rect->top_left.y;
+                }
+        }
+        if (img_anchor != NULL && frame->img != NULL){
+                frame->img_anchor = *img_anchor;
         }
         /* Size */
         if (requested_size == NULL){
-                if (text != NULL){
+                if (img != NULL){
                         /* Taille minimale pour l'image */
-                        widget->requested_size = hw_surface_get_size(img);
+                        widget->requested_size = frame->img_rect->size;
+                        widget->requested_size.height += frame->border_width*2;
+                        widget->requested_size.width += frame->border_width*2;
                         widget->screen_location.size = widget->requested_size;
                 } 
-                if (img != NULL) {
+                if (text != NULL) {
                         /* Taille minimale pour le texte*/
-                        hw_text_compute_size(frame->text, frame->text_font, &(widget->requested_size.height), &(widget->requested_size.width));
+                        hw_text_compute_size(frame->text, frame->text_font, &(widget->requested_size.width), &(widget->requested_size.height));
+                        /* On prend en compte les bodures */
+                        widget->requested_size.height += frame->border_width*2;
+                        widget->requested_size.width += frame->border_width*2;
                         widget->screen_location.size = widget->requested_size;
                 }
                 /* Le cas : text != NULL et img != NULL est impossible (test antérieur) */
@@ -159,7 +183,20 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
                 widget->requested_size = *requested_size;
                 widget->screen_location.size = widget->requested_size;
         }
-        
+	/* Border */
+        if (border_width != NULL){
+
+		int b = *border_width;
+                frame->border_width =b;
+
+		if (widget->content_rect == &(widget->screen_location)){
+			widget->content_rect=calloc(1, sizeof(ei_rect_t));
+		}
+		widget->content_rect->top_left.x= widget->screen_location.top_left.x + b;
+		widget->content_rect->top_left.y= widget->screen_location.top_left.y + b;
+		widget->content_rect->size.width= widget->screen_location.size.width -2*b;
+		widget->content_rect->size.height= widget->screen_location.size.height -2*b;
+	}      
 }
 
 
@@ -188,7 +225,7 @@ void ei_button_configure(ei_widget_t*widget, ei_size_t*requested_size,
 }
 
 
-/* void ei_toplevel_configure(ei_widget_t*widget, ei_size_t*requested_size,
+/* void ei_toplevel_configure(ei_widget_t*widget, ei_size_t*requested_size, */
 /*                            ei_color_t*color, int*border_width, char**title, */
 /*                            ei_bool_t*closable, ei_axis_set_t*resizable,   */
 /*                            ei_size_t**min_size); */
