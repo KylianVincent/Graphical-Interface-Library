@@ -50,13 +50,18 @@ void ei_app_run_rec(ei_widget_t* w)
         if (w == NULL) {
                 return;
         }
-        
+
+        if (w->geom_params != NULL){
+        /* Calcul de la géométrie du widget */
         (*w->geom_params->manager->runfunc)(w);
-        if (w->parent != NULL) {
-                (*w->wclass->drawfunc)(w, main_window, main_window_picking, w->parent->content_rect);
-        }
-        else {
-                (*w->wclass->drawfunc)(w, main_window, main_window_picking, w->content_rect);
+
+        /* Dessin du widget */
+                if (w->parent != NULL) {
+                        (*w->wclass->drawfunc)(w, main_window, main_window_picking, w->parent->content_rect);
+                }
+                else {
+                        (*w->wclass->drawfunc)(w, main_window, main_window_picking, w->content_rect);
+                }
         }
         ei_widget_t* cour = w->children_head;
         while (cour != NULL) {

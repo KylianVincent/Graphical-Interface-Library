@@ -5,6 +5,80 @@
 #include <string.h>
 
 
+ei_point_t calcul_point_ancrage(struct ei_widget_t* widget, ei_anchor_t *anchor){
+
+	/*simplification expressions*/
+
+	int x=widget->screen_location.top_left.x; 
+	int y=widget->screen_location.top_left.y;
+
+	int width=(widget->screen_location.size).width;
+	int height=(widget->screen_location.size).height;
+
+	ei_point_t ancrage;
+
+	if (anchor != NULL){
+                switch (*anchor) {
+
+                case ei_anc_center :
+			ancrage.x= x + width/2; 
+			ancrage.y= y + height/2;
+                        break;
+
+                case ei_anc_north :
+			ancrage.x= x + width/2; 
+			ancrage.y= y;
+                        break;
+
+                case ei_anc_northeast :
+			ancrage.x= x + width; 
+			ancrage.y= y;
+                        break;
+
+                case ei_anc_east :
+			ancrage.x= x + width; 
+			ancrage.y= y + height/2;
+                        break;
+
+                case ei_anc_southeast :
+			ancrage.x= x + width; 
+			ancrage.y= y + height;
+                        break;
+
+                case ei_anc_south :
+			ancrage.x= x + width/2; 
+			ancrage.y= y + height;
+                        break;
+
+                case ei_anc_southwest :
+			ancrage.x= x; 
+			ancrage.y= y + height;
+                        break;
+
+                case ei_anc_west :
+			ancrage.x= x; 
+			ancrage.y= y +height/2;
+                        break;
+
+                case ei_anc_northwest :
+			ancrage.x= x; 
+			ancrage.y= y;
+                        break;
+
+                case ei_anc_none :
+			/*cas par défault northwest*/
+			ancrage.x= x; 
+			ancrage.y= y;
+                        break;
+                }
+        }else{
+		/*cas par défault northwest*/
+		ancrage.x= x; 
+		ancrage.y= y;
+	}
+	return ancrage;
+}
+
 
 void placer_screen_location(struct ei_widget_t *widget){
         ei_placer_param_t *placer_settings = (ei_placer_param_t *) widget->geom_params;
@@ -47,7 +121,7 @@ void placer_screen_location(struct ei_widget_t *widget){
 
 /* void placer_runfunc(struct ei_widget_t *widget); */
 void placer_runfunc(struct ei_widget_t *widget){
-        /* Calcul de la géométrie sur le widget ainsi que ses frères et fils */
+        /* Calcul de la géométrie sur le widget */
         if ((widget == NULL) || (strcmp(widget->geom_params->manager->name, "placer") != 0)){
                 return;
         }
@@ -58,4 +132,9 @@ void placer_runfunc(struct ei_widget_t *widget){
 /* void placer_releasefunc(struct ei_widget_t *widget); */
 void placer_releasefunc(struct ei_widget_t *widget){
         /* La disparition d'un widget nécessite de répercuter l'action sur ses fils */
+        ei_widget_t *cour = widget->next_sibling;
+        while (cour != NULL){
+                ei_geometrymanager_unmap(cour);
+                cour = cour->next_sibling;
+        }
 }
