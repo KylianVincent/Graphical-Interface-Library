@@ -12,6 +12,9 @@ ei_point_t ancrage_text_img(struct ei_widget_t* widget){
 
 	int width=(widget->screen_location.size).width;
 	int height=(widget->screen_location.size).height;
+	int b = frame->border_width;
+
+	/*definition des variables utiles*/
 
 	ei_point_t ancrage;
 	int width_ancr=0;
@@ -19,7 +22,8 @@ ei_point_t ancrage_text_img(struct ei_widget_t* widget){
 	
 	ei_frame_t *frame = (ei_frame_t*) widget;	
 	ei_anchor_t anchor;
-	int b = frame->border_width;
+
+	/*différenciation cas image ou texte*/
 
 	if (&(frame->text_anchor) != NULL){
 		
@@ -30,7 +34,6 @@ ei_point_t ancrage_text_img(struct ei_widget_t* widget){
 
 		frame->img_rect->size.height=height_ancr;
 		frame->img_rect->size.width=width_ancr;
-
 		anchor = frame->img_anchor;
 	}
 
@@ -84,13 +87,13 @@ ei_point_t ancrage_text_img(struct ei_widget_t* widget){
                         break;
 
                 case ei_anc_none :
-			/*cas par défault northwest*/
+			/*cas par défault du case: northwest*/
 			ancrage.x= x + b; 
 			ancrage.y= y + b;
                         break;
                 }
         }else{
-		/*cas par défault northwest*/
+		/*cas par défault (ancrage NULL): northwest*/
 		ancrage.x= x + b; 
 		ancrage.y= y + b;
 	}
