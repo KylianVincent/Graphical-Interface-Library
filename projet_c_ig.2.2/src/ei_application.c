@@ -4,6 +4,7 @@
 #include "ei_types.h"
 #include "ei_widgetclass.h"
 #include "ei_geometryclasses.h"
+#include "ei_classes.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -45,34 +46,30 @@ void ei_app_free(){
         hw_quit();
 }
 
-void ei_app_run_rec(ei_widget_t* w)
+void ei_app_run_rec(ei_widget_t* w, ei_rect_t* clipper)
 {
         if (w == NULL) {
                 return;
         }
 
         if (w->geom_params != NULL){
-        /* Calcul de la géométrie du widget */
-        (*w->geom_params->manager->runfunc)(w);
-
-        /* Dessin du widget */
-                if (w->parent != NULL) {
-                        (*w->wclass->drawfunc)(w, main_window, main_window_picking, w->parent->content_rect);
-                }
-                else {
-                        (*w->wclass->drawfunc)(w, main_window, main_window_picking, w->content_rect);
-                }
+                /* Calcul de la géométrie du widget */
+                (*w->geom_params->manager->runfunc)(w);
+        
+                /* Dessin du widget */
+                (*w->wclass->drawfunc)(w, main_window, main_window_picking, clipper);
         }
         ei_widget_t* cour = w->children_head;
         while (cour != NULL) {
-                ei_app_run_rec(cour);
+                ei_rect_t new_clip = intersect_clipper(*clipper, *(w->content_rect));
+                ei_app_run_rec(cour, &new_clip);
                 cour = cour->next_sibling;
         }
 }
 
 /* void ei_app_run(); */
 void ei_app_run(){
-        ei_app_run_rec(root_frame);
+        ei_app_run_rec(root_frame, root_frame->content_rect);
         getchar();
 }
 
