@@ -85,18 +85,25 @@ void placer_screen_location(struct ei_widget_t *widget){
         
 
         /* -- Position -- */
+	int bord_x =  widget->content_rect->top_left.x - widget->screen_location.top_left.x;
+	int bord_y =  widget->content_rect->top_left.y - widget->screen_location.top_left.y;
+
         widget->screen_location.top_left.x = placer_settings->x;
         widget->screen_location.top_left.y = placer_settings->y;
         /* Pour la position relative le facteur s'applique à la largeur ou hauteur du parent */
         if (widget->parent != NULL){
-                widget->screen_location.top_left.x += widget->parent->screen_location.top_left.x + (placer_settings->rel_x) * widget->parent->screen_location.size.width;
-                widget->screen_location.top_left.y += widget->parent->screen_location.top_left.y + (placer_settings->rel_y) * widget->parent->screen_location.size.height;
-        }
+                widget->screen_location.top_left.x += widget->parent->content_rect->top_left.x + (placer_settings->rel_x) * widget->parent->screen_location.size.width;
+                widget->screen_location.top_left.y += widget->parent->content_rect->top_left.y + (placer_settings->rel_y) * widget->parent->screen_location.size.height;
 
+        }
+	widget->content_rect->top_left.x = widget->screen_location.top_left.x + bord_x;
+	widget->content_rect->top_left.y = widget->screen_location.top_left.y + bord_y;
         /* -- Taille -- */
         /*** TO DO : Utilisation de la taille relative ? Priorité face à requested size ? ***/
         widget->screen_location.size.width = placer_settings->width;
         widget->screen_location.size.height = placer_settings->height;
+        widget->content_rect->size.width = placer_settings->width - 2*bord_x;
+        widget->content_rect->size.height = placer_settings->height- 2*bord_y;
         /* if (widget->parent != NULL){ */
         /* widget->screen_location.size.width += (placer_settings->rel_width) * widget->parent->screen_location.size.width; */
         /* widget->screen_location.size.height += (placer_settings->rel_height) * widget->parent->screen_location.size.height; */
@@ -107,13 +114,14 @@ void placer_screen_location(struct ei_widget_t *widget){
         ei_point_t anchor_point = calcul_point_ancrage(widget, &(placer_settings->anchor));
         widget->screen_location.top_left.x = anchor_point.x;
         widget->screen_location.top_left.y = anchor_point.y;
-
+	widget->content_rect->top_left.x = anchor_point.x + bord_x;
+        widget->content_rect->top_left.y = anchor_point.y + bord_y;
 
         /* Test de la positivité des valeurs */
-        if ((widget->screen_location.top_left.x < 0)
-           || (widget->screen_location.top_left.y < 0)
-           || (widget->screen_location.size.width < 0)
-           || (widget->screen_location.size.height < 0)){
+        if ((widget->content_rect->top_left.x < 0)
+           || (widget->content_rect->top_left.y < 0)
+           || (widget->content_rect->size.width < 0)
+           || (widget->content_rect->size.height < 0)){
                 perror("Arguments de taille et position incohérents (valeurs finales négatives");
                 exit(1);
         }

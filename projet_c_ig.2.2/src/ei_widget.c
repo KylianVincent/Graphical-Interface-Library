@@ -41,14 +41,15 @@ ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name, ei_widget_t* pa
                         parent->children_head = widget;
                         parent->children_tail = widget;
                 }
-                widget->screen_location.top_left = widget->parent->screen_location.top_left;
+                widget->screen_location.top_left = widget->parent->content_rect->top_left;
         }
         else 
         {
                 widget->screen_location.top_left = ei_point_zero();
         }
         /* widget->requested_size et widget->screen_location->size sont initialisés à 0 */
-        widget->content_rect = &(widget->screen_location);
+	
+	widget->content_rect = &(widget->screen_location);
         (*wclass->setdefaultsfunc)(widget);
         return widget;
 }
@@ -106,11 +107,7 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
         /* Color */
         if (color != NULL){
                 frame->color = *color;
-        }
-        /* Border */
-        if (border_width != NULL){
-                frame->border_width = *border_width;
-        }
+        }   
         /* Relief */
         if (relief != NULL){
                 frame->relief = *relief;
@@ -186,7 +183,20 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
                 widget->requested_size = *requested_size;
                 widget->screen_location.size = widget->requested_size;
         }
-        
+	/* Border */
+        if (border_width != NULL){
+
+		int b = *border_width;
+                frame->border_width =b;
+
+		if (widget->content_rect == &(widget->screen_location)){
+			widget->content_rect=calloc(1, sizeof(ei_rect_t));
+		}
+		widget->content_rect->top_left.x= widget->screen_location.top_left.x + b;
+		widget->content_rect->top_left.y= widget->screen_location.top_left.y + b;
+		widget->content_rect->size.width= widget->screen_location.size.width -2*b;
+		widget->content_rect->size.height= widget->screen_location.size.height -2*b;
+	}      
 }
 
 

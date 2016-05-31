@@ -13,7 +13,6 @@ ei_point_t ancrage_text_img(struct ei_widget_t* widget){
 
 	int width=(widget->screen_location.size).width;
 	int height=(widget->screen_location.size).height;
-	int b = frame->border_width;
 
 	/*definition des variables utiles*/
 
@@ -21,24 +20,25 @@ ei_point_t ancrage_text_img(struct ei_widget_t* widget){
 	int width_ancr=0;
 	int height_ancr=0;
 	
-	ei_frame_t *frame = (ei_frame_t*) widget;	
+	ei_frame_t *frame = (ei_frame_t*) widget;
+	int b = frame->border_width;	
 	ei_anchor_t anchor;
 
 	/*différenciation cas image ou texte*/
 
-	if (&(frame->text_anchor) != NULL){
+	if (frame->text != NULL){
 		
 		hw_text_compute_size(frame->text,frame->text_font, &width_ancr, &height_ancr);
 		anchor = frame->text_anchor;
 
-	}else if(&(frame->img_anchor) != NULL){
-
-		frame->img_rect->size.height=height_ancr;
-		frame->img_rect->size.width=width_ancr;
+	}else if(frame->img != NULL){
+		
+		height_ancr=frame->img_rect->size.height;
+		width_ancr=frame->img_rect->size.width;
 		anchor = frame->img_anchor;
 	}
 
-	if (&anchor != NULL){
+	if (frame->img != NULL ||frame->text != NULL ){
 
                 switch (anchor) {
 
@@ -183,6 +183,9 @@ void frame_releasefunc(struct ei_widget_t* widget){
                 if (frame->img_rect != NULL) {
                         free(frame->img_rect);
                 }
+		if (widget->content_rect != &(widget->screen_location)){
+			free(widget->content_rect);
+		}
                 free(frame);
         }
 }
@@ -191,44 +194,21 @@ void frame_releasefunc(struct ei_widget_t* widget){
 void frame_drawfunc(struct ei_widget_t*	frame,
 		    ei_surface_t		surface,
 		    ei_surface_t		pick_surface,
-		    ei_rect_t*		clipper){
-
-        /*simplification expressions*/
-
-	int b= ((ei_frame_t*)frame)->border_width; 
-
-	int x=frame->screen_location.top_left.x+b; 
-	int y=frame->screen_location.top_left.y+b;
- 
-
-	int width=(frame->screen_location.size).width-2*b;
-	int height=(frame->screen_location.size).height-2*b;
-	
-	ei_rect_t centre;
-
-	centre.top_left.x= x;
-	centre.top_left.y= y;
-	centre.size.width= width;
-	centre.size.height= height;
+		    ei_rect_t*		clipper){ 
 	
 	/*création de la surface principale*/
 
-	ei_linked_point_t *cadre=rounded_frame(centre,0,0);
+	ei_linked_point_t *cadre=rounded_frame(*(frame->content_rect),0,0);
 
 	/*On trace le cadre en relief*/
+
 	hw_surface_lock(surface);
 	hw_surface_lock(pick_surface);
 
-	if (b != 0){
-	
-		ei_rect_t bordures;
-		bordures.top_left.x= x-b;
-		bordures.top_left.y= y-b;
-		bordures.size.width= width + 2*b;
-		bordures.size.height= height + 2*b;
-		
-		ei_linked_point_t *cadre_inferieur_bas=rounded_frame(bordures,0,-1);
-		ei_linked_point_t *cadre_inferieur_haut=rounded_frame(bordures,0,1);
+	if (((ei_frame_t*)frame)->border_width != 0){
+			
+		ei_linked_point_t *cadre_inferieur_bas=rounded_frame(frame->screen_location,0,-1);
+		ei_linked_point_t *cadre_inferieur_haut=rounded_frame(frame->screen_location,0,1);
 		
 		/*determination de la couleur de tracé*/
 
@@ -246,17 +226,17 @@ void frame_drawfunc(struct ei_widget_t*	frame,
 
 		ei_draw_polygon(surface, cadre_inferieur_bas, color_inf, clipper);
 		ei_draw_polygon(surface, cadre_inferieur_haut, color_sup, clipper);
+		ei_draw_polygon(pick_surface, cadre_inferieur_bas,*(frame->pick_color), clipper);
+		ei_draw_polygon(pick_surface, cadre_inferieur_haut,*(frame->pick_color), clipper);
 	}
 
 	ei_draw_polygon(surface, cadre, ((ei_frame_t *)frame)->color, clipper);
 	
 	if (((ei_frame_t*) frame)->text != NULL){
-		draw_texte(frame, surface, &centre);
+		draw_texte(frame, surface, frame->content_rect);
 	}else if (((ei_frame_t*) frame)->img != NULL){
 		draw_img(frame, surface);
 	}
-
-	ei_draw_polygon(pick_surface, cadre, *(frame->pick_color), clipper);
 
 	hw_surface_unlock(surface);
 	hw_surface_unlock(pick_surface);
@@ -302,6 +282,9 @@ void button_releasefunc (struct ei_widget_t* widget)
                 if (button->img_rect != NULL) {
                         free(button->img_rect);
                 }
+		if (widget->content_rect != &(widget->screen_location)){
+			free(widget->content_rect);
+		}
                 free(button);
         }
 }
@@ -442,16 +425,11 @@ void button_drawfunc(struct ei_widget_t* widget,
         ei_button_t* button = (ei_button_t*) widget;
         ei_linked_point_t* relief_sup = rounded_frame(widget->screen_location, button->corner_radius, 1);
         ei_linked_point_t* relief_inf = rounded_frame(widget->screen_location, button->corner_radius, -1);
-        ei_rect_t rect_corps = widget->screen_location;
-        rect_corps.top_left.x += button->border_width;
-        rect_corps.top_left.y += button->border_width;
-        rect_corps.size.height -= button->border_width * 2;
-        rect_corps.size.width -= button->border_width * 2;
         int rayon_corps = button->corner_radius - button->border_width;
         if (rayon_corps<0) {
                 rayon_corps = 0;
         }
-        ei_linked_point_t* corps = rounded_frame(rect_corps, rayon_corps, 0);
+        ei_linked_point_t* corps = rounded_frame(*(widget->content_rect), rayon_corps, 0);
         /* On trace les surfaces correspondantes */
         hw_surface_lock(surface);
         hw_surface_lock(pick_surface);
@@ -463,7 +441,7 @@ void button_drawfunc(struct ei_widget_t* widget,
         ei_draw_polygon(pick_surface, relief_sup, *(widget->pick_color),  clipper);
         /* On affiche le texte et les images */
         draw_texte(widget, surface, widget->content_rect);
-        //draw_img(widget, surface);
+        draw_img(widget, surface);
 
         hw_surface_unlock(surface);
         hw_surface_unlock(pick_surface);
@@ -481,6 +459,12 @@ void button_setdefaultsfunc(struct ei_widget_t* widget)
         ei_button_t* button  = (ei_button_t*) widget;
 	button->color = ei_default_background_color;
 	button->border_width = k_default_button_border_width;
+	/* On change le content rect vu que border_width != 0 */
+	widget->content_rect = calloc(1, sizeof(ei_rect_t));
+	widget->content_rect->top_left.x = widget->screen_location.top_left.x + button->border_width;
+	widget->content_rect->top_left.y = widget->screen_location.top_left.y + button->border_width;
+	widget->content_rect->size.width = widget->screen_location.size.width - button->border_width * 2;
+	widget->content_rect->size.height = widget->screen_location.size.height - button->border_width * 2;
         button->corner_radius = k_default_button_corner_radius;
 	button->relief = ei_relief_none;
 	button->text = NULL;
