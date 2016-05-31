@@ -559,12 +559,14 @@ void toplevel_drawfunc(struct ei_widget_t* widget,
         
 
         /*Tracé des surfaces */
-        ei_color_t rose = {0xFF, 0x99, 0xFF, 0xFF};
 	hw_surface_lock(surface);
 	hw_surface_lock(pick_surface);
         ei_draw_polygon(surface, exterior, eclaircir_assombrir(toplevel->color, 100, -1), clipper);
         ei_draw_polygon(surface, interior, toplevel->color, clipper);
         ei_draw_polygon(pick_surface, exterior, *(widget->pick_color), clipper);
+
+        /* For test purposes */
+        ei_color_t rose = {0xFF, 0x99, 0xFF, 0xFF};
         ei_fill(surface, &rose, widget->content_rect);
 
         /* On affiche le titre dans l'en_tête */
