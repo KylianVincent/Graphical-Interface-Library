@@ -21,7 +21,6 @@ ei_point_t ancrage_text_img(struct ei_widget_t* widget){
 	int height_ancr=0;
 	
 	ei_frame_t *frame = (ei_frame_t*) widget;
-	int b = frame->border_width;	
 	ei_anchor_t anchor;
 
 	/*différenciation cas image ou texte*/
@@ -49,7 +48,7 @@ ei_point_t ancrage_text_img(struct ei_widget_t* widget){
 
                 case ei_anc_north :
 			ancrage.x= x + (width-width_ancr)/2; 
-			ancrage.y= y + b;
+			ancrage.y= y;
                         break;
 
                 case ei_anc_northeast :
@@ -78,13 +77,13 @@ ei_point_t ancrage_text_img(struct ei_widget_t* widget){
                         break;
 
                 case ei_anc_west :
-			ancrage.x= x + b; 
+			ancrage.x= x; 
 			ancrage.y= y + (height-height_ancr)/2;
                         break;
 
                 case ei_anc_northwest :
 			ancrage.x= x; 
-			ancrage.y= y-b;
+			ancrage.y= y;
                         break;
 
                 case ei_anc_none :
@@ -133,10 +132,10 @@ void draw_img(ei_widget_t *widget, ei_surface_t surface ){
                 ei_rect_t dest, src;
                 dest.top_left = ancrage_text_img(widget);
                 src.top_left = frame->img_rect->top_left;
-                int h1 = widget->content_rect->top_left.y+widget->content_rect->size.height-dest.top_left.y-frame->border_width;
+                int h1 = widget->content_rect->top_left.y+widget->content_rect->size.height-dest.top_left.y;
                 int h2 = frame->img_rect->size.height;
                 dest.size.height = (h1<=h2)?h1:h2;
-                int w1 = widget->content_rect->top_left.x+widget->content_rect->size.width-dest.top_left.x-frame->border_width;
+                int w1 = widget->content_rect->top_left.x+widget->content_rect->size.width-dest.top_left.x;
                 int w2 = frame->img_rect->size.width;
                 dest.size.width = (w1<=w2)?w1:w2;
                 /* On doit aussi vérifier que dest.top_left appartient a content_rect */
