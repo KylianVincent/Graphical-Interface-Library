@@ -90,3 +90,7 @@ ei_widget_t* ei_app_root_widget()
 }
 
 /* ei_surface_t ei_app_root_surface(); */
+ei_surface_t ei_app_root_surface() 
+{
+        return main_window;
+}
