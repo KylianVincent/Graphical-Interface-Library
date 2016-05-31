@@ -1,6 +1,7 @@
 #include "ei_geometrymanager.h"
 #include "ei_geometryclasses.h"
 #include "ei_types.h"
+#include "ei_utils.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -41,10 +42,7 @@ void   ei_geometrymanager_unmap (ei_widget_t*  widget){
         }
 
         /* Mise à 0 des composantes de screen_location */
-        widget->screen_location.top_left.x = 0;
-        widget->screen_location.top_left.y = 0;
-        widget->screen_location.size.width = 0;
-        widget->screen_location.size.height = 0;
+        widget->screen_location = ei_rect_zero();
 }
 
 

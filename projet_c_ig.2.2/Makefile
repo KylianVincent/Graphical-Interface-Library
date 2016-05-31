@@ -66,7 +66,7 @@ endif
 
 TARGETS		=	${LIBEI} \
 			minimal frame frame_button button hello_world \
-			puzzle minesweeper two048 parsing
+			toplevel puzzle minesweeper two048 parsing
 all : ${TARGETS}
 
 
@@ -99,6 +99,14 @@ frame_button : ${OBJDIR}/frame_button.o ${LIBEIOBJS} ${LIBEIBASE} ${LIBEI}
 
 ${OBJDIR}/frame_button.o : ${TESTS}/frame_button.c
 	${CC} ${CCFLAGS} ${INCFLAGS} ${TESTS}/frame_button.c -o ${OBJDIR}/frame_button.o
+
+# toplevel
+
+toplevel : ${OBJDIR}/toplevel.o ${LIBEIOBJS} ${LIBEIBASE} ${LIBEI}
+	${LINK} -o toplevel ${OBJDIR}/toplevel.o ${LIBEIOBJS} ${LIBEI} ${LIBS}
+
+${OBJDIR}/toplevel.o : ${TESTS}/toplevel.c
+	${CC} ${CCFLAGS} ${INCFLAGS} ${TESTS}/toplevel.c -o ${OBJDIR}/toplevel.o
 
 # button
 

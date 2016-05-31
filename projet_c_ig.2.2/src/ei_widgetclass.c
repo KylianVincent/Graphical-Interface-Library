@@ -65,5 +65,22 @@ void ei_button_register_class()
 }
 
 /* void   ei_toplevel_register_class  (); */
+void ei_toplevel_register_class (){
+        ei_widgetclass_t* toplevel = NULL;
+        toplevel = calloc(1, sizeof(ei_widgetclass_t));
+        if (toplevel == NULL) {
+                perror("Impossible d'allouer la mémoire dédiée à la classe toplevel.\n");
+                exit(1);
+        }
+        strcpy(toplevel->name, "toplevel");
+        toplevel->allocfunc = toplevel_allocfunc;
+        toplevel->releasefunc = toplevel_releasefunc;
+        toplevel->drawfunc = toplevel_drawfunc;
+        toplevel->setdefaultsfunc = toplevel_setdefaultsfunc;
+        //toplevel->geomnotifyfunc = toplevel_geomnotifyfunc;
+        toplevel->next = classes;
+        classes = toplevel;
 
+
+}
 

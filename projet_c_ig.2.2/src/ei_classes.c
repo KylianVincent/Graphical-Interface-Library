@@ -1,5 +1,6 @@
 #include "ei_classes.h"
 #include <math.h>
+#include <string.h>
 
 /*-------FONCTIONS AUXILIAIRES-------------*/
 
@@ -567,4 +568,147 @@ void button_setdefaultsfunc(struct ei_widget_t* widget)
 	button->img_anchor = ei_anc_center;
         button->callback = NULL;
         button->user_param = NULL;
+}
+
+
+
+/* --------------TOPLEVEL-------------- */
+void* toplevel_allocfunc (){
+        ei_toplevel_t* toplevel = calloc(1, sizeof(ei_toplevel_t));
+        if (toplevel == NULL){
+                perror("Impossible d'allouer l'espace pour une toplevel.\n");
+                exit(1);
+        }
+        return (void*) toplevel;
+}
+
+void toplevel_releasefunc (struct ei_widget_t* widget){
+        if (widget != NULL){
+                free(widget->pick_color);
+                ei_toplevel_t* toplevel  = (ei_toplevel_t*) widget;
+
+                if (toplevel->min_size != NULL){
+                        free(toplevel->min_size);
+                }
+                if (widget->content_rect != &(widget->screen_location)){
+			free(widget->content_rect);
+		}
+
+                free(toplevel);
+                widget = NULL;
+        }
+}
+
+void toplevel_drawfunc(struct ei_widget_t* widget,
+		     ei_surface_t		surface,
+		     ei_surface_t		pick_surface,
+                       ei_rect_t*		clipper){
+        ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
+        
+        /* Calcul de la géométrie du cadre extérieur */
+        ei_size_t title_size;
+        hw_text_compute_size(toplevel->title,
+                             ei_default_font,
+                             &(title_size.width),
+                             &(title_size.height));
+        int height_header = 2 * toplevel->border_width + title_size.height;
+        int radius_header = height_header/2;
+        ei_size_t toplevel_size = ei_size(widget->screen_location.size.width + 2*toplevel->border_width,
+                                          widget->screen_location.size.height + height_header + toplevel->border_width);
+        ei_point_t centre1 = ei_point(widget->screen_location.top_left.x + radius_header,
+                                      widget->screen_location.top_left.y + radius_header);
+        ei_point_t centre2 = ei_point(widget->screen_location.top_left.x + toplevel_size.width - radius_header,
+                                      widget->screen_location.top_left.y + radius_header);
+        ei_linked_point_t *exterior = NULL;
+        ei_linked_point_t *cour = NULL;
+        cour = create_arc(centre1, radius_header, M_PI, 3.0*M_PI/2, &exterior);
+        cour = create_arc(centre2, radius_header, 3.0*M_PI/2, 2*M_PI, &(cour->next));
+        cour->next = calloc(1, sizeof(ei_linked_point_t));
+        if (cour->next == NULL) {
+                        perror("Impossible d'allouer l'espace nécessaire.\n");
+                        exit(1);
+                }
+        cour->next->point = ei_point(widget->screen_location.top_left.x + toplevel_size.width,
+                                    widget->screen_location.top_left.y + toplevel_size.height);
+        cour = cour->next;
+        cour->next = calloc(1, sizeof(ei_linked_point_t));
+        if (cour->next == NULL) {
+                        perror("Impossible d'allouer l'espace nécessaire.\n");
+                        exit(1);
+                }
+        cour->next->point = ei_point(widget->screen_location.top_left.x,
+                                    widget->screen_location.top_left.y + toplevel_size.height);
+
+        /* Calcul de la géométrie de la zone de texte */
+        ei_point_t title_top_left = ei_point(widget->screen_location.top_left.x + 2 * radius_header,
+                                             widget->screen_location.top_left.y + toplevel->border_width);
+
+        ei_point_t interior_point = ei_point(widget->screen_location.top_left.x + toplevel->border_width,
+                                             widget->screen_location.top_left.y + height_header);
+        ei_rect_t interior_rect = ei_rect(interior_point, widget->screen_location.size);
+        ei_linked_point_t *interior = rounded_frame(interior_rect, 0, 0);
+        
+
+        /*Tracé des surfaces */
+	hw_surface_lock(surface);
+	hw_surface_lock(pick_surface);
+        ei_draw_polygon(surface, exterior, eclaircir_assombrir(toplevel->color, 100, -1), clipper);
+        ei_draw_polygon(surface, interior, toplevel->color, clipper);
+        ei_draw_polygon(pick_surface, exterior, *(widget->pick_color), clipper);
+
+        /* For test purposes */
+        ei_color_t rose = {0xFF, 0x99, 0xFF, 0xFF};
+        ei_fill(surface, &rose, widget->content_rect);
+
+        /* On affiche le titre dans l'en_tête */
+        ei_draw_text(surface,
+                     &(title_top_left),
+                     toplevel->title,
+                     NULL,
+                     &(ei_font_default_color),
+                     clipper);
+        
+        hw_surface_unlock(surface);
+        hw_surface_unlock(pick_surface);
+        hw_surface_update_rects(surface, NULL);
+        hw_surface_update_rects(pick_surface, NULL);
+
+        /* On libère les listes de points */
+        free_linked_point(exterior);
+        free_linked_point(interior);
+        
+
+}
+
+void toplevel_setdefaultsfunc(struct ei_widget_t* widget){
+        ei_toplevel_t* toplevel = (ei_toplevel_t *) widget;
+        
+        toplevel->color = ei_default_background_color;
+        widget->requested_size = ei_size(320, 240);
+        toplevel->border_width = 4;
+        /* Taille maximale d'un titre = 50 char */
+        toplevel->title = calloc(50, sizeof(char));
+        strcpy(toplevel->title, "Toplevel");
+        toplevel->closable = EI_TRUE;
+        toplevel->resizable = ei_axis_both;
+        toplevel->min_size = calloc(1, sizeof(ei_size_t));
+        if (toplevel->min_size == NULL){
+                perror("Allocation de mémoire pour la taille minimum de la toplevel impossible.\n");
+                exit(1);
+        }
+        *(toplevel->min_size) = ei_size(160, 120);
+
+        ei_size_t title_size;
+        hw_text_compute_size(toplevel->title,
+                             ei_default_font,
+                             &(title_size.width),
+                             &(title_size.height));
+        int height_header = 2 * toplevel->border_width + title_size.height;
+
+        /* On change le content rect pour une toplevel */
+	widget->content_rect = calloc(1, sizeof(ei_rect_t));
+	widget->content_rect->top_left.x = widget->screen_location.top_left.x + toplevel->border_width;
+	widget->content_rect->top_left.y = widget->screen_location.top_left.y + height_header;
+	widget->content_rect->size.width = widget->screen_location.size.width;
+	widget->content_rect->size.height = widget->screen_location.size.height;
 }
