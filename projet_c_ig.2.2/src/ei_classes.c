@@ -8,11 +8,11 @@ ei_point_t ancrage_text_img(struct ei_widget_t* widget){
 
 	/*simplification expressions*/
 
-	int x=widget->screen_location.top_left.x; 
-	int y=widget->screen_location.top_left.y;
+	int x=widget->content_rect->top_left.x; 
+	int y=widget->content_rect->top_left.y;
 
-	int width=(widget->screen_location.size).width;
-	int height=(widget->screen_location.size).height;
+	int width=widget->content_rect->size.width;
+	int height=widget->content_rect->size.height;
 
 	/*definition des variables utiles*/
 
@@ -53,28 +53,28 @@ ei_point_t ancrage_text_img(struct ei_widget_t* widget){
                         break;
 
                 case ei_anc_northeast :
-			ancrage.x= x + width-width_ancr-b; 
-			ancrage.y= y + b;
+			ancrage.x= x + width-width_ancr; 
+			ancrage.y= y;
                         break;
 
                 case ei_anc_east :
-			ancrage.x= x + width-width_ancr-b; 
+			ancrage.x= x + width-width_ancr; 
 			ancrage.y= y + (height-height_ancr)/2;
                         break;
 
                 case ei_anc_southeast :
-			ancrage.x= x + width-width_ancr-b; 
-			ancrage.y= y + height-height_ancr-b;
+			ancrage.x= x + width-width_ancr; 
+			ancrage.y= y + height-height_ancr;
                         break;
 
                 case ei_anc_south :
 			ancrage.x= x + (width-width_ancr)/2; 
-			ancrage.y= y + height-height_ancr-b;
+			ancrage.y= y + height-height_ancr;
                         break;
 
                 case ei_anc_southwest :
-			ancrage.x= x + b; 
-			ancrage.y= y + height-height_ancr-b;
+			ancrage.x= x; 
+			ancrage.y= y + height-height_ancr;
                         break;
 
                 case ei_anc_west :
@@ -83,20 +83,20 @@ ei_point_t ancrage_text_img(struct ei_widget_t* widget){
                         break;
 
                 case ei_anc_northwest :
-			ancrage.x= x + b; 
-			ancrage.y= y + b;
+			ancrage.x= x; 
+			ancrage.y= y-b;
                         break;
 
                 case ei_anc_none :
 			/*cas par défault du case: northwest*/
-			ancrage.x= x + b; 
-			ancrage.y= y + b;
+			ancrage.x= x; 
+			ancrage.y= y;
                         break;
                 }
         }else{
 		/*cas par défault (ancrage NULL): northwest*/
-		ancrage.x= x + b; 
-		ancrage.y= y + b;
+		ancrage.x= x; 
+		ancrage.y= y;
 	}
 	return ancrage;
 }

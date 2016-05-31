@@ -169,18 +169,24 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
                         widget->requested_size.height += frame->border_width*2;
                         widget->requested_size.width += frame->border_width*2;
                         widget->screen_location.size = widget->requested_size;
+			widget->content_rect->size=frame->img_rect->size;
                 } 
                 if (text != NULL) {
                         /* Taille minimale pour le texte*/
                         hw_text_compute_size(frame->text, frame->text_font, &(widget->requested_size.width), &(widget->requested_size.height));
-                        /* On prend en compte les bodures */
+                       
+			widget->content_rect->size=widget->requested_size;
+			 /* On prend en compte les bordures */	
                         widget->requested_size.height += frame->border_width*2;
                         widget->requested_size.width += frame->border_width*2;
                         widget->screen_location.size = widget->requested_size;
+			
                 }
                 /* Le cas : text != NULL et img != NULL est impossible (test antérieur) */
         } else {
                 widget->requested_size = *requested_size;
+		widget->content_rect->size.height = widget->requested_size.height;
+		widget->content_rect->size.width = widget->requested_size.width;
                 widget->screen_location.size = widget->requested_size;
         }
 	/* Border */
