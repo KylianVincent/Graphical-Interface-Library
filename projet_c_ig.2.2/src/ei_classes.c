@@ -2,7 +2,8 @@
 #include <math.h>
 /*-------FONCTIONS AUXILIAIRES-------------*/
 
-ei_point_t calcul_point_ancrage(struct ei_widget_t* widget, ei_anchor_t *anchor){
+
+ei_point_t ancrage_text_img(struct ei_widget_t* widget){
 
 	/*simplification expressions*/
 
@@ -13,68 +14,91 @@ ei_point_t calcul_point_ancrage(struct ei_widget_t* widget, ei_anchor_t *anchor)
 	int height=(widget->screen_location.size).height;
 
 	ei_point_t ancrage;
+	int width_ancr=0;
+	int height_ancr=0;
+	
+	ei_frame_t *frame = (ei_frame_t*) widget;	
+	ei_anchor_t anchor;
+	int b = frame->border_width;
 
-	if (anchor != NULL){
-                switch (*anchor) {
+	if (&(frame->text_anchor) != NULL){
+		
+		hw_text_compute_size(frame->text,frame->text_font, &width_ancr, &height_ancr);
+		anchor = frame->text_anchor;
+
+	}else if(&(frame->img_anchor) != NULL){
+
+		frame->img_rect->size.height=height_ancr;
+		frame->img_rect->size.width=width_ancr;
+
+		anchor = frame->img_anchor;
+	}
+
+	if (&anchor != NULL){
+
+                switch (anchor) {
 
                 case ei_anc_center :
-			ancrage.x= x + width/2; 
-			ancrage.y= y + height/2;
+			ancrage.x= x + (width-width_ancr)/2; 
+			ancrage.y= y + (height-height_ancr)/2;
                         break;
 
                 case ei_anc_north :
-			ancrage.x= x + width/2; 
-			ancrage.y= y;
+			ancrage.x= x + (width-width_ancr)/2; 
+			ancrage.y= y + b;
                         break;
 
                 case ei_anc_northeast :
-			ancrage.x= x + width; 
-			ancrage.y= y;
+			ancrage.x= x + width-width_ancr-b; 
+			ancrage.y= y + b;
                         break;
 
                 case ei_anc_east :
-			ancrage.x= x + width; 
-			ancrage.y= y + height/2;
+			ancrage.x= x + width-width_ancr-b; 
+			ancrage.y= y + (height-height_ancr)/2;
                         break;
 
                 case ei_anc_southeast :
-			ancrage.x= x + width; 
-			ancrage.y= y + height;
+			ancrage.x= x + width-width_ancr-b; 
+			ancrage.y= y + height-height_ancr-b;
                         break;
 
                 case ei_anc_south :
-			ancrage.x= x + width/2; 
-			ancrage.y= y + height;
+			ancrage.x= x + (width-width_ancr)/2; 
+			ancrage.y= y + height-height_ancr-b;
                         break;
 
                 case ei_anc_southwest :
-			ancrage.x= x; 
-			ancrage.y= y + height;
+			ancrage.x= x + b; 
+			ancrage.y= y + height-height_ancr-b;
                         break;
 
                 case ei_anc_west :
-			ancrage.x= x; 
-			ancrage.y= y +height/2;
+			ancrage.x= x + b; 
+			ancrage.y= y + (height-height_ancr)/2;
                         break;
 
                 case ei_anc_northwest :
-			ancrage.x= x; 
-			ancrage.y= y;
+			ancrage.x= x + b; 
+			ancrage.y= y + b;
                         break;
 
                 case ei_anc_none :
 			/*cas par défault northwest*/
-			ancrage.x= x; 
-			ancrage.y= y;
+			ancrage.x= x + b; 
+			ancrage.y= y + b;
                         break;
                 }
         }else{
 		/*cas par défault northwest*/
-		ancrage.x= x; 
-		ancrage.y= y;
+		ancrage.x= x + b; 
+		ancrage.y= y + b;
 	}
 	return ancrage;
 }
+
+
+
 
 
 /*fonction de dessin de texte sur surface*/
@@ -85,7 +109,7 @@ void draw_texte(ei_widget_t *widget, ei_surface_t surface, ei_rect_t *clipper){
 	
 	if (frame->text != NULL){
 
-		ei_point_t ancrage= calcul_point_ancrage(widget, &(frame->text_anchor));
+		ei_point_t ancrage= ancrage_text_img(widget);
 
 		ei_draw_text(surface,
 			     &(ancrage),
@@ -160,17 +184,25 @@ void frame_drawfunc(struct ei_widget_t*	frame,
 
         /*simplification expressions*/
 
-	int x=frame->screen_location.top_left.x; 
-	int y=frame->screen_location.top_left.y;
-
 	int b= ((ei_frame_t*)frame)->border_width; 
 
-	int width=(frame->screen_location.size).width;
-	int height=(frame->screen_location.size).height;
+	int x=frame->screen_location.top_left.x+b; 
+	int y=frame->screen_location.top_left.y+b;
+ 
 
+	int width=(frame->screen_location.size).width-2*b;
+	int height=(frame->screen_location.size).height-2*b;
+	
+	ei_rect_t centre;
+
+	centre.top_left.x= x;
+	centre.top_left.y= y;
+	centre.size.width= width;
+	centre.size.height= height;
+	
 	/*création de la surface principale*/
 
-	ei_linked_point_t *cadre=rounded_frame(frame->screen_location,0,0);
+	ei_linked_point_t *cadre=rounded_frame(centre,0,0);
 
 	/*On trace le cadre en relief*/
 	hw_surface_lock(surface);
@@ -208,7 +240,7 @@ void frame_drawfunc(struct ei_widget_t*	frame,
 	ei_draw_polygon(surface, cadre, ((ei_frame_t *)frame)->color, clipper);
 	
 	if (((ei_frame_t*) frame)->text != NULL){
-		draw_texte(frame, surface, clipper);
+		draw_texte(frame, surface, &centre);
 	}else if (((ei_frame_t*) frame)->img != NULL){
 		draw_img(frame, surface);
 	}
