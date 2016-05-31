@@ -4,16 +4,77 @@
 
 /*-------FONCTIONS AUXILIAIRES-------------*/
 
+ei_rect_t intersect_clipper(ei_rect_t clipper1, ei_rect_t clipper2)
+{
+        ei_rect_t inter;
+        /* On réordonne les clipper pour que x1 <= x2 */
+        if (clipper1.top_left.x > clipper2.top_left.x) {
+                inter = clipper1;
+                clipper1 = clipper2;
+                clipper2 = inter;
+        }
+        int x1, y1, w1, h1;
+        int x2, y2, w2, h2;
+        x1 = clipper1.top_left.x;
+        x2 = clipper2.top_left.x;
+        y1 = clipper1.top_left.y;
+        y2 = clipper2.top_left.y;
+        w1 = clipper1.size.width;
+        w2 = clipper2.size.width;
+        h1 = clipper1.size.height;
+        h2 = clipper2.size.height;
+        /* On teste si l'intersection est vide */
+        if (x1+w1<=x2 || y2+h2<=y1 || y1+h1<=y2) {
+                inter.top_left.x = 0; inter.top_left.y = 0;
+                inter.size.width = 0; inter.size.height = 0;
+        }
+        /* Ici, on sait qu'il y a intersection */
+        if (y1 <= y2) {
+                /* y2 <= y1+h1 car intersection */
+                inter.top_left.y = y2;
+                inter.top_left.x = x2;
+                if (x1+w1 <= x2+w2) {
+                        inter.size.width = x1+w1-x2;
+                }
+                else {
+                        inter.size.width = w2;
+                }
+                if (y2+h2 <= y1+h1) {
+                        inter.size.height = h2;
+                }
+                else {
+                        inter.size.height = y1+h1-y2;
+                }
+        }
+        else {
+                /* y2 + h2 > y1 car intersection */
+                inter.top_left.x = x2;
+                inter.top_left.y = y1;
+                if (x1+w1 <= x2+w2) {
+                        inter.size.width = x1+w1-x2;
+                }
+                else {
+                        inter.size.width = w2;
+                }
+                if (y2+h2 <= y1+h1) {
+                        inter.size.height = y2+h2-y1;
+                }
+                else {
+                        inter.size.height = h1;
+                }
+        }
+        return inter;
+}
 
 ei_point_t ancrage_text_img(struct ei_widget_t* widget){
 
 	/*simplification expressions*/
 
-	int x=widget->screen_location.top_left.x; 
-	int y=widget->screen_location.top_left.y;
+	int x=widget->content_rect->top_left.x; 
+	int y=widget->content_rect->top_left.y;
 
-	int width=(widget->screen_location.size).width;
-	int height=(widget->screen_location.size).height;
+	int width=widget->content_rect->size.width;
+	int height=widget->content_rect->size.height;
 
 	/*definition des variables utiles*/
 
@@ -22,7 +83,6 @@ ei_point_t ancrage_text_img(struct ei_widget_t* widget){
 	int height_ancr=0;
 	
 	ei_frame_t *frame = (ei_frame_t*) widget;
-	int b = frame->border_width;	
 	ei_anchor_t anchor;
 
 	/*différenciation cas image ou texte*/
@@ -50,54 +110,54 @@ ei_point_t ancrage_text_img(struct ei_widget_t* widget){
 
                 case ei_anc_north :
 			ancrage.x= x + (width-width_ancr)/2; 
-			ancrage.y= y + b;
+			ancrage.y= y;
                         break;
 
                 case ei_anc_northeast :
-			ancrage.x= x + width-width_ancr-b; 
-			ancrage.y= y + b;
+			ancrage.x= x + width-width_ancr; 
+			ancrage.y= y;
                         break;
 
                 case ei_anc_east :
-			ancrage.x= x + width-width_ancr-b; 
+			ancrage.x= x + width-width_ancr; 
 			ancrage.y= y + (height-height_ancr)/2;
                         break;
 
                 case ei_anc_southeast :
-			ancrage.x= x + width-width_ancr-b; 
-			ancrage.y= y + height-height_ancr-b;
+			ancrage.x= x + width-width_ancr; 
+			ancrage.y= y + height-height_ancr;
                         break;
 
                 case ei_anc_south :
 			ancrage.x= x + (width-width_ancr)/2; 
-			ancrage.y= y + height-height_ancr-b;
+			ancrage.y= y + height-height_ancr;
                         break;
 
                 case ei_anc_southwest :
-			ancrage.x= x + b; 
-			ancrage.y= y + height-height_ancr-b;
+			ancrage.x= x; 
+			ancrage.y= y + height-height_ancr;
                         break;
 
                 case ei_anc_west :
-			ancrage.x= x + b; 
+			ancrage.x= x; 
 			ancrage.y= y + (height-height_ancr)/2;
                         break;
 
                 case ei_anc_northwest :
-			ancrage.x= x + b; 
-			ancrage.y= y + b;
+			ancrage.x= x; 
+			ancrage.y= y;
                         break;
 
                 case ei_anc_none :
 			/*cas par défault du case: northwest*/
-			ancrage.x= x + b; 
-			ancrage.y= y + b;
+			ancrage.x= x; 
+			ancrage.y= y;
                         break;
                 }
         }else{
 		/*cas par défault (ancrage NULL): northwest*/
-		ancrage.x= x + b; 
-		ancrage.y= y + b;
+		ancrage.x= x; 
+		ancrage.y= y;
 	}
 	return ancrage;
 }
@@ -126,7 +186,7 @@ void draw_texte(ei_widget_t *widget, ei_surface_t surface, ei_rect_t *clipper){
 }
 
 
-void draw_img(ei_widget_t *widget, ei_surface_t surface ){
+void draw_img(ei_widget_t *widget, ei_surface_t surface, ei_rect_t* clipper){
         ei_frame_t *frame=(ei_frame_t*) widget;
         if (frame->img != NULL) {
                 /* On calcule les rectangles à fournir à ei_copy_surface */
@@ -134,12 +194,30 @@ void draw_img(ei_widget_t *widget, ei_surface_t surface ){
                 ei_rect_t dest, src;
                 dest.top_left = ancrage_text_img(widget);
                 src.top_left = frame->img_rect->top_left;
-                int h1 = widget->content_rect->top_left.y+widget->content_rect->size.height-dest.top_left.y-frame->border_width;
+                int h1 = widget->content_rect->top_left.y+widget->content_rect->size.height-dest.top_left.y;
                 int h2 = frame->img_rect->size.height;
                 dest.size.height = (h1<=h2)?h1:h2;
-                int w1 = widget->content_rect->top_left.x+widget->content_rect->size.width-dest.top_left.x-frame->border_width;
+                int w1 = widget->content_rect->top_left.x+widget->content_rect->size.width-dest.top_left.x;
                 int w2 = frame->img_rect->size.width;
                 dest.size.width = (w1<=w2)?w1:w2;
+                /* On doit aussi vérifier que dest.top_left appartient a content_rect */
+                if (dest.top_left.x < widget->content_rect->top_left.x) {
+                        int temp = widget->content_rect->top_left.x - dest.top_left.x;
+                        dest.size.width -= temp;
+                        src.top_left.x += temp;
+                        dest.top_left.x = widget->content_rect->top_left.x;
+                }
+                if (dest.top_left.y < widget->content_rect->top_left.y) {
+                        int temp = widget->content_rect->top_left.y - dest.top_left.y;
+                        dest.size.height -= temp;
+                        src.top_left.y += temp;
+                        dest.top_left.y = widget->content_rect->top_left.y;
+                }
+                /* On tient en compte le clipper */
+                ei_rect_t temp = intersect_clipper(dest,*clipper);
+                src.top_left.x += temp.top_left.x - dest.top_left.x;
+                src.top_left.y += temp.top_left.y - dest.top_left.y;
+                dest = temp;
                 src.size = dest.size;
                 int erreur=ei_copy_surface(surface, &dest, frame->img, &src, EI_TRUE);
                 if (erreur){
@@ -233,11 +311,9 @@ void frame_drawfunc(struct ei_widget_t*	frame,
 
 	ei_draw_polygon(surface, cadre, ((ei_frame_t *)frame)->color, clipper);
 	
-	if (((ei_frame_t*) frame)->text != NULL){
-		draw_texte(frame, surface, frame->content_rect);
-	}else if (((ei_frame_t*) frame)->img != NULL){
-		draw_img(frame, surface);
-	}
+        ei_rect_t inter = intersect_clipper(*(frame->content_rect),*clipper);
+        draw_texte(frame, surface, &inter);
+        draw_img(frame, surface, &inter);
 
 	hw_surface_unlock(surface);
 	hw_surface_unlock(pick_surface);
@@ -431,18 +507,28 @@ void button_drawfunc(struct ei_widget_t* widget,
                 rayon_corps = 0;
         }
         ei_linked_point_t* corps = rounded_frame(*(widget->content_rect), rayon_corps, 0);
+        /* Calcule si le button est enfoncé ou non */
+        int8_t signe;
+        if (button->relief ==1){
+                signe = 1;
+        }else if  (button->relief ==2){
+                signe= -1;
+        }else{
+                signe=0;
+        }
         /* On trace les surfaces correspondantes */
         hw_surface_lock(surface);
         hw_surface_lock(pick_surface);
-        ei_draw_polygon(surface, relief_sup, eclaircir_assombrir(button->color,100,1),  clipper);
-        ei_draw_polygon(surface, relief_inf, eclaircir_assombrir(button->color,100,-1),  clipper);
+        ei_draw_polygon(surface, relief_sup, eclaircir_assombrir(button->color,100,signe),  clipper);
+        ei_draw_polygon(surface, relief_inf, eclaircir_assombrir(button->color,100,-signe),  clipper);
         ei_draw_polygon(surface, corps, button->color,  clipper);
         /* On trace aussi dans pick_surface */
         ei_draw_polygon(pick_surface, relief_inf, *(widget->pick_color),  clipper);
         ei_draw_polygon(pick_surface, relief_sup, *(widget->pick_color),  clipper);
         /* On affiche le texte et les images */
-        draw_texte(widget, surface, widget->content_rect);
-        draw_img(widget, surface);
+        ei_rect_t inter = intersect_clipper(*(widget->content_rect),*clipper);
+        draw_texte(widget, surface, &inter);
+        draw_img(widget, surface, &inter);
 
         hw_surface_unlock(surface);
         hw_surface_unlock(pick_surface);
@@ -458,6 +544,11 @@ void button_drawfunc(struct ei_widget_t* widget,
 void button_setdefaultsfunc(struct ei_widget_t* widget)
 {
         ei_button_t* button  = (ei_button_t*) widget;
+        /* On définit une taille par défaut du bouton */
+        widget->requested_size.width = 20;
+        widget->requested_size.height = 20;
+        widget->screen_location.size.width = 20;
+        widget->screen_location.size.height = 20;
 	button->color = ei_default_background_color;
 	button->border_width = k_default_button_border_width;
 	/* On change le content rect vu que border_width != 0 */
@@ -467,7 +558,7 @@ void button_setdefaultsfunc(struct ei_widget_t* widget)
 	widget->content_rect->size.width = widget->screen_location.size.width - button->border_width * 2;
 	widget->content_rect->size.height = widget->screen_location.size.height - button->border_width * 2;
         button->corner_radius = k_default_button_corner_radius;
-	button->relief = ei_relief_none;
+	button->relief = ei_relief_raised;
 	button->text = NULL;
 	button->text_font = ei_default_font;
 	button->text_color = ei_font_default_color;
