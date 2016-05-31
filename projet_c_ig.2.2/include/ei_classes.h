@@ -45,6 +45,20 @@ typedef struct ei_button_t{
 
         void*                   user_param;
 }ei_button_t;
+
+/*Definition du type ei_toplevel_t*/
+
+typedef struct ei_toplevel_t{
+	ei_widget_t	        widget;
+	ei_color_t      	color;
+	int		        border_width;
+	char*	                title;
+	ei_bool_t		closable;
+	ei_axis_set_t		resizable;
+	ei_size_t*		min_size;
+}ei_toplevel_t;
+
+
 /*fonctions auxiliaires globales*/
 
 ei_point_t calcul_point_ancrage(struct ei_widget_t* widget, ei_anchor_t *anchor); 
@@ -56,14 +70,13 @@ void* frame_allocfunc ();
 
 void frame_releasefunc (struct ei_widget_t* widget);
 
-
 void frame_drawfunc(struct ei_widget_t* frame,
 		     ei_surface_t		surface,
 		     ei_surface_t		pick_surface,
 		     ei_rect_t*		clipper);
 
-
 void frame_setdefaultsfunc(struct ei_widget_t* widget);
+
 
 /* Définition de fonctions spécifiques à la classe button */
 
@@ -76,5 +89,18 @@ void button_drawfunc(struct ei_widget_t* widget,
 		     ei_surface_t		pick_surface,
 		     ei_rect_t*		clipper);
 
-
 void button_setdefaultsfunc(struct ei_widget_t* widget);
+
+
+/* Définition de fonctions spécifiques à la classe button */
+
+void* toplevel_allocfunc ();
+
+void toplevel_releasefunc (struct ei_widget_t* widget);
+
+void toplevel_drawfunc(struct ei_widget_t* widget,
+		     ei_surface_t		surface,
+		     ei_surface_t		pick_surface,
+		     ei_rect_t*		clipper);
+
+void toplevel_setdefaultsfunc(struct ei_widget_t* widget);

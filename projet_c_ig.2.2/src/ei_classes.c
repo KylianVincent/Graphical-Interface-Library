@@ -437,3 +437,80 @@ void button_setdefaultsfunc(struct ei_widget_t* widget)
         button->callback = NULL;
         button->user_param = NULL;
 }
+
+
+
+/* --------------TOPLEVEL-------------- */
+void* toplevel_allocfunc (){
+        ei_toplevel_t* toplevel = calloc(1, sizeof(ei_toplevel_t));
+        if (button == NULL){
+                perror("Impossible d'allouer l'espace pour une toplevel.\n");
+                exit(1);
+        }
+        return (void*) toplevel;
+}
+
+void toplevel_releasefunc (struct ei_widget_t* widget){
+        if (widget != NULL){
+                free(widget->pick_color);
+                ei_toplevel_t* toplevel  = (ei_toplevel_t*) widget;
+                free(toplevel);
+                widget = NULL;
+        }
+}
+
+void toplevel_drawfunc(struct ei_widget_t* widget,
+		     ei_surface_t		surface,
+		     ei_surface_t		pick_surface,
+                       ei_rect_t*		clipper){
+        ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
+        
+        ei_size_t title_size = hw_text_compute_size(toplevel->title,
+                                                    ei_default_font,
+                                                    &(size_title.width),
+                                                    &(size_title.height));
+        int height_header = 2 * toplevel->border_width + title_size.height;
+        int radius_header = height_header/2;
+        ei_size_t toplevel_size = ei_size(widget->screen_location.size.width + 2*toplevel->border_width,
+                                          widget->screen_location.size.height + height_header);
+        ei_rect_t toplevel_rect = ei_rect(widget->screen_location.top_left, toplevel_size);
+        
+        ei_linked_point_t *exterior = rounded_frame(toplevel_rect,radius_header,0);
+        
+        ei_point_t bottom_point = ei_point_t(widget->screen_location.size->width,
+                                             widget->screen_location.size->height);
+        bottom_point = ei_point_add(bottom_point, widget->screen_location.top_left);
+        bottom_point.y -= height_header;
+        ei_size_t bottom_size = ei_size_t(toplevel_size->width, height_header);
+        ei_rect_t bottom = ei_rect(bottom_point, bottom_size);
+        ei_linked_point_t *exterior_bottom = rounded_frame(bottom,0,0);
+        
+        /* ei_point_t redimm_button_point = ei_point(); */
+        /* ei_size_t redimm_button_size = ei_size(); */
+        /* ei_rect_t redimm_button = ei_rect(); */
+
+        /*Tracé des surfaces */
+	hw_surface_lock(surface);
+	hw_surface_lock(pick_surface);
+        /* Forme extérieure (bordures et barre de titre) */
+        ei_draw_polygon(surface, exterior, eclaircir_assombrir(toplevel->color, 100, -1), clipper);
+        ei_draw_polygon(pick_surface, exterior, *(widget->pick_color), clipper);
+        ei_draw_polygon(surface, exterior_bottom, eclaircir_assombrir(toplevel->color, 100, -1), clipper);
+        ei_draw_polygon(pick_surface, exterior_bottom, *(widget->pick_color), clipper);
+        
+        hw_surface_unlock(surface);
+        hw_surface_unlock(pick_surface);
+        hw_surface_update_rects(surface, NULL);
+        hw_surface_update_rects(pick_surface, NULL);
+
+        /* On libère les listes de points */
+        free_linked_points(exterior);
+        free_linked_points(exterior_bottom);
+        
+
+}
+
+void toplevel_setdefaultsfunc(struct ei_widget_t* widget){
+
+
+}
