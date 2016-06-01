@@ -206,7 +206,7 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
         }
         /* Size */
         if (requested_size == NULL){
-                if (img != NULL){
+                if (img != NULL && widget->parent != NULL){
                         /* Taille minimale pour l'image */
                         widget->requested_size = frame->img_rect->size;
                         widget->requested_size.height += frame->border_width*2;
@@ -214,7 +214,7 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
                         widget->screen_location.size = widget->requested_size;
 			widget->content_rect->size=frame->img_rect->size;
                 } 
-                if (text != NULL) {
+                if (text != NULL && widget->parent != NULL) {
                         /* Taille minimale pour le texte*/
                         hw_text_compute_size(frame->text, frame->text_font, &(widget->requested_size.width), &(widget->requested_size.height));
                        
