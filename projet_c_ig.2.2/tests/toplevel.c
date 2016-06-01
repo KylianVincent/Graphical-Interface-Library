@@ -20,8 +20,8 @@ int ei_main(int argc, char** argv)
 
 	ei_widget_t*	frame;
 	ei_size_t	frame_size		= {300,200};
-	int		frame_x			= 150;
-	int		frame_y			= 200;
+	int		frame_x			= 20;
+	int		frame_y			= 20;
 	ei_color_t	frame_color		= {0x88, 0x88, 0x88, 0xff};
 	ei_relief_t	frame_relief		= ei_relief_raised;
 	int		frame_border_width	= 6;
@@ -29,6 +29,7 @@ int ei_main(int argc, char** argv)
         /* top_level configuration */
         ei_widget_t*	toplevel;
         ei_size_t       toplevel_size           = {350, 250};
+        int toplevel_border = 7;
         ei_color_t      toplevel_color          = {0x99, 0x99, 0x99, 0xff};
 	int		toplevel_x		= 125;
 	int		toplevel_y		= 150;
@@ -46,11 +47,11 @@ int ei_main(int argc, char** argv)
         
 	/* Create, configure and place the toplevel on screen. */
         toplevel = ei_widget_create("toplevel", ei_app_root_widget());
-        ei_toplevel_configure(toplevel, &toplevel_size, &toplevel_color, NULL, NULL, NULL, NULL, NULL);
+        ei_toplevel_configure(toplevel, &toplevel_size, &toplevel_color, &toplevel_border, NULL, NULL, NULL, NULL);
         ei_place(toplevel, NULL, &toplevel_x, &toplevel_y, NULL, NULL, NULL, NULL, NULL, NULL);
 
 	/* Create, configure and place the frame on screen. */
-	frame = ei_widget_create("frame", ei_app_root_widget());
+	frame = ei_widget_create("frame", toplevel);
 	ei_frame_configure(frame, &frame_size, &frame_color,
 			    &frame_border_width, &frame_relief, NULL, NULL, NULL, NULL,
 			    &img, &rect_img, &anch_img);
