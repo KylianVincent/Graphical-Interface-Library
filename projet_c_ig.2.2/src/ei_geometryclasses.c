@@ -148,10 +148,12 @@ void placer_runfunc(struct ei_widget_t *widget){
                                      &(title_size.height));
                 int radius_header = title_size.height/2;
                 int radius_button = title_size.height/4;
+                int border_button = title_size.height/8;
+                ei_size_t button_size = ei_size(radius_header, radius_header);
                 ei_point_t close_button_point = ei_point(radius_header, radius_header);
                 close_button_point = ei_point_add(close_button_point, widget->screen_location.top_left);
-                ei_button_configure(close_button, NULL, &red, NULL, NULL, NULL, NULL, NULL, NULL, &anch, NULL, NULL, NULL, NULL, NULL);
-                ei_place(close_button, NULL, &(close_button_point.x), &(close_button_point.y), NULL, NULL, NULL, NULL, NULL, NULL);
+                ei_button_configure(close_button, &button_size, &red, &border_button, &radius_button, NULL, NULL, NULL, NULL,  NULL, NULL, NULL, NULL, NULL, NULL);
+                ei_place(close_button, &anch, &(close_button_point.x), &(close_button_point.y), NULL, NULL, NULL, NULL, NULL, NULL);
         }
 }
 
