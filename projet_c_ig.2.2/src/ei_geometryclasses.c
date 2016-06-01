@@ -6,12 +6,15 @@
 #include <string.h>
 
 
-ei_point_t calcul_point_ancrage(struct ei_widget_t* widget, ei_anchor_t *anchor){
+ei_point_t calcul_point_ancrage(ei_rect_t* rect, ei_anchor_t *anchor){
 
 	/*simplification expressions*/
 
-	int width=(widget->screen_location.size).width;
-	int height=(widget->screen_location.size).height;
+	int x=rect->top_left.x; 
+	int y=rect->top_left.y;
+
+	int width=rect->size.width;
+	int height=rect->size.height;
 
 	ei_point_t ancrage;
 
@@ -19,113 +22,109 @@ ei_point_t calcul_point_ancrage(struct ei_widget_t* widget, ei_anchor_t *anchor)
                 switch (*anchor) {
 
                 case ei_anc_center :
-			ancrage.x= - width/2; 
-			ancrage.y= - height/2;
+			ancrage.x= x - width/2; 
+			ancrage.y= y - height/2;
                         break;
 
                 case ei_anc_north :
-			ancrage.x= - width/2; 
-			ancrage.y= 0;
+			ancrage.x= x - width/2; 
+			ancrage.y= y;
                         break;
 
                 case ei_anc_northeast :
-			ancrage.x= - width; 
-			ancrage.y= 0;
+			ancrage.x= x - width; 
+			ancrage.y= y;
                         break;
 
                 case ei_anc_east :
-			ancrage.x= - width; 
-			ancrage.y= - height/2;
+			ancrage.x= x - width; 
+			ancrage.y= y - height/2;
                         break;
 
                 case ei_anc_southeast :
-			ancrage.x= - width; 
-			ancrage.y= - height;
+			ancrage.x= x - width; 
+			ancrage.y= y - height;
                         break;
 
                 case ei_anc_south :
-			ancrage.x= - width/2; 
-			ancrage.y= - height;
+			ancrage.x= x - width/2; 
+			ancrage.y= y - height;
                         break;
 
                 case ei_anc_southwest :
-			ancrage.x= 0; 
-			ancrage.y= - height;
+			ancrage.x= x; 
+			ancrage.y= y - height;
                         break;
 
                 case ei_anc_west :
-			ancrage.x= 0; 
-			ancrage.y= - height/2;
+			ancrage.x= x; 
+			ancrage.y= y - height/2;
                         break;
 
                 case ei_anc_northwest :
-			ancrage.x= 0; 
-			ancrage.y= 0;
+			ancrage.x= x; 
+			ancrage.y= y;
                         break;
 
                 case ei_anc_none :
 			/*cas par défault northwest*/
-			ancrage.x= 0; 
-			ancrage.y= 0;
+			ancrage.x= x; 
+			ancrage.y= y;
                         break;
                 }
         }else{
 		/*cas par défault northwest*/
-		ancrage.x= 0; 
-		ancrage.y= 0;
+		ancrage.x= x; 
+		ancrage.y= y;
 	}
 	return ancrage;
 }
 
 
 void placer_screen_location(struct ei_widget_t *widget){
-        ei_placer_param_t *placer_settings = (ei_placer_param_t *) widget->geom_params;
-        
-
-        /* -- Position -- */
-	int move_x = widget->screen_location.top_left.x - placer_settings->x;
-	int move_y = widget->screen_location.top_left.y - placer_settings->y;
-        /* Pour la position relative le facteur s'applique à la largeur ou hauteur du parent */
-        if (widget->parent != NULL){
-                move_x -= widget->parent->content_rect->top_left.x + (placer_settings->rel_x) * widget->parent->screen_location.size.width;
-                move_y -= widget->parent->content_rect->top_left.y + (placer_settings->rel_y) * widget->parent->screen_location.size.height;
+        if (widget->parent == NULL) {
+                /* La root_frame reste fixe */
+                return;
         }
-        /* -- Anchor -- */
-        /* Mise à jour de la position */
-        ei_point_t anchor_point = calcul_point_ancrage(widget, &(placer_settings->anchor));
-        move_x += anchor_point.x;
-        move_y += anchor_point.y;
+        ei_placer_param_t *placer_settings = (ei_placer_param_t *) widget->geom_params;
+       
+        /* -- Position -- */
+        ei_rect_t new_rect;
 
-        
-        /* Mise à jour des valeurs */
-	widget->screen_location.top_left.x -= move_x;
-	widget->screen_location.top_left.y -= move_y;
-	widget->content_rect->top_left.x -= move_x;
-	widget->content_rect->top_left.y -= move_y;
-
-
+        new_rect.top_left.x = placer_settings->x;
+        new_rect.top_left.y = placer_settings->y;
+        /* Pour la position relative le facteur s'applique à la largeur ou hauteur du parent */
+        new_rect.top_left.x += widget->parent->content_rect->top_left.x + (placer_settings->rel_x) * widget->parent->content_rect->size.width;
+        new_rect.top_left.y += widget->parent->content_rect->top_left.y + (placer_settings->rel_y) * widget->parent->content_rect->size.height;
         /* -- Taille -- */
-	int resize_width = widget->screen_location.size.width - placer_settings->width;
-	int resize_height = widget->screen_location.size.height - placer_settings->height;
         /*** TO DO : Utilisation de la taille relative ? Priorité face à requested size ? ***/
-        widget->screen_location.size.width -= resize_width;
-        widget->screen_location.size.height -= resize_height;
-        
-        widget->content_rect->size.width -= resize_width;
-        widget->content_rect->size.height -= resize_height;
-
+        new_rect.size.width = placer_settings->width;
+        new_rect.size.height = placer_settings->height;
         /* if (widget->parent != NULL){ */
         /* widget->screen_location.size.width += (placer_settings->rel_width) * widget->parent->screen_location.size.width; */
         /* widget->screen_location.size.height += (placer_settings->rel_height) * widget->parent->screen_location.size.height; */
         /* } */
 
+        /* -- Anchor -- */
+        /* Mise à jour de la position : top_left */
+        ei_point_t anchor_point = calcul_point_ancrage(&new_rect, &(placer_settings->anchor));
+        int diff_x = anchor_point.x-widget->screen_location.top_left.x;
+        int diff_y = anchor_point.y-widget->screen_location.top_left.y;
+        int diff_w = new_rect.size.width-widget->screen_location.size.width;
+        int diff_h = new_rect.size.height-widget->screen_location.size.height;
+	widget->content_rect->top_left.x += diff_x;
+        widget->content_rect->top_left.y += diff_y;
+        widget->screen_location.top_left.x += diff_x;
+        widget->screen_location.top_left.y += diff_y;
+        widget->content_rect->size.width += diff_w;
+        widget->content_rect->size.height += diff_h;
+        widget->screen_location.size.width += diff_w;
+        widget->screen_location.size.height += diff_h;
 
         /* Test de la positivité des valeurs */
-        if ((widget->content_rect->top_left.x < 0)
-           || (widget->content_rect->top_left.y < 0)
-           || (widget->content_rect->size.width < 0)
+        if ((widget->content_rect->size.width < 0)
            || (widget->content_rect->size.height < 0)){
-                perror("Arguments de taille et position incohérents (valeurs finales négatives)");
+                perror("Arguments de taille incohérents (valeurs finales négatives");
                 exit(1);
         }
 }

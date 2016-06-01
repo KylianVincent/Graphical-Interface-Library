@@ -99,7 +99,6 @@ void   ei_place   (ei_widget_t*  widget,
                 widget->geom_params->manager = ei_geometrymanager_from_name("placer");
         }
         /* Sinon le widget est déjà géré par le placer */
-        
 
         /* -- Stockage/mise à jour des paramètres -- */
         ei_placer_param_t *placer_settings = (ei_placer_param_t *) widget->geom_params;
