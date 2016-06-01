@@ -243,7 +243,7 @@ ei_color_t eclaircir_assombrir(ei_color_t color, uint8_t val, int8_t sign);
 
 void* frame_allocfunc(){
 
-	struct ei_frame_t *frame = calloc(1, sizeof(struct ei_frame_t));
+	ei_frame_t *frame = calloc(1, sizeof(ei_frame_t));
 	if (frame != NULL){
 		return (void*) frame;	
 	}
