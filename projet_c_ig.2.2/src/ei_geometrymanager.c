@@ -90,7 +90,7 @@ void   ei_place   (ei_widget_t*  widget,
                 widget->geom_params->manager = ei_geometrymanager_from_name("placer");
         } else if (strcmp(widget->geom_params->manager->name, "placer") != 0){
                 /* Appel de la fonction de release */
-                (*widget->geom_params->manager->releasefunc)(widget);
+                ei_geometrymanager_unmap(widget);
                 /* Ajout au register manager */
                 if ((widget->geom_params = calloc(1, sizeof(struct ei_placer_param_t))) == NULL){
                         perror("erreur d'allocation mémoire");
