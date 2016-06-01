@@ -21,43 +21,43 @@ ei_point_t calcul_point_ancrage(struct ei_widget_t* widget, ei_anchor_t *anchor)
                 switch (*anchor) {
 
                 case ei_anc_center :
-			ancrage.x= x + width/2; 
-			ancrage.y= y + height/2;
+			ancrage.x= x - width/2; 
+			ancrage.y= y - height/2;
                         break;
 
                 case ei_anc_north :
-			ancrage.x= x + width/2; 
+			ancrage.x= x - width/2; 
 			ancrage.y= y;
                         break;
 
                 case ei_anc_northeast :
-			ancrage.x= x + width; 
+			ancrage.x= x - width; 
 			ancrage.y= y;
                         break;
 
                 case ei_anc_east :
-			ancrage.x= x + width; 
-			ancrage.y= y + height/2;
+			ancrage.x= x - width; 
+			ancrage.y= y - height/2;
                         break;
 
                 case ei_anc_southeast :
-			ancrage.x= x + width; 
-			ancrage.y= y + height;
+			ancrage.x= x - width; 
+			ancrage.y= y - height;
                         break;
 
                 case ei_anc_south :
-			ancrage.x= x + width/2; 
-			ancrage.y= y + height;
+			ancrage.x= x - width/2; 
+			ancrage.y= y - height;
                         break;
 
                 case ei_anc_southwest :
 			ancrage.x= x; 
-			ancrage.y= y + height;
+			ancrage.y= y - height;
                         break;
 
                 case ei_anc_west :
 			ancrage.x= x; 
-			ancrage.y= y +height/2;
+			ancrage.y= y - height/2;
                         break;
 
                 case ei_anc_northwest :
