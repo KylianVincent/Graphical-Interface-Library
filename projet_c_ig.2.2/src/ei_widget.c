@@ -8,7 +8,27 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-uint32_t free_pick = 0;
+ei_widget_t **tab_pick = NULL;
+int32_t size =256;
+
+void alloc_tab_pick(int32_t new_size){
+	
+	if (size > new_size){
+		perror("utilisation incorrecte de la fonction d'allocation de pick_id");
+		exit(1);
+	}
+	ei_widget_t **tmp=tab_pick;
+	if ((tab_pick=calloc(new_size, sizeof(ei_widget_t*)))==NULL){
+		perror("probleme allocation tableau pick_id");
+		exit(1);
+	}
+	if (tmp != NULL){
+		for(int32_t i=0; i<size;i++){
+			tab_pick[i]=tmp[i];
+		}
+		free(tmp);
+	}	
+}
 
 ei_color_t * def_pick_color(uint32_t pick_id)
 {
@@ -28,9 +48,23 @@ ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name, ei_widget_t* pa
         ei_widgetclass_t* wclass = ei_widgetclass_from_name(class_name);
         widget = (ei_widget_t *) (*wclass->allocfunc)();
         widget->wclass = wclass;
-        widget->pick_id = free_pick;
-        free_pick++;
+
+	/*calcul de la pick color*/
+	if (tab_pick == NULL){
+		alloc_tab_pick(size);
+	}
+	int32_t i=0;
+	while (tab_pick[i] != NULL && i<size){
+		i++;
+	}
+	if ( i >= size-1){
+		alloc_tab_pick(2*size);
+		size=2*size;
+	}
+	tab_pick[i]=widget;
+        widget->pick_id = i;
         widget->pick_color = def_pick_color(widget->pick_id);
+
         if (parent != NULL) {
                 widget->parent = parent;
                 if (parent->children_tail != NULL) {
@@ -79,6 +113,8 @@ void ei_widget_destroy(ei_widget_t* widget)
                         prec->next_sibling = widget->next_sibling;
                 }
         }
+	/*liberation de la pick_color*/
+	tab_pick[widget->pick_id]=NULL;
         /* On parcourt les fils du widget et on libere widget */
         ei_widget_t* cour = widget->children_head;
         (*widget->wclass->releasefunc)(widget);
