@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 
 uint32_t free_pick = 0;
 
@@ -51,6 +52,14 @@ ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name, ei_widget_t* pa
 	
 	widget->content_rect = &(widget->screen_location);
         (*wclass->setdefaultsfunc)(widget);
+
+        if (strcmp(class_name, "toplevel") == 0){
+                ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
+                if (toplevel->closable == EI_TRUE){
+                        ei_widget_t *close_button = ei_widget_create("button", parent);
+                }
+        }
+
         return widget;
 }
 
