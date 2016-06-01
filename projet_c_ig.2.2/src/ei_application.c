@@ -5,6 +5,8 @@
 #include "ei_widgetclass.h"
 #include "ei_geometryclasses.h"
 #include "ei_classes.h"
+#include "ei_event.h"
+#include "ei_eventmanager.h"
 #include <stdlib.h>
 #include <stdio.h>
 
