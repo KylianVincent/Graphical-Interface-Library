@@ -249,10 +249,22 @@ void ei_toplevel_configure(ei_widget_t*widget, ei_size_t*requested_size,
                 toplevel->color = *color;
         }
         if (requested_size != NULL){
-                widget->requested_size = *requested_size;
+                int diff_w = requested_size->width - widget->requested_size.width;
+                int diff_h = requested_size->height - widget->requested_size.height;
+                widget->requested_size.width  = widget->requested_size.width;
+                widget->requested_size.height = widget->requested_size.height;
+                /* Mise à jour de la zone de contenu */
+                widget->content_rect->size.height += diff_h;
+                widget->content_rect->size.width += diff_w;
+                widget->screen_location.size.height += diff_h;
+                widget->screen_location.size.width += diff_w;
         }
         if (border_width != NULL){
+                int diff_b = *border_width - toplevel->border_width;
                 toplevel->border_width = *border_width;
+                widget->screen_location.top_left.x -= diff_b;
+                widget->screen_location.size.width += 2*diff_b;
+                widget->screen_location.size.height += diff_b;
         }
         if (title != NULL){
                 toplevel->title = *title;
@@ -267,9 +279,6 @@ void ei_toplevel_configure(ei_widget_t*widget, ei_size_t*requested_size,
                 toplevel->min_size = *min_size;
         }
 
-        /* Mise à jour de la zone de contenu */
-        widget->content_rect->size.height = widget->requested_size.height;
-        widget->content_rect->size.width = widget->requested_size.width;
 
 
 }

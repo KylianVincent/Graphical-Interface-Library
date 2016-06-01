@@ -99,11 +99,8 @@ void placer_screen_location(struct ei_widget_t *widget){
         /* Mise à jour des valeurs */
 	widget->screen_location.top_left.x -= move_x;
 	widget->screen_location.top_left.y -= move_y;
-        //printf("--- ContentRect :\n Before == x : %i\ny : %i\n", widget->content_rect->top_left.x, widget->content_rect->top_left.y);
 	widget->content_rect->top_left.x -= move_x;
 	widget->content_rect->top_left.y -= move_y;
-        //printf("After == x : %i\ny : %i\n\n", widget->content_rect->top_left.x, widget->content_rect->top_left.y);
-
 
 
         /* -- Taille -- */
@@ -112,11 +109,9 @@ void placer_screen_location(struct ei_widget_t *widget){
         /*** TO DO : Utilisation de la taille relative ? Priorité face à requested size ? ***/
         widget->screen_location.size.width -= resize_width;
         widget->screen_location.size.height -= resize_height;
-        //printf("Width : %i\nHeight : %i\n", resize_width, resize_height);
         
         widget->content_rect->size.width -= resize_width;
         widget->content_rect->size.height -= resize_height;
-        //printf("After == width : %i\nHeight : %i\n\n", widget->content_rect->size.width, widget->content_rect->size.height);
 
         /* if (widget->parent != NULL){ */
         /* widget->screen_location.size.width += (placer_settings->rel_width) * widget->parent->screen_location.size.width; */
@@ -140,7 +135,6 @@ void placer_runfunc(struct ei_widget_t *widget){
         if ((widget == NULL) || (strcmp(widget->geom_params->manager->name, "placer") != 0)){
                 return;
         }
-        //printf("\n ======= %s ========\n", widget->wclass);
         placer_screen_location(widget);
 }
 

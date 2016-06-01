@@ -612,7 +612,7 @@ void toplevel_drawfunc(struct ei_widget_t* widget,
                              ei_default_font,
                              &(title_size.width),
                              &(title_size.height));
-        int height_header = 2 * toplevel->border_width + title_size.height;
+        int height_header = title_size.height;
         int radius_header = height_header/2;
 
         ei_point_t centre1 = ei_point(widget->screen_location.top_left.x + radius_header,
@@ -641,7 +641,7 @@ void toplevel_drawfunc(struct ei_widget_t* widget,
 
         /* Calcul de la géométrie de la zone de texte */
         ei_point_t title_top_left = ei_point(widget->screen_location.top_left.x + 2 * radius_header,
-                                             widget->screen_location.top_left.y + toplevel->border_width);
+                                             widget->screen_location.top_left.y);
 
         /* ei_point_t interior_point = ei_point(widget->screen_location.top_left.x + toplevel->border_width, */
         /*                                      widget->screen_location.top_left.y + height_header); */
@@ -703,7 +703,7 @@ void toplevel_setdefaultsfunc(struct ei_widget_t* widget){
                              ei_default_font,
                              &(title_size.width),
                              &(title_size.height));
-        int height_header = 2 * toplevel->border_width + title_size.height;
+        int height_header = title_size.height;
 
         /* On change le content rect pour une toplevel */
 	widget->content_rect = calloc(1, sizeof(ei_rect_t));
@@ -711,6 +711,6 @@ void toplevel_setdefaultsfunc(struct ei_widget_t* widget){
 	widget->content_rect->top_left.y = widget->screen_location.top_left.y + height_header;
 	widget->content_rect->size.width = widget->requested_size.width;
 	widget->content_rect->size.height = widget->requested_size.height;
-        widget->screen_location.size.width = widget->screen_location.size.width + 2*toplevel->border_width;
-        widget->screen_location.size.height = widget->screen_location.size.height + height_header + toplevel->border_width;
+        widget->screen_location.size.width = widget->requested_size.width + toplevel->border_width * 2;
+        widget->screen_location.size.height = widget->requested_size.height + height_header + toplevel->border_width;
 }
