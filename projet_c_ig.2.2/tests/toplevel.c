@@ -50,7 +50,7 @@ int ei_main(int argc, char** argv)
         ei_place(toplevel, NULL, &toplevel_x, &toplevel_y, NULL, NULL, NULL, NULL, NULL, NULL);
 
 	/* Create, configure and place the frame on screen. */
-	frame = ei_widget_create("frame", ei_app_root_widget());
+	frame = ei_widget_create("frame", toplevel);
 	ei_frame_configure(frame, &frame_size, &frame_color,
 			    &frame_border_width, &frame_relief, NULL, NULL, NULL, NULL,
 			    &img, &rect_img, &anch_img);

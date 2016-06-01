@@ -593,7 +593,8 @@ void toplevel_releasefunc (struct ei_widget_t* widget){
                 if (widget->content_rect != &(widget->screen_location)){
 			free(widget->content_rect);
 		}
-
+                
+                free(toplevel->title);
                 free(toplevel);
                 widget = NULL;
         }
@@ -613,11 +614,10 @@ void toplevel_drawfunc(struct ei_widget_t* widget,
                              &(title_size.height));
         int height_header = 2 * toplevel->border_width + title_size.height;
         int radius_header = height_header/2;
-        ei_size_t toplevel_size = ei_size(widget->screen_location.size.width + 2*toplevel->border_width,
-                                          widget->screen_location.size.height + height_header + toplevel->border_width);
+
         ei_point_t centre1 = ei_point(widget->screen_location.top_left.x + radius_header,
                                       widget->screen_location.top_left.y + radius_header);
-        ei_point_t centre2 = ei_point(widget->screen_location.top_left.x + toplevel_size.width - radius_header,
+        ei_point_t centre2 = ei_point(widget->screen_location.top_left.x + widget->screen_location.size.width - radius_header,
                                       widget->screen_location.top_left.y + radius_header);
         ei_linked_point_t *exterior = NULL;
         ei_linked_point_t *cour = NULL;
@@ -625,28 +625,28 @@ void toplevel_drawfunc(struct ei_widget_t* widget,
         cour = create_arc(centre2, radius_header, 3.0*M_PI/2, 2*M_PI, &(cour->next));
         cour->next = calloc(1, sizeof(ei_linked_point_t));
         if (cour->next == NULL) {
-                        perror("Impossible d'allouer l'espace nécessaire.\n");
+                        perror("Impossible d'allouer l'espace mémoire nécessaire.\n");
                         exit(1);
                 }
-        cour->next->point = ei_point(widget->screen_location.top_left.x + toplevel_size.width,
-                                    widget->screen_location.top_left.y + toplevel_size.height);
+        cour->next->point = ei_point(widget->screen_location.top_left.x + widget->screen_location.size.width,
+                                    widget->screen_location.top_left.y + widget->screen_location.size.height);
         cour = cour->next;
         cour->next = calloc(1, sizeof(ei_linked_point_t));
         if (cour->next == NULL) {
-                        perror("Impossible d'allouer l'espace nécessaire.\n");
+                        perror("Impossible d'allouer l'espace mémoire nécessaire.\n");
                         exit(1);
                 }
         cour->next->point = ei_point(widget->screen_location.top_left.x,
-                                    widget->screen_location.top_left.y + toplevel_size.height);
+                                    widget->screen_location.top_left.y + widget->screen_location.size.height);
 
         /* Calcul de la géométrie de la zone de texte */
         ei_point_t title_top_left = ei_point(widget->screen_location.top_left.x + 2 * radius_header,
                                              widget->screen_location.top_left.y + toplevel->border_width);
 
-        ei_point_t interior_point = ei_point(widget->screen_location.top_left.x + toplevel->border_width,
-                                             widget->screen_location.top_left.y + height_header);
-        ei_rect_t interior_rect = ei_rect(interior_point, widget->screen_location.size);
-        ei_linked_point_t *interior = rounded_frame(interior_rect, 0, 0);
+        /* ei_point_t interior_point = ei_point(widget->screen_location.top_left.x + toplevel->border_width, */
+        /*                                      widget->screen_location.top_left.y + height_header); */
+        /* ei_rect_t interior_rect = ei_rect(interior_point, widget->screen_location.size); */
+        ei_linked_point_t *interior = rounded_frame(*(widget->content_rect), 0, 0);
         
 
         /*Tracé des surfaces */
@@ -657,8 +657,8 @@ void toplevel_drawfunc(struct ei_widget_t* widget,
         ei_draw_polygon(pick_surface, exterior, *(widget->pick_color), clipper);
 
         /* For test purposes */
-        ei_color_t rose = {0xFF, 0x99, 0xFF, 0xFF};
-        ei_fill(surface, &rose, widget->content_rect);
+        /* ei_color_t rose = {0xFF, 0x99, 0xFF, 0xFF}; */
+        /* ei_fill(surface, &rose, widget->content_rect); */
 
         /* On affiche le titre dans l'en_tête */
         ei_draw_text(surface,
@@ -709,6 +709,8 @@ void toplevel_setdefaultsfunc(struct ei_widget_t* widget){
 	widget->content_rect = calloc(1, sizeof(ei_rect_t));
 	widget->content_rect->top_left.x = widget->screen_location.top_left.x + toplevel->border_width;
 	widget->content_rect->top_left.y = widget->screen_location.top_left.y + height_header;
-	widget->content_rect->size.width = widget->screen_location.size.width;
-	widget->content_rect->size.height = widget->screen_location.size.height;
+	widget->content_rect->size.width = widget->requested_size.width;
+	widget->content_rect->size.height = widget->requested_size.height;
+        widget->screen_location.size.width = widget->screen_location.size.width + 2*toplevel->border_width;
+        widget->screen_location.size.height = widget->screen_location.size.height + height_header + toplevel->border_width;
 }
