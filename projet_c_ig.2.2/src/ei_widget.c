@@ -116,7 +116,15 @@ ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name, ei_widget_t* pa
         if (strcmp(class_name, "toplevel") == 0){
                 ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
                 if (toplevel->closable == EI_TRUE){
-                        ei_widget_t *close_button = ei_widget_create("button", parent);
+                        /* Pour les boutons associés à la toplevel aucune
+                           sauvegarde de leur adresse n'est nécessaire, on se
+                           servira de la structure en frères pour y accéder */
+                        ei_widget_create("button", parent);
+                }
+                if (toplevel->resizable == ei_axis_x
+                    || toplevel->resizable == ei_axis_y
+                    || toplevel->resizable == ei_axis_both){
+                        ei_widget_create("button", parent);
                 }
         }
 
@@ -130,7 +138,7 @@ void ei_widget_destroy(ei_widget_t* widget)
                 return;
         }
         /* On met a jour les fils du parent et les next_sibling des fils */
-        if (widget->parent != NULL) 
+        if (widget->parent != NULL)
         {
                 ei_widget_t* prec = widget->parent->children_head;
                 while (prec != widget && prec->next_sibling != widget)
@@ -159,6 +167,23 @@ void ei_widget_destroy(ei_widget_t* widget)
                 temp->parent = NULL;
                 cour = cour->next_sibling;
                 ei_widget_destroy(temp);
+        }
+        /* Si le widget à libérer est une toplevel alors il possède
+           potentiellement des frères qu'il est nécessaire de libérer aussi
+           (boutons de fermeture et redimensionnement */
+        if (strcmp(widget->wclass->name, "toplevel") == 0){
+                ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
+                if (toplevel->closable == EI_TRUE){
+                        ei_widget_destroy(widget->next_sibling);
+                }
+                if (toplevel->resizable == ei_axis_x
+                    || toplevel->resizable == ei_axis_y
+                    || toplevel->resizable == ei_axis_both){
+                        /* Ce bouton est aussi le prochain frère, soit parce
+                           qu'il n'y a pas de bouton de fermeture, soit parce
+                           qu'il a été libéré juste avant */
+                        ei_widget_destroy(widget->next_sibling);
+                }
         }
 }
 
@@ -339,6 +364,13 @@ void ei_toplevel_configure(ei_widget_t*widget, ei_size_t*requested_size,
         }
         if (title != NULL){
                 toplevel->title = *title;
+                /* Mise à jour de la taille d'en-tête */
+                ei_size_t title_size;
+                hw_text_compute_size(toplevel->title,
+                             ei_default_font,
+                             &(title_size.width),
+                             &(title_size.height));
+                toplevel->height_header = title_size.height;
         }
         if (closable != NULL){
                 toplevel->closable = *closable;

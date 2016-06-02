@@ -2,6 +2,7 @@
 #include "ei_geometryclasses.h"
 #include "ei_types.h"
 #include "ei_utils.h"
+#include "ei_classes.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -34,7 +35,8 @@ void   ei_geometrymanager_unmap (ei_widget_t*  widget){
                 /* Release du widget */
                 (*widget->geom_params->manager->releasefunc)(widget);
         
-                /* Libération du champ dédié dans le widget, on ne libère pas le geometry manager lié qui peut être utilisé */
+                /* Libération du champ dédié dans le widget, on ne libère pas
+                   le geometry manager lié qui peut être utilisé */
                 free(widget->geom_params);
 
                 /* Invalidation de la localisation */
@@ -42,7 +44,33 @@ void   ei_geometrymanager_unmap (ei_widget_t*  widget){
         }
 
         /* Mise à 0 des composantes de screen_location */
-        widget->screen_location = ei_rect_zero();
+        //widget->screen_location = ei_rect_zero();
+
+        /* Unmap des boutons inclus si le widget est une toplevel */
+        if (strcmp(widget->wclass->name, "toplevel") == 0){
+                ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
+                if (toplevel->closable == EI_TRUE){
+                        ei_geometrymanager_unmap(widget->next_sibling);
+                }
+                if (toplevel->resizable == ei_axis_x
+                    || toplevel->resizable == ei_axis_y
+                    || toplevel->resizable == ei_axis_both){
+                        if (toplevel->closable == EI_TRUE){
+                                /* Bouton en deuxième frère */
+                                ei_geometrymanager_unmap(widget->next_sibling->next_sibling);
+                        } else {
+                                /* Bouton en premier frère */
+                                ei_geometrymanager_unmap(widget->next_sibling);
+                        }
+                }
+        }
+        
+        /* On unmap les fils du widget */
+        ei_widget_t* cour = widget->children_head;
+        while (cour != NULL) {
+                ei_geometrymanager_unmap(cour);
+                cour = cour->next_sibling;
+        }
 }
 
 
