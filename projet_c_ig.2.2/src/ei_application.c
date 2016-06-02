@@ -101,6 +101,7 @@ void ei_app_run(){
                 /*         ((ei_button_t *) root_frame->children_head->children_head)->relief -= 1; */
                 /* } */
         }
+        free(event);
 }
 
 /* void ei_app_invalidate_rect(ei_rect_t* rect); */

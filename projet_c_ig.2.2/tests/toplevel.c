@@ -67,6 +67,7 @@ int ei_main(int argc, char** argv)
 
 	/* We just exited from the main loop. Terminate the application (cleanup). */
 	ei_app_free();
+        free(rect_img);
 
 	return (EXIT_SUCCESS);
 }

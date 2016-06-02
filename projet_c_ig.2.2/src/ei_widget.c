@@ -1,5 +1,6 @@
 #include "ei_widget.h"
 #include "ei_widgetclass.h"
+#include "ei_geometrymanager.h"
 #include "ei_types.h"
 #include "ei_classes.h"
 #include "ei_application.h"
@@ -160,7 +161,7 @@ void ei_widget_destroy(ei_widget_t* widget)
 	tab_pick[widget->pick_id]=NULL;
         /* On parcourt les fils du widget et on libere widget */
         ei_widget_t* cour = widget->children_head;
-        (*widget->wclass->releasefunc)(widget);
+        ei_geometrymanager_unmap(widget);
         while (cour != NULL)
         {
                 ei_widget_t* temp = cour;
