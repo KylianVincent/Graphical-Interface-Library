@@ -650,10 +650,6 @@ void toplevel_drawfunc(struct ei_widget_t* widget,
         ei_draw_polygon(surface, interior, toplevel->color, clipper);
         ei_draw_polygon(pick_surface, exterior, *(widget->pick_color), clipper);
 
-        /* For test purposes */
-        /* ei_color_t rose = {0xFF, 0x99, 0xFF, 0xFF}; */
-        /* ei_fill(surface, &rose, widget->content_rect); */
-
         /* On affiche le titre dans l'en_tête */
         ei_draw_text(surface,
                      &(title_top_left),

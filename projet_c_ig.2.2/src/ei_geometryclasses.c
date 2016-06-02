@@ -1,5 +1,6 @@
 #include "ei_geometryclasses.h"
 #include "ei_geometrymanager.h"
+#include "ei_widget.h"
 #include "ei_classes.h"
 #include "ei_application.h"
 #include <string.h>
@@ -135,6 +136,25 @@ void placer_runfunc(struct ei_widget_t *widget){
                 return;
         }
         placer_screen_location(widget);
+        if (strcmp(widget->wclass->name, "toplevel") == 0){
+                ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
+                ei_widget_t *close_button = (ei_widget_t *) widget->next_sibling;
+                ei_anchor_t anch = ei_anc_center;
+                ei_color_t red = {0xFF, 0x00, 0x00, 0xFF};
+                ei_size_t title_size;
+                hw_text_compute_size(toplevel->title,
+                                     ei_default_font,
+                                     &(title_size.width),
+                                     &(title_size.height));
+                int radius_header = title_size.height/2;
+                int radius_button = title_size.height/4;
+                int border_button = title_size.height/8;
+                ei_size_t button_size = ei_size(radius_header, radius_header);
+                ei_point_t close_button_point = ei_point(radius_header, radius_header);
+                close_button_point = ei_point_add(close_button_point, widget->screen_location.top_left);
+                ei_button_configure(close_button, &button_size, &red, &border_button, &radius_button, NULL, NULL, NULL, NULL,  NULL, NULL, NULL, NULL, NULL, NULL);
+                ei_place(close_button, &anch, &(close_button_point.x), &(close_button_point.y), NULL, NULL, NULL, NULL, NULL, NULL);
+        }
 }
 
 
