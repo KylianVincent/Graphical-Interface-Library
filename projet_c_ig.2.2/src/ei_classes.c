@@ -234,10 +234,6 @@ void free_linked_point(ei_linked_point_t* pts);
 /* mode = 0 : complet  //  mode = -1 : basse  //  mode = 1 : haute  */
 ei_linked_point_t* rounded_frame(ei_rect_t rect, int radius, int8_t mode);
 
-/* Change la couleur sur chaque octet de val */
-/* Eclairci ou assombri en fonction de sign (1 ou -1) */
-ei_color_t eclaircir_assombrir(ei_color_t color, uint8_t val, int8_t sign);
-
 
 /* ----------FRAME------------*/
 

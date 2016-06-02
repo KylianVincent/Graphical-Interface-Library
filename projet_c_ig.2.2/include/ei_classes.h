@@ -66,6 +66,10 @@ ei_rect_t intersect_clipper(ei_rect_t clipper1, ei_rect_t clipper2);
 ei_point_t ancrage_text_img(struct ei_widget_t* widget); 
 /*si ancrage vaut null ou ei_anc_none, alors cas pas défault (northwest)*/
 
+/* Change la couleur sur chaque octet de val */
+/* Eclairci ou assombri en fonction de sign (1 ou -1) */
+ei_color_t eclaircir_assombrir(ei_color_t color, uint8_t val, int8_t sign);
+
 
 /*Definition de fonctions spécifiques à la classe frame*/
 void* frame_allocfunc ();

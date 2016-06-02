@@ -90,7 +90,15 @@ ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name, ei_widget_t* pa
         if (strcmp(class_name, "toplevel") == 0){
                 ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
                 if (toplevel->closable == EI_TRUE){
-                        ei_widget_t *close_button = ei_widget_create("button", parent);
+                        /* Pour les boutons associés à la toplevel aucune
+                           sauvegarde de leur adresse n'est nécessaire, on se
+                           servira de la structure en frères pour y accéder */
+                        ei_widget_create("button", parent);
+                }
+                if (toplevel->resizable == ei_axis_x
+                    || toplevel->resizable == ei_axis_y
+                    || toplevel->resizable == ei_axis_both){
+                        ei_widget_create("button", parent);
                 }
         }
 
@@ -104,7 +112,7 @@ void ei_widget_destroy(ei_widget_t* widget)
                 return;
         }
         /* On met a jour les fils du parent et les next_sibling des fils */
-        if (widget->parent != NULL) 
+        if (widget->parent != NULL)
         {
                 ei_widget_t* prec = widget->parent->children_head;
                 while (prec != widget && prec->next_sibling != widget)
