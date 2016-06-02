@@ -125,7 +125,7 @@ ei_bool_t click_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_par
                 last_pos = event->param.mouse.where;
                 ei_unbind(ei_ev_mouse_buttondown, NULL, "toplevel", click_toplevel, NULL);
                 ei_bind(ei_ev_mouse_move, NULL, "all", move_toplevel, (void *) widget);
-                ei_bind(ei_ev_mouse_buttonup, widget, NULL, unclick_toplevel, NULL);
+                ei_bind(ei_ev_mouse_buttonup, NULL, "all", unclick_toplevel, (void *) widget);
         }
         return EI_FALSE;
 }
@@ -143,8 +143,8 @@ ei_bool_t move_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_para
 
 ei_bool_t unclick_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param)
 {
-        ei_unbind(ei_ev_mouse_move, NULL, "all", move_toplevel, widget);
-        ei_unbind(ei_ev_mouse_buttonup, widget, NULL, unclick_toplevel, NULL);
+        ei_unbind(ei_ev_mouse_move, NULL, "all", move_toplevel, user_param);
+        ei_unbind(ei_ev_mouse_buttonup, NULL, "all", unclick_toplevel, user_param);
         ei_bind(ei_ev_mouse_buttondown, NULL, "toplevel", click_toplevel, NULL);
         return EI_FALSE;
 }

@@ -306,6 +306,7 @@ void frame_drawfunc(struct ei_widget_t*	frame,
 	}
 
 	ei_draw_polygon(surface, cadre, ((ei_frame_t *)frame)->color, clipper);
+        ei_draw_polygon(pick_surface, cadre, *(frame->pick_color), clipper);
 	
         ei_rect_t inter = intersect_clipper(*(frame->content_rect),*clipper);
         draw_texte(frame, surface, &inter);
