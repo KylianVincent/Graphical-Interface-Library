@@ -26,7 +26,7 @@ void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen)
 
         hw_init();
 	main_window = hw_create_window(main_window_size, fullscreen);
-	main_window_picking=hw_surface_create(main_window,main_window_size,EI_TRUE);
+	main_window_picking =hw_surface_create(main_window,main_window_size,EI_TRUE);
         /* Creation du geometry manager "placer" */
         ei_register_placer_manager();
         
@@ -77,27 +77,27 @@ void ei_app_run(){
         ei_app_run_rec(root_frame, root_frame->content_rect);
         hw_surface_update_rects(main_window, NULL);
         hw_surface_update_rects(main_window_picking, NULL);
+        init_binds_event();
         while (run) {
-                /* init_binds_event(); */
-                /* hw_event_wait_next(event); */
-                /* if (handle_event(event)) { */
-                /*         ei_app_run_rec(root_frame, root_frame->content_rect); */
-                /*         hw_surface_update_rects(main_window, NULL); */
-                /*         hw_surface_update_rects(main_window_picking, NULL); */
-                /* } */
-                ei_app_run_rec(root_frame, root_frame->content_rect);
-                hw_surface_update_rects(main_window, NULL);
-                hw_surface_update_rects(main_window_picking, NULL);
                 hw_event_wait_next(event);
-                if (event->type == ei_ev_keydown) {
-                        run = EI_FALSE;
+                if (event->type != ei_ev_none && handle_event(event)) {
+                        ei_app_run_rec(root_frame, root_frame->content_rect);
+                        hw_surface_update_rects(main_window, NULL);
+                        hw_surface_update_rects(main_window_picking, NULL);
                 }
-                if (event->type == ei_ev_mouse_buttondown) {
-                        ((ei_button_t *) root_frame->children_head->children_head)->relief += 1;
-                }
-                if (event->type == ei_ev_mouse_buttonup) {
-                        ((ei_button_t *) root_frame->children_head->children_head)->relief -= 1;
-                }
+                /* ei_app_run_rec(root_frame, root_frame->content_rect); */
+                /* hw_surface_update_rects(main_window, NULL); */
+                /* hw_surface_update_rects(main_window_picking, NULL); */
+                /* hw_event_wait_next(event); */
+                /* if (event->type == ei_ev_keydown) { */
+                /*         run = EI_FALSE; */
+                /* } */
+                /* if (event->type == ei_ev_mouse_buttondown) { */
+                /*         ((ei_button_t *) root_frame->children_head->children_head)->relief += 1; */
+                /* } */
+                /* if (event->type == ei_ev_mouse_buttonup) { */
+                /*         ((ei_button_t *) root_frame->children_head->children_head)->relief -= 1; */
+                /* } */
         }
 }
 

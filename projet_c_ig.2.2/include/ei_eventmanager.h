@@ -25,8 +25,20 @@ ei_widget_t *get_widget_of_pixel();
 ei_bool_t handle_event(ei_event_t* event);
 
 // Fonction traitante interne pour les boutons
-ei_bool_t button_change(ei_widget_t* widget, ei_event_t* event, void * user_param);
+ei_bool_t click_button(ei_widget_t* widget, ei_event_t* event, void * user_param);
+
+ei_bool_t click_moveout(ei_widget_t* widget, ei_event_t* event, void * user_param);
+
+ei_bool_t click_movein(ei_widget_t* widget, ei_event_t* event, void * user_param);
+
+ei_bool_t unclick(ei_widget_t* widget, ei_event_t* event, void * user_param);
+
+ei_bool_t unclick_button(ei_widget_t* widget, ei_event_t* event, void * user_param);
 
 // Fonction traitante interne pour les top_level
 
+ei_bool_t click_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param);
 
+ei_bool_t move_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param);
+
+ei_bool_t unclick_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param);
