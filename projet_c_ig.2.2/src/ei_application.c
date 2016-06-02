@@ -7,6 +7,7 @@
 #include "ei_classes.h"
 #include "ei_event.h"
 #include "ei_eventmanager.h"
+#include "variables_globales.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -27,6 +28,7 @@ void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen)
         hw_init();
 	main_window = hw_create_window(main_window_size, fullscreen);
 	main_window_picking =hw_surface_create(main_window,main_window_size,EI_TRUE);
+        taille_root_frame = *main_window_size;
         /* Creation du geometry manager "placer" */
         ei_register_placer_manager();
         

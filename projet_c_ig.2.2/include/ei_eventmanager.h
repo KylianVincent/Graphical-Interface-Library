@@ -19,7 +19,7 @@ void init_binds_event();
 ei_linked_bind_t **get_binds_event();
 
 // Fonction calculant renvoyant le widget correspondant à un pixel
-ei_widget_t *get_widget_of_pixel();
+ei_widget_t *get_widget_of_pixel(ei_point_t where);
 
 // Fonction qui traite un évènement
 ei_bool_t handle_event(ei_event_t* event);

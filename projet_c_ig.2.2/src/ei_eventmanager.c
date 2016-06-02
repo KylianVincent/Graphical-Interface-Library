@@ -26,20 +26,16 @@ ei_linked_bind_t **get_binds_event()
 }
 
 // Fonction calculant renvoyant le widget correspondant à un pixel
-ei_widget_t *get_widget_of_pixel()
+ei_widget_t *get_widget_of_pixel(ei_point_t where)
 {
-	ei_event_t *evt=calloc(1, sizeof(ei_event_t));
-	hw_event_wait_next(evt);
-	ei_point_t where = evt->param.mouse.where;
-	free(evt);
-	return ei_widget_pick (&where);	
+	return ei_widget_pick(&where);	
 }
 
 
 // Fonction qui traite un évènement
 ei_bool_t handle_event(ei_event_t* event)
 {
-        ei_widget_t *widget = get_widget_of_pixel();
+        ei_widget_t *widget = get_widget_of_pixel(event->param.mouse.where);
         ei_linked_bind_t *cour = binds_event[event->type];
         ei_bool_t change = EI_FALSE;
         while (cour != NULL) {
