@@ -317,10 +317,6 @@ void frame_drawfunc(struct ei_widget_t*	frame,
 
 	hw_surface_unlock(surface);
 	hw_surface_unlock(pick_surface);
-
-	hw_surface_update_rects(surface, NULL);
-	hw_surface_update_rects(pick_surface, NULL);		 
-
 }
 
 
@@ -532,8 +528,6 @@ void button_drawfunc(struct ei_widget_t* widget,
 
         hw_surface_unlock(surface);
         hw_surface_unlock(pick_surface);
-        hw_surface_update_rects(surface, NULL);
-        hw_surface_update_rects(pick_surface, NULL);
         /* On libère les listes de points */
         free_linked_point(corps);
         free_linked_point(relief_sup);
@@ -670,8 +664,6 @@ void toplevel_drawfunc(struct ei_widget_t* widget,
         
         hw_surface_unlock(surface);
         hw_surface_unlock(pick_surface);
-        hw_surface_update_rects(surface, NULL);
-        hw_surface_update_rects(pick_surface, NULL);
 
         /* On libère les listes de points */
         free_linked_point(exterior);
