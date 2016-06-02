@@ -130,8 +130,9 @@ void placer_screen_location(struct ei_widget_t *widget){
 
 /* void placer_runfunc(struct ei_widget_t *widget); */
 void placer_runfunc(struct ei_widget_t *widget){
-        /* Calcul de la géométrie sur le widget */
+        /* Calcul de la géométrie sur le widget*/
         if ((widget == NULL)
+            || (widget->geom_params == NULL)
             || (strcmp(widget->geom_params->manager->name, "placer") != 0)){
                 return;
         }
@@ -194,6 +195,13 @@ void placer_runfunc(struct ei_widget_t *widget){
                                  &(resize_button_point.y), NULL, NULL, NULL,
                                  NULL, NULL, NULL);
                 }
+        }
+        
+        /* On calcule la géométrie pour les fils */
+        /* ei_widget_t* cour = widget->children_head; */
+        /* while (cour != NULL) { */
+        /*         placer_runfunc(cour); */
+        /*         cour = cour->next_sibling; */
         }
 }
 

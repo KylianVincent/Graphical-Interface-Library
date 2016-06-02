@@ -142,6 +142,23 @@ void ei_widget_destroy(ei_widget_t* widget)
                 cour = cour->next_sibling;
                 ei_widget_destroy(temp);
         }
+        /* Si le widget à libérer est une toplevel alors il possède
+           potentiellement des frères qu'il est nécessaire de libérer aussi
+           (boutons de fermeture et redimensionnement */
+        if (strcmp(widget->wclass->name, "toplevel") == 0){
+                ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
+                if (toplevel->closable == EI_TRUE){
+                        ei_widget_destroy(widget->next_sibling);
+                }
+                if (toplevel->resizable == ei_axis_x
+                    || toplevel->resizable == ei_axis_y
+                    || toplevel->resizable == ei_axis_both){
+                        /* Ce bouton est aussi le prochain frère, soit parce
+                           qu'il n'y a pas de bouton de fermeture, soit parce
+                           qu'il a été libéré juste avant */
+                        ei_widget_destroy(widget->next_sibling);
+                }
+        }
 }
 
 
