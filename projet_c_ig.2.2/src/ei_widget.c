@@ -338,6 +338,13 @@ void ei_toplevel_configure(ei_widget_t*widget, ei_size_t*requested_size,
         }
         if (title != NULL){
                 toplevel->title = *title;
+                /* Mise à jour de la taille d'en-tête */
+                ei_size_t title_size;
+                hw_text_compute_size(toplevel->title,
+                             ei_default_font,
+                             &(title_size.width),
+                             &(title_size.height));
+                toplevel->height_header = title_size.height;
         }
         if (closable != NULL){
                 toplevel->closable = *closable;

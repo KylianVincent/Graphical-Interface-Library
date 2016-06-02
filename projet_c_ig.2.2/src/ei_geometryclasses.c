@@ -143,14 +143,9 @@ void placer_runfunc(struct ei_widget_t *widget){
                         ei_widget_t *close_button = widget->next_sibling;
                         ei_anchor_t close_button_anch = ei_anc_center;
                         ei_color_t red = {0xFF, 0x00, 0x00, 0xFF};
-                        ei_size_t title_size;
-                        hw_text_compute_size(toplevel->title,
-                                             ei_default_font,
-                                             &(title_size.width),
-                                             &(title_size.height));
-                        int radius_header = title_size.height/2;
-                        int radius_close_button = title_size.height/4;
-                        int border_close_button = title_size.height/8;
+                        int radius_header = toplevel->height_header/2;
+                        int radius_close_button = toplevel->height_header/4;
+                        int border_close_button = toplevel->height_header/8;
                         ei_size_t close_button_size = ei_size(radius_header,
                                                         radius_header);
                         ei_point_t close_button_point = ei_point(radius_header,

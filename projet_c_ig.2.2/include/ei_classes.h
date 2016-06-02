@@ -51,11 +51,12 @@ typedef struct ei_button_t{
 typedef struct ei_toplevel_t{
 	ei_widget_t	        widget;
 	ei_color_t      	color;
-	int		        border_width;
-	char*	                title;
+	int			border_width;
+	char*			title;
 	ei_bool_t		closable;
 	ei_axis_set_t		resizable;
-	ei_size_t*		min_size;
+	ei_size_t* 		min_size;
+        int 			height_header;
 }ei_toplevel_t;
 
 
