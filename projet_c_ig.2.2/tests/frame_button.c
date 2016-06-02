@@ -32,7 +32,7 @@ int ei_main(int argc, char** argv)
         ei_anchor_t anch_img = ei_anc_northwest;
         ei_rect_t *rect_img = calloc(1, sizeof(ei_rect_t));
         char* text2 = "En bas";
-        ei_anchor_t anch2 = ei_anc_southeast;
+        ei_anchor_t anch2 = ei_anc_south;
         rect_img->top_left.x=470;rect_img->top_left.y=230; 
         rect_img->size.width=70; rect_img->size.height=70;
 	ei_frame_configure(ei_app_root_widget(), NULL, &root_bgcol, NULL, NULL, &text2, NULL, NULL, &anch2, NULL, NULL, NULL);
@@ -42,11 +42,12 @@ int ei_main(int argc, char** argv)
 	ei_frame_configure(frame, &frame_size, &frame_color,
 			    &frame_border_width, &frame_relief, NULL, NULL, NULL, NULL,
 			    &img, &rect_img, &anch_img);
-        int x= 1000;
-        int y = 1000;
+        int x= -4;
+        int y = -4;
         float relx = 1.0;
         float rely = 1.0;
-	ei_place(frame, &anch2, &x, &y, NULL, NULL, &relx, &rely, NULL, NULL );
+        ei_anchor_t anc_frame = ei_anc_southeast;
+	ei_place(frame, &anc_frame, &x, &y, NULL, NULL, &relx, &rely, NULL, NULL );
         ei_widget_t* button;
         button = ei_widget_create("button", frame);
         char* text = "Cliquez ici";
