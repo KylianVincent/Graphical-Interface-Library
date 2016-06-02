@@ -2,7 +2,9 @@
 #include "ei_widgetclass.h"
 #include "ei_types.h"
 #include "ei_classes.h"
+#include "ei_application.h"
 #include "ei_utils.h"
+#include "variables_globales.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -29,6 +31,30 @@ void alloc_tab_pick(int32_t new_size){
 		}
 		free(tmp);
 	}	
+}
+
+ei_widget_t * 	ei_widget_pick (ei_point_t *where){
+	hw_surface_lock(main_window_picking);
+	uint8_t *pixel = hw_surface_get_buffer(main_window_picking);
+	uint8_t *p = pixel + sizeof(uint32_t)*(where->y *taille_root_frame.height  + where->x);
+	int ir;
+	int ig;
+	int ib;
+	int ia;
+
+	hw_surface_get_channel_indices(main_window_picking, &ir, &ig, &ib, &ia);
+	hw_surface_unlock(main_window_picking);
+	
+	uint32_t r = *(ir+p);
+	uint32_t v = *(ig+p);
+	uint32_t b = *(ib+p);
+	uint32_t pick_id= r + (v<<8) + (b<<16);
+	if (pick_id > size){
+		perror("acces incorrect");
+		exit(1);
+	}
+	return tab_pick[pick_id];
+
 }
 
 ei_color_t * def_pick_color(uint32_t pick_id)
