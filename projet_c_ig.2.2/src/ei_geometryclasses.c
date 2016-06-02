@@ -202,7 +202,7 @@ void placer_runfunc(struct ei_widget_t *widget){
         /* while (cour != NULL) { */
         /*         placer_runfunc(cour); */
         /*         cour = cour->next_sibling; */
-        }
+        /*}*/
 }
 
 
