@@ -79,7 +79,7 @@ ei_bool_t click_button(ei_widget_t* widget, ei_event_t* event, void * user_param
 ei_bool_t click_moveout(ei_widget_t* widget, ei_event_t* event, void * user_param)
 {
         ei_widget_t *ancien_widget = (ei_widget_t *) user_param;
-        if (widget != ancien_widget && EI_FALSE) {
+        if (widget != ancien_widget) {
                 ((ei_button_t*) ancien_widget)->relief--;
                 ei_unbind(ei_ev_mouse_move, NULL, "all", click_moveout, user_param);
                 ei_unbind(ei_ev_mouse_buttonup, ancien_widget, NULL, unclick_button, NULL);
@@ -92,10 +92,12 @@ ei_bool_t click_moveout(ei_widget_t* widget, ei_event_t* event, void * user_para
 
 ei_bool_t click_movein(ei_widget_t* widget, ei_event_t* event, void * user_param)
 {
+        ((ei_button_t*) widget)->relief++;
         ei_unbind(ei_ev_mouse_move, NULL, "button", click_movein, NULL);
         ei_unbind(ei_ev_mouse_buttonup, NULL, "all", unclick, NULL);
         ei_bind(ei_ev_mouse_move, NULL, "all", click_moveout, (void *) widget);
         ei_bind(ei_ev_mouse_buttonup, widget, NULL, unclick_button, NULL);
+        
         return EI_TRUE;
 }
 
