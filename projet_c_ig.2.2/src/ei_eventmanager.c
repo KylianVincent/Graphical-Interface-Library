@@ -3,6 +3,9 @@
 #include "ei_application.h"
 #include "ei_classes.h"
 #include "ei_geometryclasses.h"
+#include "ei_application.h"
+#include "ei_widget.h"
+
 
 ei_linked_tag_t *tags = NULL;
 ei_linked_bind_t **binds_event;
@@ -25,8 +28,11 @@ ei_linked_bind_t **get_binds_event()
 // Fonction calculant renvoyant le widget correspondant à un pixel
 ei_widget_t *get_widget_of_pixel()
 {
-        ei_widget_t *widget = ei_app_root_widget();
-        return widget->children_head->children_head;
+	ei_event_t *evt=calloc(1, sizeof(ei_event_t));
+	hw_event_wait_next(evt);
+	ei_point_t where = evt->param.mouse.where;
+	free(evt);
+	return ei_widget_pick (&where);	
 }
 
 

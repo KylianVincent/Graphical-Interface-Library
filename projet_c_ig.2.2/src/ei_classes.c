@@ -234,10 +234,6 @@ void free_linked_point(ei_linked_point_t* pts);
 /* mode = 0 : complet  //  mode = -1 : basse  //  mode = 1 : haute  */
 ei_linked_point_t* rounded_frame(ei_rect_t rect, int radius, int8_t mode);
 
-/* Change la couleur sur chaque octet de val */
-/* Eclairci ou assombri en fonction de sign (1 ou -1) */
-ei_color_t eclaircir_assombrir(ei_color_t color, uint8_t val, int8_t sign);
-
 
 /* ----------FRAME------------*/
 
@@ -601,13 +597,7 @@ void toplevel_drawfunc(struct ei_widget_t* widget,
         ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
         
         /* Calcul de la géométrie du cadre extérieur */
-        ei_size_t title_size;
-        hw_text_compute_size(toplevel->title,
-                             ei_default_font,
-                             &(title_size.width),
-                             &(title_size.height));
-        int height_header = title_size.height;
-        int radius_header = height_header/2;
+        int radius_header = toplevel->height_header/2;
 
         ei_point_t centre1 = ei_point(widget->screen_location.top_left.x + radius_header,
                                       widget->screen_location.top_left.y + radius_header);
@@ -637,9 +627,6 @@ void toplevel_drawfunc(struct ei_widget_t* widget,
         ei_point_t title_top_left = ei_point(widget->screen_location.top_left.x + 2 * radius_header,
                                              widget->screen_location.top_left.y);
 
-        /* ei_point_t interior_point = ei_point(widget->screen_location.top_left.x + toplevel->border_width, */
-        /*                                      widget->screen_location.top_left.y + height_header); */
-        /* ei_rect_t interior_rect = ei_rect(interior_point, widget->screen_location.size); */
         ei_linked_point_t *interior = rounded_frame(*(widget->content_rect), 0, 0);
         
 
@@ -691,14 +678,14 @@ void toplevel_setdefaultsfunc(struct ei_widget_t* widget){
                              ei_default_font,
                              &(title_size.width),
                              &(title_size.height));
-        int height_header = title_size.height;
+        toplevel->height_header = title_size.height;
 
         /* On change le content rect pour une toplevel */
 	widget->content_rect = calloc(1, sizeof(ei_rect_t));
 	widget->content_rect->top_left.x = widget->screen_location.top_left.x + toplevel->border_width;
-	widget->content_rect->top_left.y = widget->screen_location.top_left.y + height_header;
+	widget->content_rect->top_left.y = widget->screen_location.top_left.y + toplevel->height_header;
 	widget->content_rect->size.width = widget->requested_size.width;
 	widget->content_rect->size.height = widget->requested_size.height;
         widget->screen_location.size.width = widget->requested_size.width + toplevel->border_width * 2;
-        widget->screen_location.size.height = widget->requested_size.height + height_header + toplevel->border_width;
+        widget->screen_location.size.height = widget->requested_size.height + toplevel->height_header + toplevel->border_width;
 }

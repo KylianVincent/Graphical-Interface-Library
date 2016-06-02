@@ -2,7 +2,9 @@
 #include "ei_widgetclass.h"
 #include "ei_types.h"
 #include "ei_classes.h"
+#include "ei_application.h"
 #include "ei_utils.h"
+#include "variables_globales.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -29,6 +31,30 @@ void alloc_tab_pick(int32_t new_size){
 		}
 		free(tmp);
 	}	
+}
+
+ei_widget_t * 	ei_widget_pick (ei_point_t *where){
+	hw_surface_lock(main_window_picking);
+	uint8_t *pixel = hw_surface_get_buffer(main_window_picking);
+	uint8_t *p = pixel + sizeof(uint32_t)*(where->y *taille_root_frame.height  + where->x);
+	int ir;
+	int ig;
+	int ib;
+	int ia;
+
+	hw_surface_get_channel_indices(main_window_picking, &ir, &ig, &ib, &ia);
+	hw_surface_unlock(main_window_picking);
+	
+	uint32_t r = *(ir+p);
+	uint32_t v = *(ig+p);
+	uint32_t b = *(ib+p);
+	uint32_t pick_id= r + (v<<8) + (b<<16);
+	if (pick_id > size){
+		perror("acces incorrect");
+		exit(1);
+	}
+	return tab_pick[pick_id];
+
 }
 
 ei_color_t * def_pick_color(uint32_t pick_id)
@@ -90,7 +116,15 @@ ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name, ei_widget_t* pa
         if (strcmp(class_name, "toplevel") == 0){
                 ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
                 if (toplevel->closable == EI_TRUE){
-                        ei_widget_t *close_button = ei_widget_create("button", parent);
+                        /* Pour les boutons associés à la toplevel aucune
+                           sauvegarde de leur adresse n'est nécessaire, on se
+                           servira de la structure en frères pour y accéder */
+                        ei_widget_create("button", parent);
+                }
+                if (toplevel->resizable == ei_axis_x
+                    || toplevel->resizable == ei_axis_y
+                    || toplevel->resizable == ei_axis_both){
+                        ei_widget_create("button", parent);
                 }
         }
 
@@ -104,7 +138,7 @@ void ei_widget_destroy(ei_widget_t* widget)
                 return;
         }
         /* On met a jour les fils du parent et les next_sibling des fils */
-        if (widget->parent != NULL) 
+        if (widget->parent != NULL)
         {
                 ei_widget_t* prec = widget->parent->children_head;
                 while (prec != widget && prec->next_sibling != widget)
@@ -133,6 +167,23 @@ void ei_widget_destroy(ei_widget_t* widget)
                 temp->parent = NULL;
                 cour = cour->next_sibling;
                 ei_widget_destroy(temp);
+        }
+        /* Si le widget à libérer est une toplevel alors il possède
+           potentiellement des frères qu'il est nécessaire de libérer aussi
+           (boutons de fermeture et redimensionnement */
+        if (strcmp(widget->wclass->name, "toplevel") == 0){
+                ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
+                if (toplevel->closable == EI_TRUE){
+                        ei_widget_destroy(widget->next_sibling);
+                }
+                if (toplevel->resizable == ei_axis_x
+                    || toplevel->resizable == ei_axis_y
+                    || toplevel->resizable == ei_axis_both){
+                        /* Ce bouton est aussi le prochain frère, soit parce
+                           qu'il n'y a pas de bouton de fermeture, soit parce
+                           qu'il a été libéré juste avant */
+                        ei_widget_destroy(widget->next_sibling);
+                }
         }
 }
 
@@ -313,6 +364,13 @@ void ei_toplevel_configure(ei_widget_t*widget, ei_size_t*requested_size,
         }
         if (title != NULL){
                 toplevel->title = *title;
+                /* Mise à jour de la taille d'en-tête */
+                ei_size_t title_size;
+                hw_text_compute_size(toplevel->title,
+                             ei_default_font,
+                             &(title_size.width),
+                             &(title_size.height));
+                toplevel->height_header = title_size.height;
         }
         if (closable != NULL){
                 toplevel->closable = *closable;
