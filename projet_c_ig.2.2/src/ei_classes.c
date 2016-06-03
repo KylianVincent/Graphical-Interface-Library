@@ -639,11 +639,12 @@ void toplevel_drawfunc(struct ei_widget_t* widget,
         ei_draw_polygon(pick_surface, exterior, *(widget->pick_color), clipper);
 
         /* On affiche le titre dans l'en_tête */
+        ei_color_t white = {0xFF, 0xFF, 0xFF, 0xFF};
         ei_draw_text(surface,
                      &(title_top_left),
                      toplevel->title,
                      NULL,
-                     &(ei_font_default_color),
+                     &white,
                      clipper);
         
         hw_surface_unlock(surface);
