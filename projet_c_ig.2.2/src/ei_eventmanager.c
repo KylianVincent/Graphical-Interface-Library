@@ -8,7 +8,7 @@
 
 
 ei_linked_bind_t **binds_event;
-/* Utile pour le déplacement de fenetre */
+/* Utile pour le déplacement et redimmensionnement de fenetre */
 ei_point_t last_pos;
 
 void init_binds_event()
@@ -144,6 +144,29 @@ ei_bool_t click_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_par
                 ei_bind(ei_ev_mouse_move, NULL, "all", move_toplevel, (void *) widget);
                 ei_bind(ei_ev_mouse_buttonup, NULL, "all", unclick_toplevel, (void *) widget);
         }
+
+        ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
+        ei_point_t resize_corner = ei_point(widget->screen_location.size.width,
+                                            widget->screen_location.size.height);
+        resize_corner = ei_point_add(resize_corner,
+                                     widget->screen_location.top_left);
+        int resize_zone_height;
+        if (toplevel->border_width > 2){
+                resize_zone_height = 2*toplevel->border_width;
+        } else {
+                resize_zone_height = 4;
+        }
+        resize_corner.x -= resize_zone_height;
+        resize_corner.y -= resize_zone_height;
+
+        if ((event->param.mouse.where.y > resize_corner.y)
+            && (event->param.mouse.where.x > resize_corner.x)){
+                last_pos = event->param.mouse.where;
+                ei_unbind(ei_ev_mouse_buttondown, NULL, "toplevel", click_toplevel, NULL);
+                ei_bind(ei_ev_mouse_move, NULL, "all", resize_toplevel, (void *) widget);
+                ei_bind(ei_ev_mouse_buttonup, NULL, "all", unclick_toplevel, (void *) widget);
+        }
+
         return EI_FALSE;
 }
 
@@ -161,7 +184,29 @@ ei_bool_t move_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_para
 ei_bool_t unclick_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param)
 {
         ei_unbind(ei_ev_mouse_move, NULL, "all", move_toplevel, user_param);
+        ei_unbind(ei_ev_mouse_move, NULL, "all", resize_toplevel, user_param);
         ei_unbind(ei_ev_mouse_buttonup, NULL, "all", unclick_toplevel, user_param);
         ei_bind(ei_ev_mouse_buttondown, NULL, "toplevel", click_toplevel, NULL);
         return EI_FALSE;
+}
+
+/* Redimensionnement des toplevel */
+ei_bool_t resize_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param){
+        ei_widget_t *toplevel = (ei_widget_t *) user_param;
+        int diff_x = event->param.mouse.where.x - last_pos.x;
+        int diff_y = event->param.mouse.where.y - last_pos.y;
+        int new_size_width = ((ei_placer_param_t *) toplevel->geom_params)->width + diff_x;
+        int new_size_height = ((ei_placer_param_t *) toplevel->geom_params)->height + diff_y;
+        if (((ei_toplevel_t *) toplevel)->min_size->width < new_size_width
+            && (((ei_toplevel_t *) toplevel)->resizable == ei_axis_x
+                || ((ei_toplevel_t *) toplevel)->resizable == ei_axis_both)){
+                ((ei_placer_param_t *) toplevel->geom_params)->width = new_size_width;
+        }
+        if (((ei_toplevel_t *) toplevel)->min_size->height < new_size_height
+             && (((ei_toplevel_t *) toplevel)->resizable == ei_axis_y
+                  || ((ei_toplevel_t *) toplevel)->resizable == ei_axis_both)){
+                ((ei_placer_param_t *) toplevel->geom_params)->height = new_size_height;
+        }
+        last_pos = event->param.mouse.where;
+        return EI_TRUE;
 }
