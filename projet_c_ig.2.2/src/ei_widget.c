@@ -38,7 +38,7 @@ void alloc_tab_pick(int32_t new_size){
 ei_widget_t * 	ei_widget_pick (ei_point_t *where){
 	hw_surface_lock(main_window_picking);
 	uint8_t *pixel = hw_surface_get_buffer(main_window_picking);
-	uint8_t *p = pixel + sizeof(uint32_t)*(where->y *taille_root_frame.height  + where->x);
+	uint8_t *p = pixel + sizeof(uint32_t)*(where->y *taille_root_frame.width  + where->x);
 	int ir;
 	int ig;
 	int ib;
@@ -50,7 +50,7 @@ ei_widget_t * 	ei_widget_pick (ei_point_t *where){
 	uint32_t r = *(ir+p);
 	uint32_t v = *(ig+p);
 	uint32_t b = *(ib+p);
-	uint32_t pick_id= r + (v<<8) + (b<<16);
+	uint32_t pick_id= (r>>3) + (v<<8) + (b<<16);
 	if (pick_id > size){
 		perror("acces incorrect");
 		exit(1);
@@ -64,7 +64,7 @@ ei_color_t * def_pick_color(uint32_t pick_id)
         /* Ici, on retourne une couleur dépendant du pick_id */
         ei_color_t* couleur = calloc(1, sizeof(ei_color_t));
         char* tab = (char*) &pick_id;
-        couleur->red = tab[0];
+        couleur->red = 8*tab[0];
         couleur->green = tab[1];
         couleur->blue = tab[2];
         couleur->alpha = 0xFF;
@@ -124,8 +124,8 @@ ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name, ei_widget_t* pa
                            sauvegarde de leur adresse n'est nécessaire, on se
                            servira de la structure en frères pour y accéder */
                         ei_button_t *button = (ei_button_t *) ei_widget_create("button", parent);
-                        //button->callback = close_toplevel;
-                        //button->user_param = (void *) toplevel;
+                        button->callback = close_toplevel;
+                        button->user_param = (void *) toplevel;
                 }
                 if (toplevel->resizable == ei_axis_x
                     || toplevel->resizable == ei_axis_y
@@ -155,6 +155,24 @@ void ei_widget_destroy(ei_widget_t* widget)
         if (widget == NULL) {
                 return;
         }
+        ei_geometrymanager_unmap(widget);
+        /* Si le widget à libérer est une toplevel alors il possède
+           potentiellement des frères qu'il est nécessaire de libérer aussi
+           (boutons de fermeture et redimensionnement */
+        if (strcmp(widget->wclass->name, "toplevel") == 0){
+                ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
+                if (toplevel->closable == EI_TRUE){
+                        ei_widget_destroy(widget->next_sibling);
+                }
+                if (toplevel->resizable == ei_axis_x
+                    || toplevel->resizable == ei_axis_y
+                    || toplevel->resizable == ei_axis_both){
+                        /* Ce frame est aussi le prochain frère, soit parce
+                           qu'il n'y a pas de bouton de fermeture, soit parce
+                           qu'il a été libéré juste avant */
+                        ei_widget_destroy(widget->next_sibling);
+                }
+        }
         /* On met a jour les fils du parent et les next_sibling des fils */
         if (widget->parent != NULL)
         {
@@ -178,30 +196,13 @@ void ei_widget_destroy(ei_widget_t* widget)
 	tab_pick[widget->pick_id]=NULL;
         /* On parcourt les fils du widget et on libere widget */
         ei_widget_t* cour = widget->children_head;
-        ei_geometrymanager_unmap(widget);
+        (*widget->wclass->releasefunc)(widget);
         while (cour != NULL)
         {
                 ei_widget_t* temp = cour;
                 temp->parent = NULL;
                 cour = cour->next_sibling;
                 ei_widget_destroy(temp);
-        }
-        /* Si le widget à libérer est une toplevel alors il possède
-           potentiellement des frères qu'il est nécessaire de libérer aussi
-           (boutons de fermeture et redimensionnement */
-        if (strcmp(widget->wclass->name, "toplevel") == 0){
-                ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
-                if (toplevel->closable == EI_TRUE){
-                        ei_widget_destroy(widget->next_sibling);
-                }
-                if (toplevel->resizable == ei_axis_x
-                    || toplevel->resizable == ei_axis_y
-                    || toplevel->resizable == ei_axis_both){
-                        /* Ce bouton est aussi le prochain frère, soit parce
-                           qu'il n'y a pas de bouton de fermeture, soit parce
-                           qu'il a été libéré juste avant */
-                        ei_widget_destroy(widget->next_sibling);
-                }
         }
 }
 
@@ -233,7 +234,11 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
                 exit(1);
         }
         if (text != NULL){
-                frame->text = *text;
+                if (frame->text != NULL) {
+                        free(frame->text);
+                }
+                frame->text = calloc(strlen(*text)+1, sizeof(char));
+                strcpy(frame->text,*text);
                 if (text_font != NULL){
                         frame->text_font = *text_font;
                 }
@@ -380,7 +385,11 @@ void ei_toplevel_configure(ei_widget_t*widget, ei_size_t*requested_size,
                 widget->screen_location.size.height += diff_b;
         }
         if (title != NULL){
-                toplevel->title = *title;
+                if (toplevel->title != NULL) {
+                        free(toplevel->title);
+                }
+                toplevel->title = calloc(strlen(*title)+1, sizeof(char));
+                strcpy(toplevel->title,*title);
                 /* Mise à jour de la taille d'en-tête */
                 ei_size_t title_size;
                 hw_text_compute_size(toplevel->title,
@@ -396,7 +405,10 @@ void ei_toplevel_configure(ei_widget_t*widget, ei_size_t*requested_size,
                 toplevel->resizable = *resizable;
         }
         if (min_size != NULL){
-                toplevel->min_size = *min_size;
+                if (toplevel->min_size == NULL) {
+                        toplevel->min_size = calloc(1, sizeof(ei_size_t));
+                }
+                *(toplevel->min_size) = **min_size;
         }
 
 
