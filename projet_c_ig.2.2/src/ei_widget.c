@@ -6,6 +6,7 @@
 #include "ei_application.h"
 #include "ei_utils.h"
 #include "variables_globales.h"
+#include "ei_eventmanager.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -116,13 +117,15 @@ ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name, ei_widget_t* pa
 
         if (strcmp(class_name, "toplevel") == 0){
                 /* On sauvegarde le pick_id de la toplevel */
-                int pick_id_toplevel = widget->pick_id;
+                uint32_t pick_id_toplevel = widget->pick_id;
                 ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
                 if (toplevel->closable == EI_TRUE){
                         /* Pour les boutons associés à la toplevel aucune
                            sauvegarde de leur adresse n'est nécessaire, on se
                            servira de la structure en frères pour y accéder */
-                        ei_widget_create("button", parent);
+                        ei_button_t *button = (ei_button_t *) ei_widget_create("button", parent);
+                        //button->callback = close_toplevel;
+                        //button->user_param = (void *) toplevel;
                 }
                 if (toplevel->resizable == ei_axis_x
                     || toplevel->resizable == ei_axis_y
@@ -133,11 +136,12 @@ ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name, ei_widget_t* pa
                            relachement comme pour les boutons) */
                         ei_widget_t *resize_zone_toplevel = ei_widget_create("frame",
                                                                              parent);
-                        resize_zone_toplevel->pick_id = pick_id_toplevel;
-                        resize_zone_toplevel->pick_color = def_pick_color(widget->pick_id);
                         /* Il faut libérer le pick_id alloué par la création du
                            widget frame */
-                        tab_pick[pick_id_toplevel]=NULL;
+                        tab_pick[resize_zone_toplevel->pick_id] = NULL;
+                        resize_zone_toplevel->pick_id = pick_id_toplevel;
+                        free(resize_zone_toplevel->pick_color);
+                        resize_zone_toplevel->pick_color = def_pick_color(widget->pick_id);
                         
                 }
         }
