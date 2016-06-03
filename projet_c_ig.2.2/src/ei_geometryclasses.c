@@ -122,7 +122,7 @@ void placer_screen_location(struct ei_widget_t *widget){
 
         /* Test de la positivité des valeurs */
         if ((widget->content_rect->size.width < 0)
-           || (widget->content_rect->size.height < 0)){
+            || (widget->content_rect->size.height < 0)){
                 perror("Arguments de taille incohérents (valeurs finales négatives");
                 exit(1);
         }
@@ -147,7 +147,7 @@ void placer_runfunc(struct ei_widget_t *widget){
                         int radius_close_button = toplevel->height_header/4;
                         int border_close_button = toplevel->height_header/8;
                         ei_size_t close_button_size = ei_size(radius_header,
-                                                        radius_header);
+                                                              radius_header);
                         ei_point_t close_button_point = ei_point(radius_header,
                                                                  radius_header);
                         close_button_point = ei_point_add(close_button_point,
@@ -163,32 +163,37 @@ void placer_runfunc(struct ei_widget_t *widget){
                 if  (toplevel->resizable == ei_axis_x
                      || toplevel->resizable == ei_axis_y
                      || toplevel->resizable == ei_axis_both){
-                        ei_widget_t *resize_button;
-                        resize_button = widget->next_sibling;
+                        ei_widget_t *resize_zone;
+                        resize_zone = widget->next_sibling;
                         if (toplevel->closable == EI_TRUE){
                                 /* Si le toplevel avait un bouton de fermeture,
-                                   celui de redimmensionnement est son deuxième
-                                   fils, sinon c'est le premier */
-                                resize_button = resize_button->next_sibling;
+                                   la frame de redimmensionnement est son
+                                   deuxième fils, sinon c'est le premier */
+                                resize_zone = resize_zone->next_sibling;
                         }
-                        ei_color_t resize_button_color = eclaircir_assombrir(toplevel->color,
-                                                                             100, -1);
-                        ei_anchor_t resize_button_anch = ei_anc_southeast;
-                        ei_size_t resize_button_size = ei_size(2*toplevel->border_width,
-                                                               2*toplevel->border_width);
-                        ei_point_t resize_button_point = ei_point(widget->screen_location.size.width,
-                                                                  widget->screen_location.size.height);
-                        resize_button_point = ei_point_add(resize_button_point, 
-                                                          widget->screen_location.top_left);
-                        int resize_button_border = 0;
-                        ei_button_configure(resize_button, &resize_button_size,
-                                            &(resize_button_color),
-                                            &resize_button_border, &resize_button_border,
-                                            NULL, NULL, NULL, NULL, NULL,
-                                            NULL, NULL, NULL, NULL, NULL);
-                        ei_place(resize_button, &resize_button_anch, &(resize_button_point.x),
-                                 &(resize_button_point.y), NULL, NULL, NULL,
-                                 NULL, NULL, NULL);
+                        ei_color_t resize_zone_color = eclaircir_assombrir(toplevel->color,
+                                                                           100, -1);
+                        ei_anchor_t resize_zone_anch = ei_anc_southeast;
+                        ei_size_t resize_zone_size;
+                        if (toplevel->border_width > 1){
+                                resize_zone_size = ei_size(2*toplevel->border_width,
+                                                           2*toplevel->border_width);
+                        } else {
+                                resize_zone_size = ei_size(4, 4);
+                        }
+                        
+                        ei_point_t resize_zone_point = ei_point(widget->screen_location.size.width,
+                                                                widget->screen_location.size.height);
+                        resize_zone_point = ei_point_add(resize_zone_point, 
+                                                         widget->screen_location.top_left);
+                        int resize_zone_border = 0;
+                        ei_frame_configure(resize_zone, &resize_zone_size,
+                                           &(resize_zone_color),
+                                           &resize_zone_border, NULL, NULL,
+                                           NULL, NULL, NULL, NULL, NULL, NULL);
+                        ei_place(resize_zone, &resize_zone_anch,
+                                 &(resize_zone_point.x), &(resize_zone_point.y),
+                                 NULL, NULL, NULL, NULL, NULL, NULL);
                 }
         }
         
