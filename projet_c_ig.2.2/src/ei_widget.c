@@ -38,7 +38,7 @@ void alloc_tab_pick(int32_t new_size){
 ei_widget_t * 	ei_widget_pick (ei_point_t *where){
 	hw_surface_lock(main_window_picking);
 	uint8_t *pixel = hw_surface_get_buffer(main_window_picking);
-	uint8_t *p = pixel + sizeof(uint32_t)*(where->y *taille_root_frame.height  + where->x);
+	uint8_t *p = pixel + sizeof(uint32_t)*(where->y *taille_root_frame.width  + where->x);
 	int ir;
 	int ig;
 	int ib;
@@ -234,7 +234,11 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
                 exit(1);
         }
         if (text != NULL){
-                frame->text = *text;
+                if (frame->text != NULL) {
+                        free(frame->text);
+                }
+                frame->text = calloc(strlen(*text)+1, sizeof(char));
+                strcpy(frame->text,*text);
                 if (text_font != NULL){
                         frame->text_font = *text_font;
                 }
@@ -381,7 +385,11 @@ void ei_toplevel_configure(ei_widget_t*widget, ei_size_t*requested_size,
                 widget->screen_location.size.height += diff_b;
         }
         if (title != NULL){
-                toplevel->title = *title;
+                if (toplevel->title != NULL) {
+                        free(toplevel->title);
+                }
+                toplevel->title = calloc(strlen(*title)+1, sizeof(char));
+                strcpy(toplevel->title,*title);
                 /* Mise à jour de la taille d'en-tête */
                 ei_size_t title_size;
                 hw_text_compute_size(toplevel->title,
@@ -397,7 +405,10 @@ void ei_toplevel_configure(ei_widget_t*widget, ei_size_t*requested_size,
                 toplevel->resizable = *resizable;
         }
         if (min_size != NULL){
-                toplevel->min_size = *min_size;
+                if (toplevel->min_size == NULL) {
+                        toplevel->min_size = calloc(1, sizeof(ei_size_t));
+                }
+                *(toplevel->min_size) = **min_size;
         }
 
 

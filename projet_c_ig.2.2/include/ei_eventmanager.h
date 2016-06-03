@@ -48,5 +48,4 @@ ei_bool_t move_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_para
 
 ei_bool_t unclick_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param);
 
-/* Redimensionnement des toplevel */
 ei_bool_t resize_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param);
