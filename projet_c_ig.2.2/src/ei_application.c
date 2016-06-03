@@ -36,6 +36,8 @@ void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen)
         ei_frame_register_class();
         ei_button_register_class();
         ei_toplevel_register_class();
+        /* Initialisation du tableau de binds */
+        init_binds_event();
 
         /* Initialisation de root_frame */
         root_frame = ei_widget_create("frame", NULL);
@@ -79,7 +81,6 @@ void ei_app_run(){
         ei_app_run_rec(root_frame, root_frame->content_rect);
         hw_surface_update_rects(main_window, NULL);
         hw_surface_update_rects(main_window_picking, NULL);
-        init_binds_event();
         while (run) {
                 hw_event_wait_next(event);
                 if (event->type != ei_ev_none && handle_event(event)) {

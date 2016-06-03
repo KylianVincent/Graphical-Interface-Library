@@ -348,8 +348,7 @@ void ei_toplevel_configure(ei_widget_t*widget, ei_size_t*requested_size,
         if (requested_size != NULL){
                 int diff_w = requested_size->width - widget->requested_size.width;
                 int diff_h = requested_size->height - widget->requested_size.height;
-                widget->requested_size.width  = widget->requested_size.width;
-                widget->requested_size.height = widget->requested_size.height;
+                widget->requested_size = *requested_size;
                 /* Mise à jour de la zone de contenu */
                 widget->content_rect->size.height += diff_h;
                 widget->content_rect->size.width += diff_w;

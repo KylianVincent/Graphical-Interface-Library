@@ -24,6 +24,9 @@ ei_widget_t *get_widget_of_pixel(ei_point_t where);
 // Fonction qui traite un évènement
 ei_bool_t handle_event(ei_event_t* event);
 
+// Fonction qui quitte lorqu'on appuye sur échappe
+ei_bool_t escape(ei_widget_t *widget, ei_event_t* event, void *user_param);
+
 // Fonction traitante interne pour les boutons
 ei_bool_t click_button(ei_widget_t* widget, ei_event_t* event, void * user_param);
 

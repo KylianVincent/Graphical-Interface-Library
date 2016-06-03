@@ -17,7 +17,7 @@ void init_binds_event()
         binds_event = calloc(8, sizeof(ei_linked_bind_t *));
         ei_bind(ei_ev_mouse_buttondown, NULL, "button", click_button, NULL);
         ei_bind(ei_ev_mouse_buttondown, NULL, "toplevel", click_toplevel, NULL);
-        ei_bind(ei_ev_keydown, NULL, "all", ei_app_quit_request, NULL);
+        ei_bind(ei_ev_keydown, NULL, "all", escape, NULL);
 }
 
 ei_linked_bind_t **get_binds_event()
@@ -42,29 +42,28 @@ ei_bool_t handle_event(ei_event_t* event)
                 ei_linked_bind_t *next = cour->next;
                 /** Evenements externes **/
                 if (cour->widget == widget) {
-                        (*cour->callback)(widget, event, cour->user_param);
-                        change = EI_TRUE;
+                        change = change || (*cour->callback)(widget, event, cour->user_param);
                 }
                 /** Evenements interne **/
-                else if (!strcmp(cour->tag,"button") && 
-                    !strcmp(widget->wclass->name, "button")) {
-                        (*cour->callback)(widget, event, cour->user_param);
-                        change = EI_TRUE;
+                else if (cour->tag != NULL && !strcmp(cour->tag,widget->wclass->name)) {
+                        change = change || (*cour->callback)(widget, event, cour->user_param);
                 }
-                else if (!strcmp(cour->tag,"toplevel") && 
-                    !strcmp(widget->wclass->name, "toplevel")) {
-                        (*cour->callback)(widget, event, cour->user_param);
-                        change = EI_TRUE;
-                }
-                else if (!strcmp(cour->tag,"all")) {
-                        (*cour->callback)(widget, event, cour->user_param);
-                        change = EI_TRUE;
+                else if (cour->tag != NULL && !strcmp(cour->tag,"all")) {
+                        change = change || (*cour->callback)(widget, event, cour->user_param);
                 }
                 cour = next;
         }
         return change;
 }
 
+// Fonction qui quitte lorqu'on appuye sur échappe
+ei_bool_t escape(ei_widget_t *widget, ei_event_t* event, void *user_param)
+{
+        if (event->type == ei_ev_keydown && event->param.key.key_sym == SDLK_ESCAPE) {
+                ei_app_quit_request();
+        }
+        return EI_FALSE;
+}
 
 // Fonction traitante interne pour les boutons
 ei_bool_t click_button(ei_widget_t* widget, ei_event_t* event, void * user_param)
@@ -83,8 +82,8 @@ ei_bool_t click_moveout(ei_widget_t* widget, ei_event_t* event, void * user_para
                 ((ei_button_t*) ancien_widget)->relief--;
                 ei_unbind(ei_ev_mouse_move, NULL, "all", click_moveout, user_param);
                 ei_unbind(ei_ev_mouse_buttonup, ancien_widget, NULL, unclick_button, NULL);
-                ei_bind(ei_ev_mouse_move, NULL, "button", click_movein, NULL);
-                ei_bind(ei_ev_mouse_buttonup, NULL, "all", unclick, NULL);
+                ei_bind(ei_ev_mouse_move, ancien_widget, NULL, click_movein, NULL);
+                ei_bind(ei_ev_mouse_buttonup, NULL, "all", unclick, user_param);
                 return EI_TRUE;
         }
         return EI_FALSE;
@@ -93,8 +92,8 @@ ei_bool_t click_moveout(ei_widget_t* widget, ei_event_t* event, void * user_para
 ei_bool_t click_movein(ei_widget_t* widget, ei_event_t* event, void * user_param)
 {
         ((ei_button_t*) widget)->relief++;
-        ei_unbind(ei_ev_mouse_move, NULL, "button", click_movein, NULL);
-        ei_unbind(ei_ev_mouse_buttonup, NULL, "all", unclick, NULL);
+        ei_unbind(ei_ev_mouse_move, widget, NULL, click_movein, NULL);
+        ei_unbind(ei_ev_mouse_buttonup, NULL, "all", unclick, (void *) widget);
         ei_bind(ei_ev_mouse_move, NULL, "all", click_moveout, (void *) widget);
         ei_bind(ei_ev_mouse_buttonup, widget, NULL, unclick_button, NULL);
         
@@ -103,8 +102,8 @@ ei_bool_t click_movein(ei_widget_t* widget, ei_event_t* event, void * user_param
 
 ei_bool_t unclick(ei_widget_t* widget, ei_event_t* event, void * user_param)
 {
-        ei_unbind(ei_ev_mouse_move, NULL, "button", click_movein, NULL);
-        ei_unbind(ei_ev_mouse_buttonup, NULL, "all", unclick, NULL);
+        ei_unbind(ei_ev_mouse_move, (ei_widget_t *) user_param, NULL, click_movein, NULL);
+        ei_unbind(ei_ev_mouse_buttonup, NULL, "all", unclick, user_param);
         ei_bind(ei_ev_mouse_buttondown, NULL, "button", click_button, NULL);
         return EI_FALSE;
 }
@@ -115,6 +114,10 @@ ei_bool_t unclick_button(ei_widget_t* widget, ei_event_t* event, void * user_par
         ei_unbind(ei_ev_mouse_buttonup, widget, NULL, unclick_button, NULL);
         ei_bind(ei_ev_mouse_buttondown, NULL, "button", click_button, NULL);
         ((ei_button_t*) widget)->relief--;
+        ei_button_t *button = (ei_button_t *) widget;
+        if (button->callback != NULL) {
+                (*button->callback)(widget, event, button->user_param);
+        }
         return EI_TRUE;
 }
 
