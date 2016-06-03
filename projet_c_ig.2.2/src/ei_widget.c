@@ -50,7 +50,7 @@ ei_widget_t * 	ei_widget_pick (ei_point_t *where){
 	uint32_t r = *(ir+p);
 	uint32_t v = *(ig+p);
 	uint32_t b = *(ib+p);
-	uint32_t pick_id= (r>>3) + (v<<8) + (b<<16);
+	uint32_t pick_id= r + (v<<8) + (b<<16);
 	if (pick_id > size){
 		perror("acces incorrect");
 		exit(1);
@@ -64,7 +64,7 @@ ei_color_t * def_pick_color(uint32_t pick_id)
         /* Ici, on retourne une couleur dépendant du pick_id */
         ei_color_t* couleur = calloc(1, sizeof(ei_color_t));
         char* tab = (char*) &pick_id;
-        couleur->red = 8*tab[0];
+        couleur->red = tab[0];
         couleur->green = tab[1];
         couleur->blue = tab[2];
         couleur->alpha = 0xFF;

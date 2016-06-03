@@ -138,9 +138,7 @@ ei_bool_t unclick_button(ei_widget_t* widget, ei_event_t* event, void * user_par
 ei_bool_t close_toplevel(ei_widget_t *widget, ei_event_t *event, void *user_param)
 {
         ei_toplevel_t *toplevel = (ei_toplevel_t *) user_param;
-        if (toplevel->resizable) {
-                ei_widget_destroy((ei_widget_t *) toplevel);
-        }
+        ei_widget_destroy((ei_widget_t *) toplevel);
         return EI_TRUE;
 }
 
