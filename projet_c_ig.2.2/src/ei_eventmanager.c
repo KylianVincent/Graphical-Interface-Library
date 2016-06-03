@@ -7,7 +7,6 @@
 #include "ei_widget.h"
 
 
-ei_linked_tag_t *tags = NULL;
 ei_linked_bind_t **binds_event;
 /* Utile pour le déplacement de fenetre */
 ei_point_t last_pos;
@@ -123,6 +122,21 @@ ei_bool_t unclick_button(ei_widget_t* widget, ei_event_t* event, void * user_par
 
 
 // Fonction traitante interne pour les top_level
+
+/*** Fermeture ***/
+
+ei_bool_t close_toplevel(ei_widget_t *widget, ei_event_t *event, void *user_param)
+{
+        ei_toplevel_t *toplevel = (ei_toplevel_t *) user_param;
+        if (toplevel->resizable) {
+                ei_widget_destroy(((ei_widget_t *) toplevel)->next_sibling);
+        }
+        ei_widget_destroy(widget);
+        ei_widget_destroy((ei_widget_destroy *) toplevel);
+        return EI_TRUE;
+}
+
+/*** Déplacement ***/
 
 ei_bool_t click_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param)
 {
