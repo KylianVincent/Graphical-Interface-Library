@@ -196,14 +196,13 @@ void ei_widget_destroy(ei_widget_t* widget)
 	tab_pick[widget->pick_id]=NULL;
         /* On parcourt les fils du widget et on libere widget */
         ei_widget_t* cour = widget->children_head;
-        (*widget->wclass->releasefunc)(widget);
         while (cour != NULL)
         {
                 ei_widget_t* temp = cour;
                 temp->parent = NULL;
                 cour = cour->next_sibling;
-                ei_widget_destroy(temp);
         }
+        (*widget->wclass->releasefunc)(widget);
 }
 
 
