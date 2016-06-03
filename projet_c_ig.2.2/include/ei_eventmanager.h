@@ -40,7 +40,7 @@ ei_bool_t unclick_button(ei_widget_t* widget, ei_event_t* event, void * user_par
 
 // Fonction traitante interne pour les top_level
 
-i_bool_t close_toplevel(ei_widget_t *widget, ei_event_t *event, void *user_param);
+ei_bool_t close_toplevel(ei_widget_t *widget, ei_event_t *event, void *user_param);
 
 ei_bool_t click_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param);
 

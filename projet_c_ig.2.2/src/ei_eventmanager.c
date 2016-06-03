@@ -129,10 +129,10 @@ ei_bool_t close_toplevel(ei_widget_t *widget, ei_event_t *event, void *user_para
 {
         ei_toplevel_t *toplevel = (ei_toplevel_t *) user_param;
         if (toplevel->resizable) {
-                ei_widget_destroy(((ei_widget_t *) toplevel)->next_sibling);
+                ei_widget_destroy(widget->next_sibling);
         }
         ei_widget_destroy(widget);
-        ei_widget_destroy((ei_widget_destroy *) toplevel);
+        ei_widget_destroy((ei_widget_t *) toplevel);
         return EI_TRUE;
 }
 
