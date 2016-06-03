@@ -99,10 +99,15 @@ void placer_screen_location(struct ei_widget_t *widget){
         /*** TO DO : Utilisation de la taille relative ? Priorité face à requested size ? ***/
         new_rect.size.width = placer_settings->width;
         new_rect.size.height = placer_settings->height;
-        /* if (widget->parent != NULL){ */
-        /* widget->screen_location.size.width += (placer_settings->rel_width) * widget->parent->screen_location.size.width; */
-        /* widget->screen_location.size.height += (placer_settings->rel_height) * widget->parent->screen_location.size.height; */
-        /* } */
+        if (!strcmp(widget->wclass->name,"toplevel")) {
+                ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
+                new_rect.size.width += toplevel->border_width;
+                new_rect.size.height += toplevel->border_width + toplevel->height_header;
+        }
+        if (widget->parent != NULL){
+                new_rect.size.width += (placer_settings->rel_width) * widget->parent->content_rect->size.width;
+                new_rect.size.height += (placer_settings->rel_height) * widget->parent->content_rect->size.height;
+        }
 
         /* -- Anchor -- */
         /* Mise à jour de la position : top_left */
