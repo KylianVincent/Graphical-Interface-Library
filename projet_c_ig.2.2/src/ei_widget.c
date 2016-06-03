@@ -124,8 +124,8 @@ ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name, ei_widget_t* pa
                            sauvegarde de leur adresse n'est nécessaire, on se
                            servira de la structure en frères pour y accéder */
                         ei_button_t *button = (ei_button_t *) ei_widget_create("button", parent);
-                        //button->callback = close_toplevel;
-                        //button->user_param = (void *) toplevel;
+                        button->callback = close_toplevel;
+                        button->user_param = (void *) toplevel;
                 }
                 if (toplevel->resizable == ei_axis_x
                     || toplevel->resizable == ei_axis_y
@@ -155,6 +155,24 @@ void ei_widget_destroy(ei_widget_t* widget)
         if (widget == NULL) {
                 return;
         }
+        ei_geometrymanager_unmap(widget);
+        /* Si le widget à libérer est une toplevel alors il possède
+           potentiellement des frères qu'il est nécessaire de libérer aussi
+           (boutons de fermeture et redimensionnement */
+        if (strcmp(widget->wclass->name, "toplevel") == 0){
+                ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
+                if (toplevel->closable == EI_TRUE){
+                        ei_widget_destroy(widget->next_sibling);
+                }
+                if (toplevel->resizable == ei_axis_x
+                    || toplevel->resizable == ei_axis_y
+                    || toplevel->resizable == ei_axis_both){
+                        /* Ce frame est aussi le prochain frère, soit parce
+                           qu'il n'y a pas de bouton de fermeture, soit parce
+                           qu'il a été libéré juste avant */
+                        ei_widget_destroy(widget->next_sibling);
+                }
+        }
         /* On met a jour les fils du parent et les next_sibling des fils */
         if (widget->parent != NULL)
         {
@@ -178,30 +196,13 @@ void ei_widget_destroy(ei_widget_t* widget)
 	tab_pick[widget->pick_id]=NULL;
         /* On parcourt les fils du widget et on libere widget */
         ei_widget_t* cour = widget->children_head;
-        ei_geometrymanager_unmap(widget);
+        (*widget->wclass->releasefunc)(widget);
         while (cour != NULL)
         {
                 ei_widget_t* temp = cour;
                 temp->parent = NULL;
                 cour = cour->next_sibling;
                 ei_widget_destroy(temp);
-        }
-        /* Si le widget à libérer est une toplevel alors il possède
-           potentiellement des frères qu'il est nécessaire de libérer aussi
-           (boutons de fermeture et redimensionnement */
-        if (strcmp(widget->wclass->name, "toplevel") == 0){
-                ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
-                if (toplevel->closable == EI_TRUE){
-                        ei_widget_destroy(widget->next_sibling);
-                }
-                if (toplevel->resizable == ei_axis_x
-                    || toplevel->resizable == ei_axis_y
-                    || toplevel->resizable == ei_axis_both){
-                        /* Ce bouton est aussi le prochain frère, soit parce
-                           qu'il n'y a pas de bouton de fermeture, soit parce
-                           qu'il a été libéré juste avant */
-                        ei_widget_destroy(widget->next_sibling);
-                }
         }
 }
 
