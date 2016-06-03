@@ -65,9 +65,19 @@ ei_bool_t escape(ei_widget_t *widget, ei_event_t* event, void *user_param)
 }
 
 // Fonction traitante interne pour les boutons
+
+void change_relief(ei_widget_t *widget) 
+{
+        int rel = ((ei_button_t*) widget)->relief;
+        if (rel == 1) {
+                ((ei_button_t*) widget)->relief++;
+        } else if (rel == 2) {
+                ((ei_button_t*) widget)->relief--;
+        }
+}
 ei_bool_t click_button(ei_widget_t* widget, ei_event_t* event, void * user_param)
 {
-        ((ei_button_t*) widget)->relief++;
+        change_relief(widget);
         ei_unbind(ei_ev_mouse_buttondown, NULL, "button", click_button, NULL);
         ei_bind(ei_ev_mouse_move, NULL, "all", click_moveout, (void *) widget);
         ei_bind(ei_ev_mouse_buttonup, widget, NULL, unclick_button, NULL);
@@ -78,7 +88,7 @@ ei_bool_t click_moveout(ei_widget_t* widget, ei_event_t* event, void * user_para
 {
         ei_widget_t *ancien_widget = (ei_widget_t *) user_param;
         if (widget != ancien_widget) {
-                ((ei_button_t*) ancien_widget)->relief--;
+                change_relief(ancien_widget);
                 ei_unbind(ei_ev_mouse_move, NULL, "all", click_moveout, user_param);
                 ei_unbind(ei_ev_mouse_buttonup, ancien_widget, NULL, unclick_button, NULL);
                 ei_bind(ei_ev_mouse_move, ancien_widget, NULL, click_movein, NULL);
@@ -90,7 +100,7 @@ ei_bool_t click_moveout(ei_widget_t* widget, ei_event_t* event, void * user_para
 
 ei_bool_t click_movein(ei_widget_t* widget, ei_event_t* event, void * user_param)
 {
-        ((ei_button_t*) widget)->relief++;
+        change_relief(widget);
         ei_unbind(ei_ev_mouse_move, widget, NULL, click_movein, NULL);
         ei_unbind(ei_ev_mouse_buttonup, NULL, "all", unclick, (void *) widget);
         ei_bind(ei_ev_mouse_move, NULL, "all", click_moveout, (void *) widget);
@@ -112,7 +122,7 @@ ei_bool_t unclick_button(ei_widget_t* widget, ei_event_t* event, void * user_par
         ei_unbind(ei_ev_mouse_move, NULL, "all", click_moveout, widget);
         ei_unbind(ei_ev_mouse_buttonup, widget, NULL, unclick_button, NULL);
         ei_bind(ei_ev_mouse_buttondown, NULL, "button", click_button, NULL);
-        ((ei_button_t*) widget)->relief--;
+        change_relief(widget);
         ei_button_t *button = (ei_button_t *) widget;
         if (button->callback != NULL) {
                 (*button->callback)(widget, event, button->user_param);
