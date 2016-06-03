@@ -175,7 +175,7 @@ void placer_runfunc(struct ei_widget_t *widget){
                                                                            100, -1);
                         ei_anchor_t resize_zone_anch = ei_anc_southeast;
                         ei_size_t resize_zone_size;
-                        if (toplevel->border_width > 1){
+                        if (toplevel->border_width > 2){
                                 resize_zone_size = ei_size(2*toplevel->border_width,
                                                            2*toplevel->border_width);
                         } else {
