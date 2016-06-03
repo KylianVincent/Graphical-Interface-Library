@@ -201,6 +201,7 @@ void ei_widget_destroy(ei_widget_t* widget)
                 ei_widget_t* temp = cour;
                 temp->parent = NULL;
                 cour = cour->next_sibling;
+                ei_widget_destroy(temp);
         }
         (*widget->wclass->releasefunc)(widget);
 }
