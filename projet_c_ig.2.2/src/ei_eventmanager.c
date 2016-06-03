@@ -146,6 +146,7 @@ ei_bool_t close_toplevel(ei_widget_t *widget, ei_event_t *event, void *user_para
 
 ei_bool_t click_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param)
 {
+        /* Gestion du déplacement */
         if (event->param.mouse.where.y < widget->screen_location.top_left.y + ((ei_toplevel_t *) widget)->height_header) {
                 last_pos = event->param.mouse.where;
                 ei_unbind(ei_ev_mouse_buttondown, NULL, "toplevel", click_toplevel, NULL);
@@ -153,6 +154,7 @@ ei_bool_t click_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_par
                 ei_bind(ei_ev_mouse_buttonup, NULL, "all", unclick_toplevel, (void *) widget);
         }
 
+        /* Gestion du redimmensionnement */
         ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
         ei_point_t resize_corner = ei_point(widget->screen_location.size.width,
                                             widget->screen_location.size.height);
@@ -198,21 +200,49 @@ ei_bool_t unclick_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_p
         return EI_FALSE;
 }
 
-/* Redimensionnement des toplevel */
+/*** Redimensionnement ***/
 ei_bool_t resize_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param){
         ei_widget_t *toplevel = (ei_widget_t *) user_param;
         int diff_x = event->param.mouse.where.x - last_pos.x;
         int diff_y = event->param.mouse.where.y - last_pos.y;
         int new_size_width = ((ei_placer_param_t *) toplevel->geom_params)->width + diff_x;
         int new_size_height = ((ei_placer_param_t *) toplevel->geom_params)->height + diff_y;
-        if (((ei_toplevel_t *) toplevel)->min_size->width < new_size_width
+
+        ei_point_t resize_corner = ei_point(widget->screen_location.size.width,
+                                            widget->screen_location.size.height);
+        resize_corner = ei_point_add(resize_corner,
+                                     widget->screen_location.top_left);
+        int resize_zone_height;
+        if (((ei_toplevel_t *) toplevel)->border_width > 2){
+                resize_zone_height = 2*(((ei_toplevel_t *) toplevel)->border_width);
+        } else {
+                resize_zone_height = 4;
+        }
+        resize_corner.x -= resize_zone_height;
+        resize_corner.y -= resize_zone_height;
+
+        /* -- Width -- */
+        /* On vérifie que la fenêtre est reimmensionnable (axes et taille min)*/
+        if (((ei_toplevel_t *) toplevel)->min_size->width <= new_size_width
             && (((ei_toplevel_t *) toplevel)->resizable == ei_axis_x
-                || ((ei_toplevel_t *) toplevel)->resizable == ei_axis_both)){
+                || ((ei_toplevel_t *) toplevel)->resizable == ei_axis_both)
+        /* Il faut aussi que si la taille min est atteinte, alors on ne recommence
+         le redimmensionnement que si l'on est assez près du bord considére*/
+            && (((ei_placer_param_t *) toplevel->geom_params)->width  > ((ei_toplevel_t *) toplevel)->min_size->width
+                || (((ei_placer_param_t *) toplevel->geom_params)->width <= ((ei_toplevel_t *) toplevel)->min_size->width
+                    && event->param.mouse.where.x >= resize_corner.x))){
+
                 ((ei_placer_param_t *) toplevel->geom_params)->width = new_size_width;
         }
-        if (((ei_toplevel_t *) toplevel)->min_size->height < new_size_height
-             && (((ei_toplevel_t *) toplevel)->resizable == ei_axis_y
-                  || ((ei_toplevel_t *) toplevel)->resizable == ei_axis_both)){
+        
+        /* -- Height -- */
+        if (((ei_toplevel_t *) toplevel)->min_size->height <= new_size_height
+            && (((ei_toplevel_t *) toplevel)->resizable == ei_axis_y
+                || ((ei_toplevel_t *) toplevel)->resizable == ei_axis_both)
+            && (((ei_placer_param_t *) toplevel->geom_params)->height  > ((ei_toplevel_t *) toplevel)->min_size->height
+                || (((ei_placer_param_t *) toplevel->geom_params)->height <= ((ei_toplevel_t *) toplevel)->min_size->height
+                    && event->param.mouse.where.y >= resize_corner.y))){
+
                 ((ei_placer_param_t *) toplevel->geom_params)->height = new_size_height;
         }
         last_pos = event->param.mouse.where;
