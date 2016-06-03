@@ -7,7 +7,7 @@
 #include "ei_classes.h"
 #include "ei_event.h"
 #include "ei_eventmanager.h"
-#include "variables_globales.h"
+#include "ei_globs.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -15,7 +15,7 @@ ei_surface_t main_window;
 ei_surface_t main_window_picking;
 ei_widget_t* root_frame=NULL;
 ei_bool_t run = EI_TRUE;
-
+ei_linked_rect_t *update_rects=NULL;
 
 /* void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen); */
 void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen)
@@ -51,6 +51,7 @@ void ei_app_free(){
         ei_widget_destroy(root_frame);
         hw_surface_free(main_window_picking);
         hw_surface_free(main_window);
+	free(update_rects);
         hw_quit();
 }
 
@@ -85,27 +86,31 @@ void ei_app_run(){
                 hw_event_wait_next(event);
                 if (event->type != ei_ev_none && handle_event(event)) {
                         ei_app_run_rec(root_frame, root_frame->content_rect);
-                        hw_surface_update_rects(main_window, NULL);
-                        hw_surface_update_rects(main_window_picking, NULL);
+			ei_linked_rect_t *cour=update_rects;
+			while (cour != NULL){
+				hw_surface_update_rects(main_window,cour);
+				hw_surface_update_rects(main_window_picking,cour);
+				cour=cour->next;
+			}
                 }
-                /* ei_app_run_rec(root_frame, root_frame->content_rect); */
-                /* hw_surface_update_rects(main_window, NULL); */
-                /* hw_surface_update_rects(main_window_picking, NULL); */
-                /* hw_event_wait_next(event); */
-                /* if (event->type == ei_ev_keydown) { */
-                /*         run = EI_FALSE; */
-                /* } */
-                /* if (event->type == ei_ev_mouse_buttondown) { */
-                /*         ((ei_button_t *) root_frame->children_head->children_head)->relief += 1; */
-                /* } */
-                /* if (event->type == ei_ev_mouse_buttonup) { */
-                /*         ((ei_button_t *) root_frame->children_head->children_head)->relief -= 1; */
-                /* } */
+             
         }
         free(event);
 }
 
-/* void ei_app_invalidate_rect(ei_rect_t* rect); */
+/* void ei_app_invalidate_rect(ei_rect_t* rect);*/
+
+void ei_app_invalidate_rect(ei_rect_t* rect){
+	ei_linked_rect_t *new_cell=calloc(1,sizeof(ei_linked_rect_t));
+	new_cell->rect=*rect;
+	new_cell->next=NULL;
+	if (update_rects == NULL){
+		update_rects=new_cell;
+	}else{
+		new_cell->next=update_rects;
+		update_rects=new_cell;
+	}
+}
 
 
 /* void ei_app_quit_request(); */

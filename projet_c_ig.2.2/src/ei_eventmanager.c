@@ -55,7 +55,7 @@ ei_bool_t handle_event(ei_event_t* event)
         return change;
 }
 
-// Fonction qui quitte lorqu'on appuye sur échappe
+// Fonction qui quitte lorqu'on appuye sur échap
 ei_bool_t escape(ei_widget_t *widget, ei_event_t* event, void *user_param)
 {
         if (event->type == ei_ev_keydown && event->param.key.key_sym == SDLK_ESCAPE) {
@@ -71,6 +71,7 @@ ei_bool_t click_button(ei_widget_t* widget, ei_event_t* event, void * user_param
         ei_unbind(ei_ev_mouse_buttondown, NULL, "button", click_button, NULL);
         ei_bind(ei_ev_mouse_move, NULL, "all", click_moveout, (void *) widget);
         ei_bind(ei_ev_mouse_buttonup, widget, NULL, unclick_button, NULL);
+	ei_app_invalidate_rect(&(widget->screen_location));
         return EI_TRUE;
 }
 
@@ -83,6 +84,7 @@ ei_bool_t click_moveout(ei_widget_t* widget, ei_event_t* event, void * user_para
                 ei_unbind(ei_ev_mouse_buttonup, ancien_widget, NULL, unclick_button, NULL);
                 ei_bind(ei_ev_mouse_move, ancien_widget, NULL, click_movein, NULL);
                 ei_bind(ei_ev_mouse_buttonup, NULL, "all", unclick, user_param);
+		ei_app_invalidate_rect(&(widget->screen_location));
                 return EI_TRUE;
         }
         return EI_FALSE;
@@ -95,7 +97,7 @@ ei_bool_t click_movein(ei_widget_t* widget, ei_event_t* event, void * user_param
         ei_unbind(ei_ev_mouse_buttonup, NULL, "all", unclick, (void *) widget);
         ei_bind(ei_ev_mouse_move, NULL, "all", click_moveout, (void *) widget);
         ei_bind(ei_ev_mouse_buttonup, widget, NULL, unclick_button, NULL);
-        
+        ei_app_invalidate_rect(&(widget->screen_location));
         return EI_TRUE;
 }
 
@@ -112,6 +114,7 @@ ei_bool_t unclick_button(ei_widget_t* widget, ei_event_t* event, void * user_par
         ei_unbind(ei_ev_mouse_move, NULL, "all", click_moveout, widget);
         ei_unbind(ei_ev_mouse_buttonup, widget, NULL, unclick_button, NULL);
         ei_bind(ei_ev_mouse_buttondown, NULL, "button", click_button, NULL);
+	ei_app_invalidate_rect(&(widget->screen_location));
         ((ei_button_t*) widget)->relief--;
         ei_button_t *button = (ei_button_t *) widget;
         if (button->callback != NULL) {
@@ -131,6 +134,7 @@ ei_bool_t close_toplevel(ei_widget_t *widget, ei_event_t *event, void *user_para
         if (toplevel->resizable) {
                 ei_widget_destroy((ei_widget_t *) toplevel);
         }
+	ei_app_invalidate_rect(&(widget->screen_location));
         return EI_TRUE;
 }
 
