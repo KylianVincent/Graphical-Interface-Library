@@ -509,6 +509,7 @@ void button_drawfunc(struct ei_widget_t* widget,
         }else{
                 signe=0;
         }
+
         /* On trace les surfaces correspondantes */
         hw_surface_lock(surface);
         hw_surface_lock(pick_surface);
@@ -645,7 +646,7 @@ void toplevel_drawfunc(struct ei_widget_t* widget,
                      toplevel->title,
                      NULL,
                      &white,
-                     clipper);
+                     &(widget->screen_location));
         
         hw_surface_unlock(surface);
         hw_surface_unlock(pick_surface);

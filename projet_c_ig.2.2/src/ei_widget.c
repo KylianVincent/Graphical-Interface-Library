@@ -127,9 +127,7 @@ ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name, ei_widget_t* pa
                         button->callback = close_toplevel;
                         button->user_param = (void *) toplevel;
                 }
-                if (toplevel->resizable == ei_axis_x
-                    || toplevel->resizable == ei_axis_y
-                    || toplevel->resizable == ei_axis_both){
+                if (toplevel->resizable){
                         /* On utilise une frame du même pick_id que la toplevel
                            pour gérer la zone de redimmensionnement (actif à
                            l'enfoncement d'un bouton de souris et non à son

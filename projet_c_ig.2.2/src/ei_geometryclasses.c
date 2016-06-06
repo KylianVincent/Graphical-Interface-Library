@@ -128,7 +128,7 @@ void placer_screen_location(struct ei_widget_t *widget){
         /* Test de la positivité des valeurs */
         if ((widget->content_rect->size.width < 0)
             || (widget->content_rect->size.height < 0)){
-                perror("Arguments de taille incohérents (valeurs finales négatives");
+                perror("Arguments de taille incohérents (valeurs finales négatives)");
                 exit(1);
         }
 }
@@ -165,9 +165,7 @@ void placer_runfunc(struct ei_widget_t *widget){
                                  &(close_button_point.x), &(close_button_point.y),
                                  NULL, NULL, NULL, NULL, NULL, NULL);
                 }
-                if  (toplevel->resizable == ei_axis_x
-                     || toplevel->resizable == ei_axis_y
-                     || toplevel->resizable == ei_axis_both){
+                if  (toplevel->resizable){
                         ei_widget_t *resize_zone;
                         resize_zone = widget->next_sibling;
                         if (toplevel->closable == EI_TRUE){
