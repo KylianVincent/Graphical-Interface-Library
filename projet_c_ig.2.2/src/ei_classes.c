@@ -172,7 +172,7 @@ void draw_texte(ei_widget_t *widget, ei_surface_t surface, ei_rect_t *clipper){
 	
 	ei_frame_t *frame=(ei_frame_t*) widget;
 	
-	if (frame->text != NULL){
+	if (frame->text != NULL && clipper->size.height > 0 && clipper->size.width > 0){
 
 		ei_point_t ancrage= ancrage_text_img(widget);
 
@@ -188,7 +188,8 @@ void draw_texte(ei_widget_t *widget, ei_surface_t surface, ei_rect_t *clipper){
 
 void draw_img(ei_widget_t *widget, ei_surface_t surface, ei_rect_t* clipper){
         ei_frame_t *frame=(ei_frame_t*) widget;
-        if (frame->img != NULL) {
+        if (frame->img != NULL && clipper->size.height > 0 && clipper->size.width > 0)
+        {
                 /* On calcule les rectangles à fournir à ei_copy_surface */
                 /* Car elle doit prendre des rectangles de même taille */
                 ei_rect_t dest, src;
@@ -219,6 +220,7 @@ void draw_img(ei_widget_t *widget, ei_surface_t surface, ei_rect_t* clipper){
                 src.top_left.y += temp.top_left.y - dest.top_left.y;
                 dest = temp;
                 src.size = dest.size;
+                ei_size_t s = hw_surface_get_size(frame->img);
                 int erreur=ei_copy_surface(surface, &dest, frame->img, &src, EI_TRUE);
                 if (erreur){
                         perror("Problème d'insertion d'image.\n");
