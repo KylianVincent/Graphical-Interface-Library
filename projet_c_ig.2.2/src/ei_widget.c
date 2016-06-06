@@ -159,9 +159,7 @@ void ei_widget_destroy(ei_widget_t* widget)
            (boutons de fermeture et redimensionnement */
         if (strcmp(widget->wclass->name, "toplevel") == 0){
                 ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
-                if (toplevel->resizable == ei_axis_x
-                    || toplevel->resizable == ei_axis_y
-                    || toplevel->resizable == ei_axis_both){
+                if (toplevel->resizable){
                         if (toplevel->closable){
                                 ei_widget_destroy(widget->next_sibling->next_sibling);
                         }

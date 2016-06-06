@@ -212,7 +212,7 @@ void placer_runfunc(struct ei_widget_t *widget){
 /* void placer_releasefunc(struct ei_widget_t *widget); */
 void placer_releasefunc(struct ei_widget_t *widget){
         /* La disparition d'un widget nécessite de répercuter l'action sur ses fils */
-        ei_widget_t *cour = widget->next_sibling;
+        ei_widget_t *cour = widget->children_head;
         while (cour != NULL){
                 ei_geometrymanager_unmap(cour);
                 cour = cour->next_sibling;
