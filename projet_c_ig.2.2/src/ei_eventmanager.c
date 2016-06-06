@@ -211,10 +211,14 @@ ei_bool_t click_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_par
 ei_bool_t move_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param)
 {
         ei_widget_t *toplevel = (ei_widget_t *) user_param;
+
         int diff_x = event->param.mouse.where.x - last_pos.x;
         int diff_y = event->param.mouse.where.y - last_pos.y;
-        ((ei_placer_param_t *) toplevel->geom_params)->x += diff_x;
-        ((ei_placer_param_t *) toplevel->geom_params)->y += diff_y;
+        /* ((ei_placer_param_t *) toplevel->geom_params)->x += diff_x; */
+        /* ((ei_placer_param_t *) toplevel->geom_params)->y += diff_y; */
+        int new_pos_x = toplevel->screen_location.top_left.x + diff_x;
+        int new_pos_y = toplevel->screen_location.top_left.y + diff_y;
+        ei_place(toplevel, NULL, &new_pos_x, &new_pos_y, NULL, NULL, NULL, NULL, NULL, NULL);
         last_pos = event->param.mouse.where;
 	/*optimisation de l'affichage*/
 	if(toplevel->screen_location.top_left.x + (diff_x-abs(diff_x))/2<0){
@@ -303,9 +307,9 @@ ei_bool_t resize_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_pa
         }
         last_pos = event->param.mouse.where;
 	/*optimisation de l'afichage*/
-	update.size.width = toplevel->screen_location.size.width + 1 + (diff_x+abs(diff_x))/2;
-        update.size.height = toplevel->screen_location.size.height + 1 + (diff_y+abs(diff_y))/2;
-	update.top_left=toplevel->screen_location.top_left;
+	update.size.width = widget_bis->screen_location.size.width + 1 + (diff_x+abs(diff_x))/2;
+        update.size.height = widget_bis->screen_location.size.height + 1 + (diff_y+abs(diff_y))/2;
+	update.top_left=widget_bis->screen_location.top_left;
 	root=ei_app_root_widget();
 	update=intersect_clipper(update,*(root->content_rect));
 	ei_app_invalidate_rect(&update);
