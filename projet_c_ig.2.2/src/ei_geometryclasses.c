@@ -101,7 +101,7 @@ void placer_screen_location(struct ei_widget_t *widget){
         new_rect.size.height = placer_settings->height;
         if (!strcmp(widget->wclass->name,"toplevel")) {
                 ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
-                new_rect.size.width += toplevel->border_width;
+                new_rect.size.width += 2*toplevel->border_width;
                 new_rect.size.height += toplevel->border_width + toplevel->height_header;
         }
         if (widget->parent != NULL){
