@@ -167,5 +167,8 @@ void   ei_place   (ei_widget_t*  widget,
         if (rel_height != NULL){
                 placer_settings->rel_height = *rel_height;
         }
+        
+        /* Calcul de la géométrie du widget et de ses fils*/
+        (*widget->geom_params->manager->runfunc)(widget);
 }
 

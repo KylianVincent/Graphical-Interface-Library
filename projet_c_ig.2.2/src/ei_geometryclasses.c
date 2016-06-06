@@ -209,11 +209,11 @@ void placer_runfunc(struct ei_widget_t *widget){
         }
         
         /* On calcule la géométrie pour les fils */
-        /* ei_widget_t* cour = widget->children_head; */
-        /* while (cour != NULL) { */
-        /*         placer_runfunc(cour); */
-        /*         cour = cour->next_sibling; */
-        /*}*/
+        ei_widget_t* cour = widget->children_head;
+        while (cour != NULL) {
+                placer_runfunc(cour);
+                cour = cour->next_sibling;
+        }
 }
 
 
