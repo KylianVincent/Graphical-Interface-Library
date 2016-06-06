@@ -34,11 +34,12 @@ int ei_main(int argc, char** argv)
         ei_color_t      toplevel_color          = {0x99, 0x99, 0x99, 0xff};
 	int		toplevel_x		= 125;
 	int		toplevel_y		= 150;
+        //float           toplevel_rel_width      = 0.3;
         ei_axis_set_t       toplevel_resizable      = ei_axis_none;
         ei_size_t       *toplevel_min_size           ;
         toplevel_min_size = calloc (1, sizeof(ei_size_t));
         toplevel_min_size->width = 20;
-        toplevel_min_size->height = 20;
+        toplevel_min_size->height = 60;
 
 	/* Create the application and change the color of the background. */
 	ei_app_create(&screen_size, EI_FALSE);
