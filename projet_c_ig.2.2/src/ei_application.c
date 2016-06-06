@@ -57,7 +57,8 @@ void ei_app_free(){
 
 void ei_app_run_rec(ei_widget_t* w, ei_rect_t* clipper)
 {
-        if (w == NULL) {
+        if (w == NULL || clipper->size.height <= 0 || clipper->size.width <= 0) 
+        {
                 return;
         }
 

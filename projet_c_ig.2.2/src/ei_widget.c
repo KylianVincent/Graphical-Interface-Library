@@ -127,9 +127,7 @@ ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name, ei_widget_t* pa
                         button->callback = close_toplevel;
                         button->user_param = (void *) toplevel;
                 }
-                if (toplevel->resizable == ei_axis_x
-                    || toplevel->resizable == ei_axis_y
-                    || toplevel->resizable == ei_axis_both){
+                if (toplevel->resizable){
                         /* On utilise une frame du même pick_id que la toplevel
                            pour gérer la zone de redimmensionnement (actif à
                            l'enfoncement d'un bouton de souris et non à son
@@ -161,15 +159,15 @@ void ei_widget_destroy(ei_widget_t* widget)
            (boutons de fermeture et redimensionnement */
         if (strcmp(widget->wclass->name, "toplevel") == 0){
                 ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
-                if (toplevel->closable == EI_TRUE){
-                        ei_widget_destroy(widget->next_sibling);
-                }
                 if (toplevel->resizable == ei_axis_x
                     || toplevel->resizable == ei_axis_y
                     || toplevel->resizable == ei_axis_both){
-                        /* Ce frame est aussi le prochain frère, soit parce
-                           qu'il n'y a pas de bouton de fermeture, soit parce
-                           qu'il a été libéré juste avant */
+                        if (toplevel->closable){
+                                ei_widget_destroy(widget->next_sibling->next_sibling);
+                        }
+                        ei_widget_destroy(widget->next_sibling);
+                }
+                else if (toplevel->closable){
                         ei_widget_destroy(widget->next_sibling);
                 }
         }
@@ -200,6 +198,16 @@ void ei_widget_destroy(ei_widget_t* widget)
         while (cour != NULL)
         {
                 ei_widget_t* temp = cour;
+                if (!strcmp(temp->wclass->name, "toplevel")){
+                        if (((ei_toplevel_t *) temp)->resizable) {
+                                cour = cour->next_sibling;
+                                cour->parent = NULL;
+                        }
+                        if (((ei_toplevel_t *) temp)->closable) {
+                                cour = cour->next_sibling;
+                                cour->parent = NULL;
+                        }
+                }
                 temp->parent = NULL;
                 cour = cour->next_sibling;
                 ei_widget_destroy(temp);
@@ -236,30 +244,33 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
         if (text != NULL){
                 if (frame->text != NULL) {
                         free(frame->text);
+                        frame->text = NULL;
                 }
-                frame->text = calloc(strlen(*text)+1, sizeof(char));
-                strcpy(frame->text,*text);
-                if (text_font != NULL){
-                        frame->text_font = *text_font;
+                if (*text != NULL) {
+                        frame->text = calloc(strlen(*text)+1, sizeof(char));
+                        strcpy(frame->text,*text);
                 }
-                if (text_color != NULL){
-                        frame->text_color = *text_color;
-                }
-                if (text_anchor != NULL){
-                        frame->text_anchor = *text_anchor;
-                }
+        }
+        if (text_font != NULL){
+                frame->text_font = *text_font;
+        }
+        if (text_color != NULL){
+                frame->text_color = *text_color;
+        }
+        if (text_anchor != NULL){
+                frame->text_anchor = *text_anchor;
         }
         /* Image */
         if (img != NULL){
                 frame->img = *img;
-                if (img_rect == NULL) {
+                if (img_rect == NULL && *img != NULL) {
                         if (frame->img_rect == NULL) {
                                 frame->img_rect = calloc(1, sizeof(ei_rect_t));
                         }
                         frame->img_rect->size = hw_surface_get_size(*img);
                         frame->img_rect->top_left = ei_point_zero();
                 }
-                if (img_anchor == NULL) {
+                if (img_anchor == NULL && *img != NULL) {
                         frame->img_anchor = ei_anc_center;
                 }
         }
@@ -289,7 +300,9 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
         }
         /* Size */
         if (requested_size == NULL){
-                if (img != NULL && widget->parent != NULL){
+                /* On vérifie que le widget n'est pas la racine car 
+                   il ne faut pas modifier sa taille */
+                if (img != NULL && *img != NULL && widget->parent != NULL){
                         /* Taille minimale pour l'image */
                         widget->requested_size = frame->img_rect->size;
                         widget->requested_size.height += frame->border_width*2;
@@ -297,7 +310,7 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
                         widget->screen_location.size = widget->requested_size;
 			widget->content_rect->size=frame->img_rect->size;
                 } 
-                if (text != NULL && widget->parent != NULL) {
+                if (text != NULL && *text != NULL && widget->parent != NULL) {
                         /* Taille minimale pour le texte*/
                         hw_text_compute_size(frame->text, frame->text_font, &(widget->requested_size.width), &(widget->requested_size.height));
                        
@@ -387,9 +400,12 @@ void ei_toplevel_configure(ei_widget_t*widget, ei_size_t*requested_size,
         if (title != NULL){
                 if (toplevel->title != NULL) {
                         free(toplevel->title);
+                        toplevel->title = NULL;
                 }
-                toplevel->title = calloc(strlen(*title)+1, sizeof(char));
-                strcpy(toplevel->title,*title);
+                if (*title != NULL) {
+                        toplevel->title = calloc(strlen(*title)+1, sizeof(char));
+                        strcpy(toplevel->title,*title);
+                }
                 /* Mise à jour de la taille d'en-tête */
                 ei_size_t title_size;
                 hw_text_compute_size(toplevel->title,

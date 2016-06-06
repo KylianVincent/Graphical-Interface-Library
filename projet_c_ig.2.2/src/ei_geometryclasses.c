@@ -99,10 +99,15 @@ void placer_screen_location(struct ei_widget_t *widget){
         /*** TO DO : Utilisation de la taille relative ? Priorité face à requested size ? ***/
         new_rect.size.width = placer_settings->width;
         new_rect.size.height = placer_settings->height;
-        /* if (widget->parent != NULL){ */
-        /* widget->screen_location.size.width += (placer_settings->rel_width) * widget->parent->screen_location.size.width; */
-        /* widget->screen_location.size.height += (placer_settings->rel_height) * widget->parent->screen_location.size.height; */
-        /* } */
+        if (!strcmp(widget->wclass->name,"toplevel")) {
+                ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
+                new_rect.size.width += toplevel->border_width;
+                new_rect.size.height += toplevel->border_width + toplevel->height_header;
+        }
+        if (widget->parent != NULL){
+                new_rect.size.width += (placer_settings->rel_width) * widget->parent->content_rect->size.width;
+                new_rect.size.height += (placer_settings->rel_height) * widget->parent->content_rect->size.height;
+        }
 
         /* -- Anchor -- */
         /* Mise à jour de la position : top_left */
@@ -123,7 +128,7 @@ void placer_screen_location(struct ei_widget_t *widget){
         /* Test de la positivité des valeurs */
         if ((widget->content_rect->size.width < 0)
             || (widget->content_rect->size.height < 0)){
-                perror("Arguments de taille incohérents (valeurs finales négatives");
+                perror("Arguments de taille incohérents (valeurs finales négatives)");
                 exit(1);
         }
 }
@@ -160,9 +165,7 @@ void placer_runfunc(struct ei_widget_t *widget){
                                  &(close_button_point.x), &(close_button_point.y),
                                  NULL, NULL, NULL, NULL, NULL, NULL);
                 }
-                if  (toplevel->resizable == ei_axis_x
-                     || toplevel->resizable == ei_axis_y
-                     || toplevel->resizable == ei_axis_both){
+                if  (toplevel->resizable){
                         ei_widget_t *resize_zone;
                         resize_zone = widget->next_sibling;
                         if (toplevel->closable == EI_TRUE){
