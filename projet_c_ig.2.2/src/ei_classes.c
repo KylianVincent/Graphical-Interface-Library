@@ -220,7 +220,6 @@ void draw_img(ei_widget_t *widget, ei_surface_t surface, ei_rect_t* clipper){
                 src.top_left.y += temp.top_left.y - dest.top_left.y;
                 dest = temp;
                 src.size = dest.size;
-                ei_size_t s = hw_surface_get_size(frame->img);
                 int erreur=ei_copy_surface(surface, &dest, frame->img, &src, EI_TRUE);
                 if (erreur){
                         perror("Problème d'insertion d'image.\n");

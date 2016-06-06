@@ -158,15 +158,15 @@ ei_bool_t unclick_button(ei_widget_t* widget, ei_event_t* event, void * user_par
 
 ei_bool_t close_toplevel(ei_widget_t *widget, ei_event_t *event, void *user_param)
 {       /*optimisation affichage*/
-        ei_toplevel_t *toplevel = (ei_toplevel_t *) user_param;
-	update.size.width=((ei_widget_t *)user_param)->screen_location.size.width+1;
-	update.size.height=((ei_widget_t *)user_param)->screen_location.size.height+1;
-	update.top_left.x=((ei_widget_t *)user_param)->screen_location.top_left.x;
-	update.top_left.y=((ei_widget_t *)user_param)->screen_location.top_left.y;
-	root=ei_app_root_widget();
-	update=intersect_clipper(update,*(root->content_rect));
+        ei_widget_t *toplevel = (ei_widget_t *) user_param;
+	update.size.width = toplevel->screen_location.size.width+1;
+	update.size.height = toplevel->screen_location.size.height+1;
+	update.top_left.x = toplevel->screen_location.top_left.x;
+	update.top_left.y = toplevel->screen_location.top_left.y;
+	root = ei_app_root_widget();
+	update = intersect_clipper(update,*(root->content_rect));
 	ei_app_invalidate_rect(&update);
-        ei_widget_destroy((ei_widget_t *) toplevel);
+        ei_widget_destroy(toplevel);
         return EI_TRUE;
 }
 
@@ -265,51 +265,49 @@ ei_bool_t resize_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_pa
         ei_toplevel_t *toplevel = (ei_toplevel_t *) widget_bis;
         int diff_x = event->param.mouse.where.x - last_pos.x;
         int diff_y = event->param.mouse.where.y - last_pos.y;
-        int new_size_width = ((ei_placer_param_t *) widget_bis->geom_params)->width + diff_x;
-        int new_size_height = ((ei_placer_param_t *) widget_bis->geom_params)->height + diff_y;
+        int new_size_width = widget_bis->content_rect->size.width + diff_x;
+        int new_size_height = widget_bis->content_rect->size.height + diff_y;
 
         /* Calcul du point nord-est de la zone de redimmensionnement */
-        ei_point_t resize_corner = ei_point(widget_bis->screen_location.size.width,
-                                            widget_bis->screen_location.size.height);
-        resize_corner = ei_point_add(resize_corner,
-                                     widget_bis->screen_location.top_left);
-        int resize_zone_height;
-        if (toplevel->border_width > 2){
-                resize_zone_height = 2*(toplevel->border_width);
-        } else {
-                resize_zone_height = 4;
-        }
-        resize_corner.x -= resize_zone_height;
-        resize_corner.y -= resize_zone_height;
+        ei_point_t resize_corner_min = widget_bis->content_rect->top_left;
+        int bords = (toplevel->border_width>2)?toplevel->border_width:2;
+        resize_corner_min.x += toplevel->min_size->width - bords;
+        resize_corner_min.y += toplevel->min_size->height - bords;
+
+        
 
         /* -- Width -- */
         /* On vérifie que la fenêtre est redimmensionnable (axes et taille min)*/
-        if (toplevel->min_size->width <= new_size_width
-            && (toplevel->resizable == ei_axis_x
-                || toplevel->resizable == ei_axis_both)
-        /* Il faut aussi que si la taille min est atteinte, alors on ne recommence
-         le redimmensionnement que si l'on est assez près du bord considére*/
-            && (((ei_placer_param_t *) widget_bis->geom_params)->width  > toplevel->min_size->width
-                || (((ei_placer_param_t *) widget_bis->geom_params)->width <= toplevel->min_size->width
-                    && event->param.mouse.where.x >= resize_corner.x))){
-
-                ((ei_placer_param_t *) widget_bis->geom_params)->width = new_size_width;
+        if (toplevel->resizable == ei_axis_x
+                     || toplevel->resizable == ei_axis_both)
+        {
+                if (event->param.mouse.where.x < resize_corner_min.x) {
+                        new_size_width = toplevel->min_size->width;
+                        last_pos.x = resize_corner_min.x;
+                }
+                else if (new_size_width >= toplevel->min_size->width) {
+                        last_pos.x = event->param.mouse.where.x;
+                }
         }
-        
         /* -- Height -- */
-        if (toplevel->min_size->height <= new_size_height
-            && (toplevel->resizable == ei_axis_y
+        if (toplevel->resizable == ei_axis_y
                 || toplevel->resizable == ei_axis_both)
-            && (((ei_placer_param_t *) widget_bis->geom_params)->height  > toplevel->min_size->height
-                || (((ei_placer_param_t *) widget_bis->geom_params)->height <= toplevel->min_size->height
-                    && event->param.mouse.where.y >= resize_corner.y))){
-                ((ei_placer_param_t *) widget_bis->geom_params)->height = new_size_height;
+        {
+                if (event->param.mouse.where.y < resize_corner_min.y) {
+                        new_size_height = toplevel->min_size->height;
+                        last_pos.y = resize_corner_min.y;
+                }
+                else if (new_size_height >= toplevel->min_size->height) {
+                        last_pos.y = event->param.mouse.where.y;
+                }
         }
-        last_pos = event->param.mouse.where;
-	/*optimisation de l'afichage*/
+
+        ei_place(widget_bis, NULL, NULL, NULL, &new_size_width, &new_size_height, NULL, NULL, NULL, NULL);
+
+	/*optimisation de l'affichage*/
 	update.size.width = widget_bis->screen_location.size.width + 1 + (diff_x+abs(diff_x))/2;
         update.size.height = widget_bis->screen_location.size.height + 1 + (diff_y+abs(diff_y))/2;
-	update.top_left=widget_bis->screen_location.top_left;
+	update.top_left = widget_bis->screen_location.top_left;
 	root=ei_app_root_widget();
 	update=intersect_clipper(update,*(root->content_rect));
 	ei_app_invalidate_rect(&update);
