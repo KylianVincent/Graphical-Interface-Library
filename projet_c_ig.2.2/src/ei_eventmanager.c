@@ -218,8 +218,14 @@ ei_bool_t move_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_para
         /* ((ei_placer_param_t *) toplevel->geom_params)->y += diff_y; */
         int new_pos_x = toplevel->screen_location.top_left.x + diff_x;
         int new_pos_y = toplevel->screen_location.top_left.y + diff_y;
-        ei_place(toplevel, NULL, &new_pos_x, &new_pos_y, NULL, NULL, NULL, NULL, NULL, NULL);
+
+        /* On doit mettre à zéro la valeur de la position relative */
+        float zero = 0.0;
+        ei_place(toplevel, NULL, &new_pos_x, &new_pos_y, NULL, NULL, &zero, &zero, NULL, NULL);
+
         last_pos = event->param.mouse.where;
+
+
 	/*optimisation de l'affichage*/
 	if(toplevel->screen_location.top_left.x + (diff_x-abs(diff_x))/2<0){
 		update.top_left.x=0;
@@ -301,8 +307,9 @@ ei_bool_t resize_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_pa
                         last_pos.y = event->param.mouse.where.y;
                 }
         }
-
-        ei_place(widget_bis, NULL, NULL, NULL, &new_size_width, &new_size_height, NULL, NULL, NULL, NULL);
+        /* On doit mettre à zéro la valeur de la taille relative */
+        float zero = 0.0;
+        ei_place(widget_bis, NULL, NULL, NULL, &new_size_width, &new_size_height, NULL, NULL, &zero, &zero);
 
 	/*optimisation de l'affichage*/
 	update.size.width = widget_bis->screen_location.size.width + 1 + (diff_x+abs(diff_x))/2;
