@@ -170,6 +170,37 @@ ei_bool_t close_toplevel(ei_widget_t *widget, ei_event_t *event, void *user_para
         return EI_TRUE;
 }
 
+/*** Changement focus ***/
+
+ei_bool_t change_focus(ei_widget_t *widget)
+{
+        ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
+        ei_widget_t *tail = widget;
+        if (toplevel->closable) {
+                tail = tail->next_sibling;
+        }
+        if (toplevel->resizable) {
+                tail = tail->next_sibling;
+        }
+        if (widget->parent == NULL || widget->parent->children_tail == tail) {
+                return EI_FALSE;
+        }
+        ei_widget_t *prec = widget->parent->children_head;
+        while (prec != widget && prec->next_sibling != widget) {
+                prec = prec->next_sibling;
+        }
+        if (prec == widget) {
+                widget->parent->children_head = tail->next_sibling;
+        }
+        else {
+                prec->next_sibling = tail->next_sibling;
+        }
+        widget->parent->children_tail->next_sibling = widget;
+        tail->next_sibling = NULL;
+        widget->parent->children_tail = tail;
+        return EI_TRUE;
+}
+
 /*** Déplacement ***/
 
 ei_bool_t click_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param)
@@ -204,8 +235,8 @@ ei_bool_t click_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_par
                 ei_bind(ei_ev_mouse_move, NULL, "all", resize_toplevel, (void *) widget);
                 ei_bind(ei_ev_mouse_buttonup, NULL, "all", unclick_toplevel, (void *) widget);
         }
-
-        return EI_FALSE;
+        /* Si on change le focus de la fenetre, il faut mettre à jour */
+        return change_focus(widget);
 }
 
 ei_bool_t move_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param)
