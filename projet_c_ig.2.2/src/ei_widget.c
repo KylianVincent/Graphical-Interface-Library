@@ -5,7 +5,7 @@
 #include "ei_classes.h"
 #include "ei_application.h"
 #include "ei_utils.h"
-#include "variables_globales.h"
+#include "ei_globs.h"
 #include "ei_eventmanager.h"
 #include <stdlib.h>
 #include <stdio.h>
