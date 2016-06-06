@@ -5,7 +5,12 @@
 #include "ei_geometryclasses.h"
 #include "ei_application.h"
 #include "ei_widget.h"
+#include "ei_globs.h"
+#include <math.h>
 
+/*optimisation affichage*/
+ei_rect_t update;
+ei_widget_t *root;
 
 ei_linked_bind_t **binds_event;
 /* Utile pour le déplacement et redimmensionnement de fenetre */
@@ -81,7 +86,10 @@ ei_bool_t click_button(ei_widget_t* widget, ei_event_t* event, void * user_param
         ei_unbind(ei_ev_mouse_buttondown, NULL, "button", click_button, NULL);
         ei_bind(ei_ev_mouse_move, NULL, "all", click_moveout, (void *) widget);
         ei_bind(ei_ev_mouse_buttonup, widget, NULL, unclick_button, NULL);
-	ei_app_invalidate_rect(&(widget->screen_location));
+	/*optimisation affichage*/
+	root=ei_app_root_widget();
+	update=intersect_clipper(widget->screen_location,*(root->content_rect)); 
+	ei_app_invalidate_rect(&update);
         return EI_TRUE;
 }
 
@@ -94,7 +102,10 @@ ei_bool_t click_moveout(ei_widget_t* widget, ei_event_t* event, void * user_para
                 ei_unbind(ei_ev_mouse_buttonup, ancien_widget, NULL, unclick_button, NULL);
                 ei_bind(ei_ev_mouse_move, ancien_widget, NULL, click_movein, NULL);
                 ei_bind(ei_ev_mouse_buttonup, NULL, "all", unclick, user_param);
-		ei_app_invalidate_rect(&(widget->screen_location));
+		/*optimisation affichage*/
+		root=ei_app_root_widget();
+		update=intersect_clipper(ancien_widget->screen_location,*(root->content_rect));
+		ei_app_invalidate_rect(&update);
                 return EI_TRUE;
         }
         return EI_FALSE;
@@ -107,7 +118,10 @@ ei_bool_t click_movein(ei_widget_t* widget, ei_event_t* event, void * user_param
         ei_unbind(ei_ev_mouse_buttonup, NULL, "all", unclick, (void *) widget);
         ei_bind(ei_ev_mouse_move, NULL, "all", click_moveout, (void *) widget);
         ei_bind(ei_ev_mouse_buttonup, widget, NULL, unclick_button, NULL);
-        ei_app_invalidate_rect(&(widget->screen_location));
+	/*optimisation affichage*/
+	root=ei_app_root_widget();
+	update=intersect_clipper(widget->screen_location,*(root->content_rect));
+	ei_app_invalidate_rect(&update);
         return EI_TRUE;
 }
 
@@ -124,12 +138,16 @@ ei_bool_t unclick_button(ei_widget_t* widget, ei_event_t* event, void * user_par
         ei_unbind(ei_ev_mouse_move, NULL, "all", click_moveout, widget);
         ei_unbind(ei_ev_mouse_buttonup, widget, NULL, unclick_button, NULL);
         ei_bind(ei_ev_mouse_buttondown, NULL, "button", click_button, NULL);
-	ei_app_invalidate_rect(&(widget->screen_location));
         change_relief(widget);
         ei_button_t *button = (ei_button_t *) widget;
         if (button->callback != NULL) {
                 (*button->callback)(widget, event, button->user_param);
         }
+	/*optimisation de l'affichage*/
+	root=ei_app_root_widget();
+	update=intersect_clipper(widget->screen_location,*(root->content_rect));
+	ei_app_invalidate_rect(&update);
+
         return EI_TRUE;
 }
 
@@ -139,9 +157,15 @@ ei_bool_t unclick_button(ei_widget_t* widget, ei_event_t* event, void * user_par
 /*** Fermeture ***/
 
 ei_bool_t close_toplevel(ei_widget_t *widget, ei_event_t *event, void *user_param)
-{
+{       /*optimisation affichage*/
         ei_toplevel_t *toplevel = (ei_toplevel_t *) user_param;
-	ei_app_invalidate_rect(&(widget->screen_location));
+	update.size.width=((ei_widget_t *)user_param)->screen_location.size.width+1;
+	update.size.height=((ei_widget_t *)user_param)->screen_location.size.height+1;
+	update.top_left.x=((ei_widget_t *)user_param)->screen_location.top_left.x;
+	update.top_left.y=((ei_widget_t *)user_param)->screen_location.top_left.y;
+	root=ei_app_root_widget();
+	update=intersect_clipper(update,*(root->content_rect));
+	ei_app_invalidate_rect(&update);
         ei_widget_destroy((ei_widget_t *) toplevel);
         return EI_TRUE;
 }
@@ -192,8 +216,35 @@ ei_bool_t move_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_para
         ((ei_placer_param_t *) toplevel->geom_params)->x += diff_x;
         ((ei_placer_param_t *) toplevel->geom_params)->y += diff_y;
         last_pos = event->param.mouse.where;
+	/*optimisation de l'affichage*/
+	if(toplevel->screen_location.top_left.x + (diff_x-abs(diff_x))/2<0){
+		update.top_left.x=0;
+	}else{
+		update.top_left.x=toplevel->screen_location.top_left.x + (diff_x-abs(diff_x))/2;
+	}
+
+	if(toplevel->screen_location.top_left.y + (diff_y-abs(diff_y))/2<0){
+		update.top_left.y=0;
+	}else{
+		update.top_left.y=toplevel->screen_location.top_left.y + (diff_y-abs(diff_y))/2;
+	}
+
+	if(1+toplevel->screen_location.size.width + abs(diff_x)+update.top_left.x >taille_root_frame.width){
+		update.size.width=taille_root_frame.width-update.top_left.x;
+	}else{
+		update.size.width= toplevel->screen_location.size.width + abs(diff_x)+1;
+	}
+
+	if(1+toplevel->screen_location.size.height + abs(diff_y)+update.top_left.y >taille_root_frame.height){
+		update.size.height=taille_root_frame.height-update.top_left.y;
+	}else{
+		update.size.height= toplevel->screen_location.size.height + abs(diff_y)+1;
+	}
+	ei_app_invalidate_rect(&update);
+
         return EI_TRUE;
 }
+
 
 ei_bool_t unclick_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param)
 {
@@ -250,5 +301,12 @@ ei_bool_t resize_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_pa
                 ((ei_placer_param_t *) toplevel->geom_params)->height = new_size_height;
         }
         last_pos = event->param.mouse.where;
+	/*optimisation de l'afichage*/
+	update.size.width = toplevel->screen_location.size.width + 1 + (diff_x+abs(diff_x))/2;
+        update.size.height = toplevel->screen_location.size.height + 1 + (diff_y+abs(diff_y))/2;
+	update.top_left=toplevel->screen_location.top_left;
+	root=ei_app_root_widget();
+	update=intersect_clipper(update,*(root->content_rect));
+	ei_app_invalidate_rect(&update);
         return EI_TRUE;
 }
