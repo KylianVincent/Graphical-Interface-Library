@@ -49,19 +49,14 @@ void   ei_geometrymanager_unmap (ei_widget_t*  widget){
         /* Unmap des boutons inclus si le widget est une toplevel */
         if (strcmp(widget->wclass->name, "toplevel") == 0){
                 ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
-                if (toplevel->closable == EI_TRUE){
+                if (toplevel->closable){
+                        if (toplevel->resizable) {
+                                ei_geometrymanager_unmap(widget->next_sibling->next_sibling);
+                        }
                         ei_geometrymanager_unmap(widget->next_sibling);
                 }
-                if (toplevel->resizable == ei_axis_x
-                    || toplevel->resizable == ei_axis_y
-                    || toplevel->resizable == ei_axis_both){
-                        if (toplevel->closable == EI_TRUE){
-                                /* Bouton en deuxième frère */
-                                ei_geometrymanager_unmap(widget->next_sibling->next_sibling);
-                        } else {
-                                /* Bouton en premier frère */
-                                ei_geometrymanager_unmap(widget->next_sibling);
-                        }
+                else if (toplevel->resizable){
+                        ei_geometrymanager_unmap(widget->next_sibling);
                 }
         }
         
