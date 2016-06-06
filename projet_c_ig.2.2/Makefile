@@ -14,7 +14,7 @@ CCFLAGS		:= -c ${OPTFLAGS} -Wall -std=c99
 # The list of objects to include in the library
 
 
-LIBEIOBJS	:= 	${OBJDIR}/ei_application.o ${OBJDIR}/ei_geometrymanager.o ${OBJDIR}/ei_widget.o ${OBJDIR}/ei_event.o ${OBJDIR}/ei_widgetclass.o ${OBJDIR}/ei_classes.o ${OBJDIR}/ei_geometryclasses.o ${OBJDIR}/ei_eventmanager.o
+LIBEIOBJS	:= 	${OBJDIR}/ei_application.o ${OBJDIR}/ei_geometrymanager.o ${OBJDIR}/ei_widget.o ${OBJDIR}/ei_event.o ${OBJDIR}/ei_widgetclass.o ${OBJDIR}/ei_classes.o ${OBJDIR}/ei_geometryclasses.o ${OBJDIR}/ei_eventmanager.o ${OBJDIR}/ei_globs.o
 
 
 

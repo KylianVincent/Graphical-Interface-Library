@@ -88,7 +88,10 @@ ei_bool_t click_button(ei_widget_t* widget, ei_event_t* event, void * user_param
         ei_bind(ei_ev_mouse_buttonup, widget, NULL, unclick_button, NULL);
 	/*optimisation affichage*/
 	root=ei_app_root_widget();
-	update=intersect_clipper(widget->screen_location,*(root->content_rect)); 
+	update.size.width = widget->screen_location.size.width+1;
+	update.size.height = widget->screen_location.size.height+1;
+	update.top_left = widget->screen_location.top_left;
+	update=intersect_clipper(update,*(root->content_rect));
 	ei_app_invalidate_rect(&update);
         return EI_TRUE;
 }
@@ -104,7 +107,10 @@ ei_bool_t click_moveout(ei_widget_t* widget, ei_event_t* event, void * user_para
                 ei_bind(ei_ev_mouse_buttonup, NULL, "all", unclick, user_param);
 		/*optimisation affichage*/
 		root=ei_app_root_widget();
-		update=intersect_clipper(ancien_widget->screen_location,*(root->content_rect));
+                update.size.width = ancien_widget->screen_location.size.width+1;
+                update.size.height = ancien_widget->screen_location.size.height+1;
+                update.top_left = ancien_widget->screen_location.top_left;
+		update=intersect_clipper(update,*(root->content_rect));
 		ei_app_invalidate_rect(&update);
                 return EI_TRUE;
         }
@@ -120,7 +126,10 @@ ei_bool_t click_movein(ei_widget_t* widget, ei_event_t* event, void * user_param
         ei_bind(ei_ev_mouse_buttonup, widget, NULL, unclick_button, NULL);
 	/*optimisation affichage*/
 	root=ei_app_root_widget();
-	update=intersect_clipper(widget->screen_location,*(root->content_rect));
+	update.size.width = widget->screen_location.size.width+1;
+	update.size.height = widget->screen_location.size.height+1;
+	update.top_left = widget->screen_location.top_left;
+	update=intersect_clipper(update,*(root->content_rect));
 	ei_app_invalidate_rect(&update);
         return EI_TRUE;
 }
@@ -145,7 +154,10 @@ ei_bool_t unclick_button(ei_widget_t* widget, ei_event_t* event, void * user_par
         }
 	/*optimisation de l'affichage*/
 	root=ei_app_root_widget();
-	update=intersect_clipper(widget->screen_location,*(root->content_rect));
+	update.size.width = widget->screen_location.size.width+1;
+	update.size.height = widget->screen_location.size.height+1;
+	update.top_left = widget->screen_location.top_left;
+	update=intersect_clipper(update,*(root->content_rect));
 	ei_app_invalidate_rect(&update);
 
         return EI_TRUE;
@@ -161,8 +173,7 @@ ei_bool_t close_toplevel(ei_widget_t *widget, ei_event_t *event, void *user_para
         ei_widget_t *toplevel = (ei_widget_t *) user_param;
 	update.size.width = toplevel->screen_location.size.width+1;
 	update.size.height = toplevel->screen_location.size.height+1;
-	update.top_left.x = toplevel->screen_location.top_left.x;
-	update.top_left.y = toplevel->screen_location.top_left.y;
+	update.top_left = toplevel->screen_location.top_left;
 	root = ei_app_root_widget();
 	update = intersect_clipper(update,*(root->content_rect));
 	ei_app_invalidate_rect(&update);
@@ -195,9 +206,16 @@ ei_bool_t change_focus(ei_widget_t *widget)
         else {
                 prec->next_sibling = tail->next_sibling;
         }
+        /* On ajoute le rectangle à mettre à jour */
         widget->parent->children_tail->next_sibling = widget;
         tail->next_sibling = NULL;
         widget->parent->children_tail = tail;
+	update.size.width = widget->screen_location.size.width+1;
+	update.size.height = widget->screen_location.size.height+1;
+	update.top_left = widget->screen_location.top_left;
+	root = ei_app_root_widget();
+	update = intersect_clipper(update,*(root->content_rect));
+	ei_app_invalidate_rect(&update);
         return EI_TRUE;
 }
 
@@ -255,34 +273,6 @@ ei_bool_t move_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_para
         ei_place(toplevel, NULL, &new_pos_x, &new_pos_y, NULL, NULL, &zero, &zero, NULL, NULL);
 
         last_pos = event->param.mouse.where;
-
-
-	/*optimisation de l'affichage*/
-	if(toplevel->screen_location.top_left.x + (diff_x-abs(diff_x))/2<0){
-		update.top_left.x=0;
-	}else{
-		update.top_left.x=toplevel->screen_location.top_left.x + (diff_x-abs(diff_x))/2;
-	}
-
-	if(toplevel->screen_location.top_left.y + (diff_y-abs(diff_y))/2<0){
-		update.top_left.y=0;
-	}else{
-		update.top_left.y=toplevel->screen_location.top_left.y + (diff_y-abs(diff_y))/2;
-	}
-
-	if(1+toplevel->screen_location.size.width + abs(diff_x)+update.top_left.x >taille_root_frame.width){
-		update.size.width=taille_root_frame.width-update.top_left.x;
-	}else{
-		update.size.width= toplevel->screen_location.size.width + abs(diff_x)+1;
-	}
-
-	if(1+toplevel->screen_location.size.height + abs(diff_y)+update.top_left.y >taille_root_frame.height){
-		update.size.height=taille_root_frame.height-update.top_left.y;
-	}else{
-		update.size.height= toplevel->screen_location.size.height + abs(diff_y)+1;
-	}
-	ei_app_invalidate_rect(&update);
-
         return EI_TRUE;
 }
 
@@ -341,13 +331,5 @@ ei_bool_t resize_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_pa
         /* On doit mettre à zéro la valeur de la taille relative */
         float zero = 0.0;
         ei_place(widget_bis, NULL, NULL, NULL, &new_size_width, &new_size_height, NULL, NULL, &zero, &zero);
-
-	/*optimisation de l'affichage*/
-	update.size.width = widget_bis->screen_location.size.width + 1 + (diff_x+abs(diff_x))/2;
-        update.size.height = widget_bis->screen_location.size.height + 1 + (diff_y+abs(diff_y))/2;
-	update.top_left = widget_bis->screen_location.top_left;
-	root=ei_app_root_widget();
-	update=intersect_clipper(update,*(root->content_rect));
-	ei_app_invalidate_rect(&update);
         return EI_TRUE;
 }

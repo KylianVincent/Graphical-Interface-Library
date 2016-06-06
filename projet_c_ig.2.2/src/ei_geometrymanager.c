@@ -2,7 +2,9 @@
 #include "ei_geometryclasses.h"
 #include "ei_types.h"
 #include "ei_utils.h"
+#include "ei_application.h"
 #include "ei_classes.h"
+#include "ei_globs.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -162,8 +164,13 @@ void   ei_place   (ei_widget_t*  widget,
         if (rel_height != NULL){
                 placer_settings->rel_height = *rel_height;
         }
-        
+        ei_rect_t old_rect = widget->screen_location;
         /* Calcul de la géométrie du widget et de ses fils*/
         (*widget->geom_params->manager->runfunc)(widget);
+
+        ei_rect_t maj_rect = union_rect(widget->screen_location, old_rect);
+        ei_widget_t *root = ei_app_root_widget();
+        maj_rect = intersect_clipper(maj_rect, *(root->content_rect));
+        ei_app_invalidate_rect(&maj_rect);
 }
 

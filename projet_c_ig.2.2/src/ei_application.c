@@ -86,15 +86,15 @@ void ei_app_run(){
                         ei_app_run_rec(root_frame, root_frame->content_rect);
 			ei_linked_rect_t *cour=update_rects;
 			ei_linked_rect_t *tmp;
-                        hw_surface_update_rects(main_window,NULL);
-			hw_surface_update_rects(main_window_picking,NULL);
-			/* while (cour != NULL){ */
-			/* 	hw_surface_update_rects(main_window,cour); */
-			/* 	hw_surface_update_rects(main_window_picking,cour); */
-			/* 	tmp=cour; */
-			/* 	cour=cour->next; */
-			/* 	free(tmp); */
-			/* } */
+                        //hw_surface_update_rects(main_window,NULL);
+			//hw_surface_update_rects(main_window_picking,NULL);
+			while (cour != NULL){
+				hw_surface_update_rects(main_window,cour);
+				hw_surface_update_rects(main_window_picking,cour);
+				tmp=cour;
+				cour=cour->next;
+				free(tmp);
+			}
 			update_rects=NULL;
                 }
         }
@@ -106,13 +106,8 @@ void ei_app_run(){
 void ei_app_invalidate_rect(ei_rect_t* rect){
 	ei_linked_rect_t *new_cell=calloc(1,sizeof(ei_linked_rect_t));
 	new_cell->rect=*rect;
-	new_cell->next=NULL;
-	if (update_rects == NULL){
-		update_rects=new_cell;
-	}else{
-		new_cell->next=update_rects;
-		update_rects=new_cell;
-	}
+	new_cell->next=update_rects;
+        update_rects = new_cell;
 }
 
 
