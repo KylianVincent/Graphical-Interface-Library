@@ -10,6 +10,12 @@
 #include <stdio.h>
 #include <math.h>
 
+
+void init_picking(){
+	tab_pick=NULL;
+	size=256;
+}
+
 ei_rect_t union_rect( ei_rect_t rect1, ei_rect_t rect2){
 	ei_rect_t result;
 
@@ -89,7 +95,15 @@ ei_rect_t intersect_clipper(ei_rect_t clipper1, ei_rect_t clipper2)
         return inter;
 }
 
-void init_picking(void){
-	tab_pick=NULL;
-	size=256;
+void free_linked_rects(ei_linked_rect_t **list_rect)
+{
+        ei_linked_rect_t *cour = *list_rect;
+        ei_linked_rect_t *temp;
+        while (cour != NULL)
+        {
+                temp = cour;
+                cour = cour->next;
+                free(temp);
+        }
+        *list_rect = NULL;
 }

@@ -198,6 +198,9 @@ void frame_releasefunc(struct ei_widget_t* widget){
                 if (frame->img_rect != NULL) {
                         free(frame->img_rect);
                 }
+                if (frame->text != NULL) {
+                        free(frame->text);
+                }
 		if (widget->content_rect != &(widget->screen_location)){
 			free(widget->content_rect);
 		}
@@ -243,10 +246,15 @@ void frame_drawfunc(struct ei_widget_t*	frame,
 		ei_draw_polygon(surface, cadre_inferieur_haut, color_sup, clipper);
 		ei_draw_polygon(pick_surface, cadre_inferieur_bas,*(frame->pick_color), clipper);
 		ei_draw_polygon(pick_surface, cadre_inferieur_haut,*(frame->pick_color), clipper);
+                /* On libère les listes chainées */
+                free_linked_point(cadre_inferieur_bas);
+                free_linked_point(cadre_inferieur_haut);
 	}
 
 	ei_draw_polygon(surface, cadre, ((ei_frame_t *)frame)->color, clipper);
         ei_draw_polygon(pick_surface, cadre, *(frame->pick_color), clipper);
+        /* On libere les listes chainées */
+        free_linked_point(cadre);
 	
         ei_rect_t inter = intersect_clipper(*(frame->content_rect),*clipper);
         draw_texte(frame, surface, &inter);
@@ -291,6 +299,9 @@ void button_releasefunc (struct ei_widget_t* widget)
                 ei_button_t* button = (ei_button_t*) widget;
                 if (button->img_rect != NULL) {
                         free(button->img_rect);
+                }
+                if (button->text != NULL) {
+                        free(button->text);
                 }
 		if (widget->content_rect != &(widget->screen_location)){
 			free(widget->content_rect);
@@ -522,11 +533,12 @@ void toplevel_releasefunc (struct ei_widget_t* widget){
                 if (toplevel->min_size != NULL){
                         free(toplevel->min_size);
                 }
+                if (toplevel->title != NULL) {
+                        free(toplevel->title);
+                }
                 if (widget->content_rect != &(widget->screen_location)){
 			free(widget->content_rect);
 		}
-                
-                free(toplevel->title);
                 free(toplevel);
                 widget = NULL;
         }
