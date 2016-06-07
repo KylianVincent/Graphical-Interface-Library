@@ -13,9 +13,6 @@
 #include <stdint.h>
 #include <string.h>
 
-ei_widget_t **tab_pick = NULL;
-int32_t size =256;
-
 void alloc_tab_pick(int32_t new_size){
 	
 	if (size > new_size){

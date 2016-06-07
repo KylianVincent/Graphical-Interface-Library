@@ -35,6 +35,20 @@ ei_widget_t *get_widget_of_pixel(ei_point_t where)
 	return ei_widget_pick(&where);	
 }
 
+//fonction de liberation de binds event
+void free_binds_event(){
+	ei_linked_bind_t *cour;
+	ei_linked_bind_t *tmp;
+	for (int8_t i=0; i<8; i++){
+		cour=binds_event[i];
+		while (cour != NULL){
+			tmp=cour;
+			cour=cour->next;
+			free(cour);
+		}
+	}
+}
+
 
 // Fonction qui traite un évènement
 ei_bool_t handle_event(ei_event_t* event)
@@ -263,8 +277,6 @@ ei_bool_t move_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_para
 
         int diff_x = event->param.mouse.where.x - last_pos.x;
         int diff_y = event->param.mouse.where.y - last_pos.y;
-        /* ((ei_placer_param_t *) toplevel->geom_params)->x += diff_x; */
-        /* ((ei_placer_param_t *) toplevel->geom_params)->y += diff_y; */
         int new_pos_x = toplevel->screen_location.top_left.x + diff_x;
         int new_pos_y = toplevel->screen_location.top_left.y + diff_y;
 

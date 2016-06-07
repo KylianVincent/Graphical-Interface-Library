@@ -17,7 +17,8 @@ typedef struct ei_linked_bind_t {
 void init_binds_event();
 
 ei_linked_bind_t **get_binds_event();
-
+//liberation de la structure binds_event
+void free_binds_event();
 // Fonction calculant renvoyant le widget correspondant à un pixel
 ei_widget_t *get_widget_of_pixel(ei_point_t where);
 

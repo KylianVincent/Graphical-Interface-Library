@@ -20,6 +20,7 @@ ei_linked_rect_t *update_rects=NULL;
 /* void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen); */
 void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen)
 {
+	init_picking();
         if (!fullscreen && main_window_size == NULL){
                 perror("La taille de la fenêtre n'est pas définie.\n");
                 exit(1);
@@ -52,6 +53,8 @@ void ei_app_free(){
         hw_surface_free(main_window_picking);
         hw_surface_free(main_window);
 	free(update_rects);
+	free(tab_pick);
+	free_binds_event();
         hw_quit();
 }
 
@@ -86,7 +89,6 @@ void ei_app_run(){
                         ei_app_run_rec(root_frame, root_frame->content_rect);
 			ei_linked_rect_t *cour=update_rects;
 			ei_linked_rect_t *tmp;
-
 			while (cour != NULL){
 				hw_surface_update_rects(main_window,cour);
 				hw_surface_update_rects(main_window_picking,cour);

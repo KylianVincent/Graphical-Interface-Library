@@ -89,3 +89,7 @@ ei_rect_t intersect_clipper(ei_rect_t clipper1, ei_rect_t clipper2)
         return inter;
 }
 
+void init_picking(void){
+	tab_pick=NULL;
+	size=256;
+}
