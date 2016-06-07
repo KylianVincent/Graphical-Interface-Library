@@ -3,6 +3,7 @@
 #include "ei_widget.h"
 #include "ei_classes.h"
 #include "ei_application.h"
+#include "ei_globs.h"
 #include <string.h>
 
 ei_point_t calcul_point_ancrage(ei_rect_t* rect, ei_anchor_t *anchor){
@@ -118,21 +119,20 @@ void placer_screen_location(struct ei_widget_t *widget){
         /* -- Anchor -- */
         /* Mise à jour de la position : top_left */
         ei_point_t anchor_point = calcul_point_ancrage(&new_rect, &(placer_settings->anchor));
-        int diff_x = anchor_point.x-widget->screen_location.top_left.x;
-        int diff_y = anchor_point.y-widget->screen_location.top_left.y;
-        int diff_w = new_rect.size.width-widget->screen_location.size.width;
-        int diff_h = new_rect.size.height-widget->screen_location.size.height;
-        widget->screen_location.top_left.x += diff_x;
-        widget->screen_location.top_left.y += diff_y;
-        widget->screen_location.size.width += diff_w;
-        widget->screen_location.size.height += diff_h;
+        /*On met à jour le screen_location */
+        widget->screen_location.top_left.x = anchor_point.x;
+        widget->screen_location.top_left.y = anchor_point.y;
+        widget->screen_location.size.width = new_rect.size.width;
+        widget->screen_location.size.height = new_rect.size.height;
+        /* On met à jour le content_rect */
         (*widget->wclass->geomnotifyfunc)(widget, widget->screen_location);
 
         /* Test de la positivité des valeurs */
-        if ((widget->content_rect->size.width < 0)
-            || (widget->content_rect->size.height < 0)){
-                perror("Arguments de taille incohérents (valeurs finales négatives)");
-                exit(1);
+        if (widget->content_rect->size.width < 0) {
+                widget->content_rect->size.width = 0;
+        }
+        if  (widget->content_rect->size.height < 0){
+                widget->content_rect->size.height = 0;
         }
 }
 
@@ -146,6 +146,7 @@ void placer_runfunc(struct ei_widget_t *widget){
         }
         placer_screen_location(widget);
         if (strcmp(widget->wclass->name, "toplevel") == 0){
+                /* On doit placer le bouton et le redimensionnement */
                 ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
                 if (toplevel->closable == EI_TRUE){
                         ei_widget_t *close_button = widget->next_sibling;
@@ -181,11 +182,11 @@ void placer_runfunc(struct ei_widget_t *widget){
                                                                            100, -1);
                         ei_anchor_t resize_zone_anch = ei_anc_southeast;
                         ei_size_t resize_zone_size;
-                        if (toplevel->border_width > 2){
+                        if (toplevel->border_width >= min_resize_zone){
                                 resize_zone_size = ei_size(2*toplevel->border_width,
                                                            2*toplevel->border_width);
                         } else {
-                                resize_zone_size = ei_size(4, 4);
+                                resize_zone_size = ei_size(2*min_resize_zone, 2*min_resize_zone);
                         }
                         
                         ei_point_t resize_zone_point = ei_point(widget->screen_location.size.width,

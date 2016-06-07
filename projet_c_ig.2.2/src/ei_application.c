@@ -57,6 +57,19 @@ void ei_app_free(){
         hw_quit();
 }
 
+void treat_updates(ei_linked_rect_t *list_rect)
+{
+        ei_widget_t *root = ei_app_root_widget();
+        ei_rect_t limit = *(root->content_rect);
+        while (list_rect != NULL)
+        {
+                list_rect->rect.size.width++;
+                list_rect->rect.size.height++;
+                list_rect->rect = intersect_clipper(limit,list_rect->rect);
+                list_rect = list_rect->next;
+        }
+}
+
 void ei_app_run_rec(ei_widget_t* w, ei_rect_t* clipper)
 {
         if (w == NULL || clipper->size.height <= 0 || clipper->size.width <= 0) 
@@ -86,6 +99,7 @@ void ei_app_run(){
                 hw_event_wait_next(event);
                 if (event->type != ei_ev_none && handle_event(event)) {
                         ei_app_run_rec(root_frame, root_frame->content_rect);
+                        treat_updates(update_rects);
                         hw_surface_update_rects(main_window,update_rects);
                         hw_surface_update_rects(main_window_picking,update_rects);
 			free_linked_rects(&update_rects);

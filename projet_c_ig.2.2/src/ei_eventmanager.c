@@ -8,10 +8,6 @@
 #include "ei_globs.h"
 #include <math.h>
 
-/*optimisation affichage*/
-ei_rect_t update;
-ei_widget_t *root;
-
 ei_linked_bind_t **binds_event;
 /* Utile pour le déplacement et redimmensionnement de fenetre */
 ei_point_t last_pos;
@@ -101,12 +97,7 @@ ei_bool_t click_button(ei_widget_t* widget, ei_event_t* event, void * user_param
         ei_bind(ei_ev_mouse_move, NULL, "all", click_moveout, (void *) widget);
         ei_bind(ei_ev_mouse_buttonup, widget, NULL, unclick_button, NULL);
 	/*optimisation affichage*/
-	root=ei_app_root_widget();
-	update.size.width = widget->screen_location.size.width+1;
-	update.size.height = widget->screen_location.size.height+1;
-	update.top_left = widget->screen_location.top_left;
-	update=intersect_clipper(update,*(root->content_rect));
-	ei_app_invalidate_rect(&update);
+	ei_app_invalidate_rect(&(widget->screen_location));
         return EI_TRUE;
 }
 
@@ -120,12 +111,7 @@ ei_bool_t click_moveout(ei_widget_t* widget, ei_event_t* event, void * user_para
                 ei_bind(ei_ev_mouse_move, ancien_widget, NULL, click_movein, NULL);
                 ei_bind(ei_ev_mouse_buttonup, NULL, "all", unclick, user_param);
 		/*optimisation affichage*/
-		root=ei_app_root_widget();
-                update.size.width = ancien_widget->screen_location.size.width+1;
-                update.size.height = ancien_widget->screen_location.size.height+1;
-                update.top_left = ancien_widget->screen_location.top_left;
-		update=intersect_clipper(update,*(root->content_rect));
-		ei_app_invalidate_rect(&update);
+		ei_app_invalidate_rect(&(ancien_widget->screen_location));
                 return EI_TRUE;
         }
         return EI_FALSE;
@@ -139,12 +125,7 @@ ei_bool_t click_movein(ei_widget_t* widget, ei_event_t* event, void * user_param
         ei_bind(ei_ev_mouse_move, NULL, "all", click_moveout, (void *) widget);
         ei_bind(ei_ev_mouse_buttonup, widget, NULL, unclick_button, NULL);
 	/*optimisation affichage*/
-	root=ei_app_root_widget();
-	update.size.width = widget->screen_location.size.width+1;
-	update.size.height = widget->screen_location.size.height+1;
-	update.top_left = widget->screen_location.top_left;
-	update=intersect_clipper(update,*(root->content_rect));
-	ei_app_invalidate_rect(&update);
+	ei_app_invalidate_rect(&(widget->screen_location));
         return EI_TRUE;
 }
 
@@ -163,12 +144,7 @@ ei_bool_t unclick_button(ei_widget_t* widget, ei_event_t* event, void * user_par
         ei_bind(ei_ev_mouse_buttondown, NULL, "button", click_button, NULL);
         change_relief(widget);
 	/*optimisation de l'affichage*/
-	root=ei_app_root_widget();
-	update.size.width = widget->screen_location.size.width+1;
-	update.size.height = widget->screen_location.size.height+1;
-	update.top_left = widget->screen_location.top_left;
-	update=intersect_clipper(update,*(root->content_rect));
-	ei_app_invalidate_rect(&update);
+	ei_app_invalidate_rect(&(widget->screen_location));
 
         ei_button_t *button = (ei_button_t *) widget;
         if (button->callback != NULL) {
@@ -186,12 +162,7 @@ ei_bool_t unclick_button(ei_widget_t* widget, ei_event_t* event, void * user_par
 ei_bool_t close_toplevel(ei_widget_t *widget, ei_event_t *event, void *user_param)
 {       /*optimisation affichage*/
         ei_widget_t *toplevel = (ei_widget_t *) user_param;
-	update.size.width = toplevel->screen_location.size.width+1;
-	update.size.height = toplevel->screen_location.size.height+1;
-	update.top_left = toplevel->screen_location.top_left;
-	root = ei_app_root_widget();
-	update = intersect_clipper(update,*(root->content_rect));
-	ei_app_invalidate_rect(&update);
+	ei_app_invalidate_rect(&(toplevel->screen_location));
         ei_widget_destroy(toplevel);
         return EI_TRUE;
 }
@@ -221,16 +192,11 @@ void change_focus(ei_widget_t *widget)
         else {
                 prec->next_sibling = tail->next_sibling;
         }
-        /* On ajoute le rectangle à mettre à jour */
         widget->parent->children_tail->next_sibling = widget;
         tail->next_sibling = NULL;
         widget->parent->children_tail = tail;
-	update.size.width = widget->screen_location.size.width+1;
-	update.size.height = widget->screen_location.size.height+1;
-	update.top_left = widget->screen_location.top_left;
-	root = ei_app_root_widget();
-	update = intersect_clipper(update,*(root->content_rect));
-	ei_app_invalidate_rect(&update);
+        /* On ajoute le rectangle à mettre à jour */
+	ei_app_invalidate_rect(&(widget->screen_location));
         return;
 }
 
@@ -256,10 +222,10 @@ ei_bool_t click_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_par
         resize_corner = ei_point_add(resize_corner,
                                      widget->screen_location.top_left);
         int resize_zone_height;
-        if (toplevel->border_width > 2){
+        if (toplevel->border_width >= min_resize_zone){
                 resize_zone_height = 2*toplevel->border_width;
         } else {
-                resize_zone_height = 4;
+                resize_zone_height = 2*min_resize_zone;
         }
         resize_corner.x -= resize_zone_height;
         resize_corner.y -= resize_zone_height;
@@ -313,11 +279,11 @@ ei_bool_t resize_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_pa
 
         /* Calcul du point nord-est de la zone de redimmensionnement */
         ei_point_t resize_corner_min = widget_bis->content_rect->top_left;
-        int bords = (toplevel->border_width>2)?toplevel->border_width:2;
-        resize_corner_min.x += toplevel->min_size->width - bords;
-        resize_corner_min.y += toplevel->min_size->height - bords;
-
-        
+        int bords = toplevel->border_width;
+        int decalage = (bords >= min_resize_zone)?
+                2*bords:2*min_resize_zone;
+        resize_corner_min.x += toplevel->min_size->width + bords - decalage;
+        resize_corner_min.y += toplevel->min_size->height + bords - decalage;
 
         /* -- Width -- */
         /* On vérifie que la fenêtre est redimmensionnable (axes et taille min)*/

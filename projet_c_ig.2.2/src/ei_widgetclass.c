@@ -1,5 +1,6 @@
 #include "ei_widgetclass.h"
 #include "ei_classes.h"
+#include "ei_globs.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -80,7 +81,8 @@ void ei_toplevel_register_class (){
         toplevel->geomnotifyfunc = toplevel_geomnotifyfunc;
         toplevel->next = classes;
         classes = toplevel;
-
+        /* On définit la taille min de la zone de redimenionnement */
+        min_resize_zone = 4;
 
 }
 

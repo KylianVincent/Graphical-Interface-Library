@@ -27,8 +27,8 @@ ei_rect_t union_rect( ei_rect_t rect1, ei_rect_t rect2){
         int max_y2 = rect2.top_left.y + rect2.size.height;
         int max_x1 = rect1.top_left.x + rect1.size.width;
         int max_x2 = rect2.top_left.x + rect2.size.width;
-        result.size.width = ((max_x1>=max_x2)?max_x1:max_x2)-result.top_left.x+1;
-        result.size.height = ((max_y1>=max_y2)?max_y1:max_y2)-result.top_left.y+1;
+        result.size.width = ((max_x1>=max_x2)?max_x1:max_x2)-result.top_left.x;
+        result.size.height = ((max_y1>=max_y2)?max_y1:max_y2)-result.top_left.y;
 	return result;
 }
 

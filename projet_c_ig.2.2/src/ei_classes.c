@@ -118,9 +118,7 @@ void frame_setdefaultsfunc(struct ei_widget_t* widget){
 
 void frame_geomnotifyfunc(struct ei_widget_t *widget, ei_rect_t rect){
 	ei_frame_t * frame=(ei_frame_t*)widget;
-	if (frame->border_width ==0){
-		widget->content_rect=&(widget->screen_location);		
-	}else{
+	if (widget != NULL) {
 		int b=frame->border_width;
 		if (widget->content_rect==&(widget->screen_location)){
 			widget->content_rect=calloc(1,sizeof(ei_rect_t));
@@ -278,6 +276,9 @@ ei_linked_point_t* rounded_frame(ei_rect_t rect, int radius, int8_t mode)
 /* Eclairit ou assombrit en fonction de sign (1 ou -1) */
 ei_color_t eclaircir_assombrir(ei_color_t color, uint8_t val, int8_t sign)
 {
+        if (sign == 0) {
+                sign = 1;
+        }
         int16_t r = color.red + sign*val;
         int16_t g = color.green + sign*val;
         int16_t b = color.blue + sign*val;
@@ -317,8 +318,8 @@ void button_drawfunc(struct ei_widget_t* widget,
         /* On trace les surfaces correspondantes */
         hw_surface_lock(surface);
         hw_surface_lock(pick_surface);
-        ei_draw_polygon(surface, relief_sup, eclaircir_assombrir(button->color,100,signe),  clipper);
-        ei_draw_polygon(surface, relief_inf, eclaircir_assombrir(button->color,100,-signe),  clipper);
+        ei_draw_polygon(surface, relief_sup, eclaircir_assombrir(button->color,50,signe),  clipper);
+        ei_draw_polygon(surface, relief_inf, eclaircir_assombrir(button->color,50,-signe),  clipper);
         ei_draw_polygon(surface, corps, button->color,  clipper);
         /* On trace aussi dans pick_surface */
         ei_draw_polygon(pick_surface, relief_inf, *(widget->pick_color),  clipper);

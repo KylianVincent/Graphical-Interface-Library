@@ -45,9 +45,6 @@ void   ei_geometrymanager_unmap (ei_widget_t*  widget){
                 widget->geom_params = NULL;
         }
 
-        /* Mise à 0 des composantes de screen_location */
-        //widget->screen_location = ei_rect_zero();
-
         /* Unmap des boutons inclus si le widget est une toplevel */
         if (strcmp(widget->wclass->name, "toplevel") == 0){
                 ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
@@ -169,8 +166,6 @@ void   ei_place   (ei_widget_t*  widget,
         (*widget->geom_params->manager->runfunc)(widget);
 
         ei_rect_t maj_rect = union_rect(widget->screen_location, old_rect);
-        ei_widget_t *root = ei_app_root_widget();
-        maj_rect = intersect_clipper(maj_rect, *(root->content_rect));
         ei_app_invalidate_rect(&maj_rect);
 }
 

@@ -9,6 +9,9 @@ ei_surface_t main_window;
 ei_surface_t main_window_picking;
 ei_size_t taille_root_frame;
 
+/* Taille de la zone de redimensionnement */
+int min_resize_zone;
+
 /*picking*/
 ei_widget_t **tab_pick;
 int32_t size;

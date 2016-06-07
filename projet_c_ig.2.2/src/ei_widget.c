@@ -322,27 +322,25 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
         else if (requested_size != NULL)
         {
                 widget->requested_size = *requested_size;
-		widget->content_rect->size.height = widget->requested_size.height;
-		widget->content_rect->size.width = widget->requested_size.width;
-                widget->screen_location.size = widget->requested_size;
+		widget->content_rect->size = widget->requested_size;
+                widget->screen_location.size.width = widget->requested_size.width + 2*frame->border_width;
+                widget->screen_location.size.height = widget->requested_size.height + 2*frame->border_width;
         }
 	/* Border */
         if (border_width != NULL){
-                frame->border_width = *border_width;
+                int b = *border_width;
+                frame->border_width = b;
 
-		/* if (widget->content_rect == &(widget->screen_location)){ */
-		/* 	widget->content_rect=calloc(1, sizeof(ei_rect_t)); */
-		/* } */
-		/* widget->content_rect->top_left.x= widget->screen_location.top_left.x + b; */
-		/* widget->content_rect->top_left.y= widget->screen_location.top_left.y + b; */
-		/* widget->content_rect->size.width= widget->screen_location.size.width -2*b; */
-		/* widget->content_rect->size.height= widget->screen_location.size.height -2*b; */
+		if (widget->content_rect == &(widget->screen_location)){
+			widget->content_rect=calloc(1, sizeof(ei_rect_t));
+		}
+		widget->content_rect->top_left.x= widget->screen_location.top_left.x + b;
+		widget->content_rect->top_left.y= widget->screen_location.top_left.y + b;
+		widget->content_rect->size.width= widget->screen_location.size.width -2*b;
+		widget->content_rect->size.height= widget->screen_location.size.height -2*b;
 	}
-        ei_widget_t *root = ei_app_root_widget();
-        ei_rect_t new_rect = widget->screen_location;
-        new_rect.size.width++; new_rect.size.height++;
-        new_rect = intersect_clipper(new_rect, *(root->content_rect));
-        ei_app_invalidate_rect(&new_rect);
+        /* On met à jour cette partie d'écran */
+        ei_app_invalidate_rect(&(widget->screen_location));
 }
 
 
@@ -427,9 +425,6 @@ void ei_toplevel_configure(ei_widget_t*widget, ei_size_t*requested_size,
                 }
                 *(toplevel->min_size) = **min_size;
         }
-        ei_widget_t *root = ei_app_root_widget();
-        ei_rect_t new_rect = widget->screen_location;
-        new_rect.size.width++; new_rect.size.height++;
-        new_rect = intersect_clipper(new_rect, *(root->content_rect));
-        ei_app_invalidate_rect(&new_rect);
+        /* On met à jour l'écran */
+        ei_app_invalidate_rect(&(widget->screen_location));
 }
