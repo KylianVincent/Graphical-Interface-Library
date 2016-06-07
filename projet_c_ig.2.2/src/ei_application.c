@@ -87,16 +87,9 @@ void ei_app_run(){
                 hw_event_wait_next(event);
                 if (event->type != ei_ev_none && handle_event(event)) {
                         ei_app_run_rec(root_frame, root_frame->content_rect);
-			ei_linked_rect_t *cour=update_rects;
-			ei_linked_rect_t *tmp;
-			while (cour != NULL){
-				hw_surface_update_rects(main_window,cour);
-				hw_surface_update_rects(main_window_picking,cour);
-				tmp=cour;
-				cour=cour->next;
-				free(tmp);
-			}
-			update_rects=NULL;
+                        hw_surface_update_rects(main_window,update_rects);
+                        hw_surface_update_rects(main_window_picking,update_rects);
+			free_linked_rects(&update_rects);
                 }
         }
         free(event);
