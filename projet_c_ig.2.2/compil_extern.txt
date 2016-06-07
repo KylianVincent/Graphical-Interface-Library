@@ -1,0 +1,6 @@
+/* Widget : */
+gcc -o test_ext_class -I./include -I/usr/include/SDL test_ext_class.c ext_testclass.o objs/libei.a _x11/libeibase64.a -L_x11 -lSDL -lSDL_ttf -lSDL_gfx64 -lfreeimage64 -lm -lstdc++
+
+
+/* Geometry Manager : */
+gcc -o test_ext_gm -I./include -I/usr/include/SDL test_ext_gm.c ext_testgm.o objs/libei.a _x11/libeibase64.a -L_x11 -lSDL -lSDL_ttf -lSDL_gfx64 -lfreeimage64 -lm -lstdc++

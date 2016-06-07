@@ -55,23 +55,23 @@ ei_bool_t handle_event(ei_event_t* event)
 {
         ei_widget_t *widget = get_widget_of_pixel(event->param.mouse.where);
         ei_linked_bind_t *cour = binds_event[event->type];
-        ei_bool_t change = EI_FALSE;
-        while (cour != NULL) {
+        ei_bool_t stop = EI_FALSE;
+        while (!stop && cour != NULL) {
                 ei_linked_bind_t *next = cour->next;
                 /** Evenements externes **/
                 if (cour->widget == widget) {
-                        change = change || (*cour->callback)(widget, event, cour->user_param);
+                        stop = (*cour->callback)(widget, event, cour->user_param);
                 }
                 /** Evenements interne **/
                 else if (cour->tag != NULL && !strcmp(cour->tag,widget->wclass->name)) {
-                        change = change || (*cour->callback)(widget, event, cour->user_param);
+                        stop = (*cour->callback)(widget, event, cour->user_param);
                 }
                 else if (cour->tag != NULL && !strcmp(cour->tag,"all")) {
-                        change = change || (*cour->callback)(widget, event, cour->user_param);
+                        stop = (*cour->callback)(widget, event, cour->user_param);
                 }
                 cour = next;
         }
-        return change;
+        return stop;
 }
 
 // Fonction qui quitte lorqu'on appuye sur échap
@@ -80,7 +80,7 @@ ei_bool_t escape(ei_widget_t *widget, ei_event_t* event, void *user_param)
         if (event->type == ei_ev_keydown && event->param.key.key_sym == SDLK_ESCAPE) {
                 ei_app_quit_request();
         }
-        return EI_FALSE;
+        return EI_TRUE;
 }
 
 // Fonction traitante interne pour les boutons
@@ -153,7 +153,7 @@ ei_bool_t unclick(ei_widget_t* widget, ei_event_t* event, void * user_param)
         ei_unbind(ei_ev_mouse_move, (ei_widget_t *) user_param, NULL, click_movein, NULL);
         ei_unbind(ei_ev_mouse_buttonup, NULL, "all", unclick, user_param);
         ei_bind(ei_ev_mouse_buttondown, NULL, "button", click_button, NULL);
-        return EI_FALSE;
+        return EI_TRUE;
 }
 
 ei_bool_t unclick_button(ei_widget_t* widget, ei_event_t* event, void * user_param)
@@ -197,7 +197,7 @@ ei_bool_t close_toplevel(ei_widget_t *widget, ei_event_t *event, void *user_para
 
 /*** Changement focus ***/
 
-ei_bool_t change_focus(ei_widget_t *widget)
+void change_focus(ei_widget_t *widget)
 {
         ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
         ei_widget_t *tail = widget;
@@ -208,7 +208,7 @@ ei_bool_t change_focus(ei_widget_t *widget)
                 tail = tail->next_sibling;
         }
         if (widget->parent == NULL || widget->parent->children_tail == tail) {
-                return EI_FALSE;
+                return;
         }
         ei_widget_t *prec = widget->parent->children_head;
         while (prec != widget && prec->next_sibling != widget) {
@@ -230,19 +230,22 @@ ei_bool_t change_focus(ei_widget_t *widget)
 	root = ei_app_root_widget();
 	update = intersect_clipper(update,*(root->content_rect));
 	ei_app_invalidate_rect(&update);
-        return EI_TRUE;
+        return;
 }
 
 /*** Déplacement ***/
 
 ei_bool_t click_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param)
 {
+        /* Si on change le focus de la fenetre, il faut mettre à jour */
+        change_focus(widget);
         /* Gestion du déplacement */
         if (event->param.mouse.where.y < widget->screen_location.top_left.y + ((ei_toplevel_t *) widget)->height_header) {
                 last_pos = event->param.mouse.where;
                 ei_unbind(ei_ev_mouse_buttondown, NULL, "toplevel", click_toplevel, NULL);
                 ei_bind(ei_ev_mouse_move, NULL, "all", move_toplevel, (void *) widget);
                 ei_bind(ei_ev_mouse_buttonup, NULL, "all", unclick_toplevel, (void *) widget);
+                return EI_TRUE;
         }
 
         /* Gestion du redimmensionnement */
@@ -266,9 +269,9 @@ ei_bool_t click_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_par
                 ei_unbind(ei_ev_mouse_buttondown, NULL, "toplevel", click_toplevel, NULL);
                 ei_bind(ei_ev_mouse_move, NULL, "all", resize_toplevel, (void *) widget);
                 ei_bind(ei_ev_mouse_buttonup, NULL, "all", unclick_toplevel, (void *) widget);
+                return EI_TRUE;
         }
-        /* Si on change le focus de la fenetre, il faut mettre à jour */
-        return change_focus(widget);
+        return EI_FALSE;
 }
 
 ei_bool_t move_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param)
@@ -295,7 +298,7 @@ ei_bool_t unclick_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_p
         ei_unbind(ei_ev_mouse_move, NULL, "all", resize_toplevel, user_param);
         ei_unbind(ei_ev_mouse_buttonup, NULL, "all", unclick_toplevel, user_param);
         ei_bind(ei_ev_mouse_buttondown, NULL, "toplevel", click_toplevel, NULL);
-        return EI_FALSE;
+        return EI_TRUE;
 }
 
 /*** Redimensionnement ***/
