@@ -124,7 +124,9 @@ static ei_bool_t check_victory(map_t* map)
 
 void update_flag_count(map_t* map)
 {
-	char	txt[5] = "	  ";
+	char	txt[5];
+	memset(txt, ' ', 4);
+    txt[4] = '\0';
 	char*	txtptr = (char*) &txt;
 
 	int_to_str(map->flag_count, txt, 4);
@@ -154,7 +156,7 @@ void switch_flag(map_pos_t* map_pos)
  */
 void reveal_position_no_check(map_pos_t* map_pos)
 {
-	char		nb_txt[2]	= " ";
+	char		nb_txt[2] = " ";
 	char*		nb_txt_ptr	= (char*) nb_txt;
 	ei_relief_t	relief		= ei_relief_none;
 	
@@ -384,7 +386,9 @@ void create_game_window(map_t* map)
 
 	map_pos_t*		current_pos;
 	int				x, y;
-	char			text[5] = "	   ";
+	char			text[5];
+	memset(text, ' ', 4);
+    text[4] = '\0';
 	char*			textptr = (char*) &text;
 
 	// toplevel

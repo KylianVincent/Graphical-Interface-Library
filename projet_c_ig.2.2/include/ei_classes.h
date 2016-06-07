@@ -62,8 +62,6 @@ typedef struct ei_toplevel_t{
 
 /*fonctions auxiliaires globales*/
 
-ei_rect_t intersect_clipper(ei_rect_t clipper1, ei_rect_t clipper2);
-
 ei_point_t ancrage_text_img(struct ei_widget_t* widget); 
 /*si ancrage vaut null ou ei_anc_none, alors cas pas défault (northwest)*/
 
