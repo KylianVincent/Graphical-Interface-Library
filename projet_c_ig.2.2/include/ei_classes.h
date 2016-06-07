@@ -60,9 +60,6 @@ typedef struct ei_toplevel_t{
 }ei_toplevel_t;
 
 
-/*fonctions auxiliaires globales*/
-
-ei_point_t ancrage_text_img(struct ei_widget_t* widget); 
 /*si ancrage vaut null ou ei_anc_none, alors cas pas défault (northwest)*/
 
 /* Change la couleur sur chaque octet de val */

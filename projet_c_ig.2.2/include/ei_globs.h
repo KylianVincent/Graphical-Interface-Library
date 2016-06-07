@@ -14,9 +14,14 @@ ei_widget_t **tab_pick;
 int32_t size;
 void init_picking();
 
-/*optinisation affichage*/
+/*optimisation affichage*/
 ei_rect_t union_rect( ei_rect_t rect1, ei_rect_t rect2);
 
 ei_rect_t intersect_clipper(ei_rect_t clipper1, ei_rect_t clipper2);
 
 void free_linked_rects(ei_linked_rect_t **list_rect);
+
+/*fonctions auxiliaires*/
+ei_point_t ancrage_text_img(struct ei_widget_t* widget);
+void draw_texte(ei_widget_t *widget, ei_surface_t surface, ei_rect_t *clipper);
+void draw_img(ei_widget_t *widget, ei_surface_t surface, ei_rect_t* clipper);
