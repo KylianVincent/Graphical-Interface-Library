@@ -328,17 +328,15 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
         }
 	/* Border */
         if (border_width != NULL){
+                frame->border_width = *border_width;
 
-		int b = *border_width;
-                frame->border_width =b;
-
-		if (widget->content_rect == &(widget->screen_location)){
-			widget->content_rect=calloc(1, sizeof(ei_rect_t));
-		}
-		widget->content_rect->top_left.x= widget->screen_location.top_left.x + b;
-		widget->content_rect->top_left.y= widget->screen_location.top_left.y + b;
-		widget->content_rect->size.width= widget->screen_location.size.width -2*b;
-		widget->content_rect->size.height= widget->screen_location.size.height -2*b;
+		/* if (widget->content_rect == &(widget->screen_location)){ */
+		/* 	widget->content_rect=calloc(1, sizeof(ei_rect_t)); */
+		/* } */
+		/* widget->content_rect->top_left.x= widget->screen_location.top_left.x + b; */
+		/* widget->content_rect->top_left.y= widget->screen_location.top_left.y + b; */
+		/* widget->content_rect->size.width= widget->screen_location.size.width -2*b; */
+		/* widget->content_rect->size.height= widget->screen_location.size.height -2*b; */
 	}
         ei_widget_t *root = ei_app_root_widget();
         ei_rect_t new_rect = widget->screen_location;

@@ -350,6 +350,20 @@ void button_setdefaultsfunc(struct ei_widget_t* widget)
         button->user_param = NULL;
 }
 
+void button_geomnotifyfunc(ei_widget_t *widget, ei_rect_t rect)
+{
+        if (widget != NULL) {
+                if (widget->content_rec == &(widget->screen_location))
+                {
+                        widget->content_rect = calloc(1, sizeof(ei_rect_t));
+                }
+                ei_button_t *button = (ei_button_t *) widget;
+                widget->content_rect->top_left.x = rect.top_left.x + button->border_width;
+                widget->content_rect->top_left.y = rect.top_left.y + button->border_width;
+                widget->content_rect->size.width = rect.size.width - 2*button->border_width;
+                widget->content_rect->size.height = rect.size.height - 2*button->border_width;
+        }
+}
 
 
 /* --------------TOPLEVEL-------------- */

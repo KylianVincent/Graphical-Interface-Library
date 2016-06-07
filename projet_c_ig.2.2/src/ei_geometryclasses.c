@@ -112,10 +112,8 @@ void placer_screen_location(struct ei_widget_t *widget){
                 new_rect.size.width += 2*toplevel->border_width;
                 new_rect.size.height += toplevel->border_width + toplevel->height_header;
         }
-        if (widget->parent != NULL){
-                new_rect.size.width += (placer_settings->rel_width) * widget->parent->content_rect->size.width;
-                new_rect.size.height += (placer_settings->rel_height) * widget->parent->content_rect->size.height;
-        }
+        new_rect.size.width += (placer_settings->rel_width) * widget->parent->content_rect->size.width;
+        new_rect.size.height += (placer_settings->rel_height) * widget->parent->content_rect->size.height;
 
         /* -- Anchor -- */
         /* Mise à jour de la position : top_left */
@@ -124,14 +122,11 @@ void placer_screen_location(struct ei_widget_t *widget){
         int diff_y = anchor_point.y-widget->screen_location.top_left.y;
         int diff_w = new_rect.size.width-widget->screen_location.size.width;
         int diff_h = new_rect.size.height-widget->screen_location.size.height;
-	widget->content_rect->top_left.x += diff_x;
-        widget->content_rect->top_left.y += diff_y;
         widget->screen_location.top_left.x += diff_x;
         widget->screen_location.top_left.y += diff_y;
-        widget->content_rect->size.width += diff_w;
-        widget->content_rect->size.height += diff_h;
         widget->screen_location.size.width += diff_w;
         widget->screen_location.size.height += diff_h;
+        (*widget->wclass->geomnotifyfunc)(widget, widget->screen_location);
 
         /* Test de la positivité des valeurs */
         if ((widget->content_rect->size.width < 0)

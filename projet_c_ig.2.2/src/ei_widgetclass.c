@@ -40,7 +40,7 @@ void   ei_frame_register_class  ()
         frame->releasefunc = frame_releasefunc;
         frame->drawfunc = frame_drawfunc;
         frame->setdefaultsfunc = frame_setdefaultsfunc;
-        //frame->geomnotifyfunc = frame_geomnotifyfunc;
+        frame->geomnotifyfunc = frame_geomnotifyfunc;
         frame->next = classes;
         classes = frame;
 }
@@ -59,7 +59,7 @@ void ei_button_register_class()
         button->releasefunc = button_releasefunc;
         button->drawfunc = button_drawfunc;
         button->setdefaultsfunc = button_setdefaultsfunc;
-        //button->geomnotifyfunc = button_geomnotifyfunc;
+        button->geomnotifyfunc = button_geomnotifyfunc;
         button->next = classes;
         classes = button;
 }
@@ -77,7 +77,7 @@ void ei_toplevel_register_class (){
         toplevel->releasefunc = toplevel_releasefunc;
         toplevel->drawfunc = toplevel_drawfunc;
         toplevel->setdefaultsfunc = toplevel_setdefaultsfunc;
-        //toplevel->geomnotifyfunc = toplevel_geomnotifyfunc;
+        toplevel->geomnotifyfunc = toplevel_geomnotifyfunc;
         toplevel->next = classes;
         classes = toplevel;
 

@@ -93,6 +93,7 @@ void button_drawfunc(struct ei_widget_t* widget,
 
 void button_setdefaultsfunc(struct ei_widget_t* widget);
 
+void button_geomnotifyfunc(ei_widget_t *widget, ei_rect_t rect);
 
 /* Définition de fonctions spécifiques à la classe button */
 
