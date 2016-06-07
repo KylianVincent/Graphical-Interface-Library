@@ -116,6 +116,22 @@ void frame_setdefaultsfunc(struct ei_widget_t* widget){
 	frame->img_anchor=ei_anc_center;
 }
 
+void frame_geomnotifyfunc_t(struct ei_widget_t *widget, ei_rect_t rect){
+	ei_frame_t * frame=(ei_frame_t*)widget;
+	if (frame->border_width ==0){
+		widget->content_rect=&(widget->screen_location);		
+	}else{
+		int b=frame->border_width;
+		if (widget->content_rect==&(widget->screen_location)){
+			widget->content_rect=calloc(1,sizeof(ei_rect_t));
+		}
+		widget->content_rect->top_left.x=widget->screen_location.top_left.x-b;
+		widget->content_rect->top_left.y=widget->screen_location.top_left.y-b;
+		widget->content_rect->size.width=widget->screen_location.size.width-2*b;
+		widget->content_rect->size.height=widget->screen_location.size.height-2*b;
+	}
+}
+
 
 /* --------------BUTTON-------------- */
 

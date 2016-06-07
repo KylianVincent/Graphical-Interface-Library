@@ -80,6 +80,8 @@ void frame_drawfunc(struct ei_widget_t* frame,
 void frame_setdefaultsfunc(struct ei_widget_t* widget);
 
 
+void frame_geomnotifyfunc_t(struct ei_widget_t *widget, ei_rect_t rect);
+
 /* Définition de fonctions spécifiques à la classe button */
 
 void* button_allocfunc ();
