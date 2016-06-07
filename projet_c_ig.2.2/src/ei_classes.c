@@ -353,6 +353,25 @@ void button_setdefaultsfunc(struct ei_widget_t* widget)
 
 
 /* --------------TOPLEVEL-------------- */
+void toplevel_geomnotifyfunc (struct ei_widget_t *widget, ei_rect_t rect){
+        if (widget != NULL){
+                if (widget->content_rect == &(widget->screen_location)){
+                        /* Le content_rect pointe vers la screen_location, il
+                           faut allouer la place nécessaire au content_rect */
+                        widget->content_rect = calloc(1, sizeof(ei_rect_t));
+                }
+        ei_toplevel_t* toplevel  = (ei_toplevel_t*) widget;
+        widget->content_rect->top_left.x = widget->screen_location.top_left.x
+                + toplevel->border_width;
+        widget->content_rect->top_left.y = widget->screen_location.top_left.y
+                + toplevel->height_header;
+        widget->content_rect->size.width = widget->screen_location.size.width
+                - 2*toplevel->border_width;
+        widget->content_rect->size.height = widget->screen_location.size.height
+                - toplevel->border_width - toplevel->height_header;
+        }
+}
+
 void* toplevel_allocfunc (){
         ei_toplevel_t* toplevel = calloc(1, sizeof(ei_toplevel_t));
         if (toplevel == NULL){

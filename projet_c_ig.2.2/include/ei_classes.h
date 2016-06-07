@@ -96,6 +96,8 @@ void button_setdefaultsfunc(struct ei_widget_t* widget);
 
 /* Définition de fonctions spécifiques à la classe button */
 
+void toplevel_geomnotifyfunc (struct ei_widget_t *widget, ei_rect_t rect);
+
 void* toplevel_allocfunc ();
 
 void toplevel_releasefunc (struct ei_widget_t* widget);
