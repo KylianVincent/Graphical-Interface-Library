@@ -44,7 +44,7 @@ void free_binds_event(){
 		while (cour != NULL){
 			tmp=cour;
 			cour=cour->next;
-			free(cour);
+			free(tmp);
 		}
 	}
 }
@@ -162,10 +162,6 @@ ei_bool_t unclick_button(ei_widget_t* widget, ei_event_t* event, void * user_par
         ei_unbind(ei_ev_mouse_buttonup, widget, NULL, unclick_button, NULL);
         ei_bind(ei_ev_mouse_buttondown, NULL, "button", click_button, NULL);
         change_relief(widget);
-        ei_button_t *button = (ei_button_t *) widget;
-        if (button->callback != NULL) {
-                (*button->callback)(widget, event, button->user_param);
-        }
 	/*optimisation de l'affichage*/
 	root=ei_app_root_widget();
 	update.size.width = widget->screen_location.size.width+1;
@@ -173,6 +169,11 @@ ei_bool_t unclick_button(ei_widget_t* widget, ei_event_t* event, void * user_par
 	update.top_left = widget->screen_location.top_left;
 	update=intersect_clipper(update,*(root->content_rect));
 	ei_app_invalidate_rect(&update);
+
+        ei_button_t *button = (ei_button_t *) widget;
+        if (button->callback != NULL) {
+                (*button->callback)(widget, event, button->user_param);
+        }
 
         return EI_TRUE;
 }

@@ -52,7 +52,6 @@ void ei_app_free(){
         ei_widget_destroy(root_frame);
         hw_surface_free(main_window_picking);
         hw_surface_free(main_window);
-	free(update_rects);
 	free(tab_pick);
 	free_binds_event();
         hw_quit();
