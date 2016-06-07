@@ -63,11 +63,11 @@ void   ei_geometrymanager_unmap (ei_widget_t*  widget){
         }
         
         /* On unmap les fils du widget */
-        ei_widget_t* cour = widget->children_head;
-        while (cour != NULL) {
-                ei_geometrymanager_unmap(cour);
-                cour = cour->next_sibling;
-        }
+        /* ei_widget_t* cour = widget->children_head; */
+        /* while (cour != NULL) { */
+        /*         ei_geometrymanager_unmap(cour); */
+        /*         cour = cour->next_sibling; */
+        /* } */
 }
 
 
