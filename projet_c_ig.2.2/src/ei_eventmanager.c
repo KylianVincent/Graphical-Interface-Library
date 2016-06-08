@@ -286,9 +286,9 @@ ei_bool_t move_toplevel(ei_widget_t* widget, ei_event_t* event,
         int new_pos_x = toplevel->screen_location.top_left.x + diff_x;
         int new_pos_y = toplevel->screen_location.top_left.y + diff_y;
         
-        if (widget->parent != NULL) {
-                new_pos_x -= widget->parent->content_rect->top_left.x;
-                new_pos_y -= widget->parent->content_rect->top_left.y;
+        if (toplevel->parent != NULL) {
+                new_pos_x -= toplevel->parent->content_rect->top_left.x;
+                new_pos_y -= toplevel->parent->content_rect->top_left.y;
         }
         /* On doit mettre à zéro la valeur de la position relative */
         float zero = 0.0;

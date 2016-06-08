@@ -153,8 +153,8 @@ void placer_button_toplevel(ei_widget_t *widget)
         int border_close_button = toplevel->height_header/8;
         ei_size_t close_button_size = ei_size(radius_header,
                                               radius_header);
-        ei_point_t close_button_point = ei_point(radius_header,
-                                                 radius_header);
+        ei_point_t close_button_point = ei_point(radius_header - widget->parent->content_rect->top_left.x,
+                                                 radius_header - widget->parent->content_rect->top_left.y);
         close_button_point = ei_point_add(close_button_point,
                                           widget->screen_location.top_left);
         ei_button_configure(close_button, &close_button_size,
