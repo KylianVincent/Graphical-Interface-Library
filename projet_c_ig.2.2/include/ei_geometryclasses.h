@@ -23,6 +23,10 @@ ei_point_t calcul_point_ancrage(ei_rect_t* rect, ei_anchor_t *anchor);
 
 /*Fonctions particulières au geometry manager "placer"*/
 
+void placer_button_toplevel(ei_widget_t *widget);
+
+void placer_frame_toplevel(ei_widget_t *widget);
+
 void placer_runfunc(struct ei_widget_t *widget);
 
 void placer_releasefunc(struct ei_widget_t *widget);

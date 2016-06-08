@@ -119,30 +119,24 @@ ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name,
                 /* On sauvegarde le pick_id de la toplevel */
                 uint32_t pick_id_toplevel = widget->pick_id;
                 ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
-                if (toplevel->closable == EI_TRUE){
-                        /* Pour les boutons associés à la toplevel aucune
-                           sauvegarde de leur adresse n'est nécessaire, on se
-                           servira de la structure en frères pour y accéder */
-                        ei_button_t *button =(ei_button_t *)ei_widget_create("button", parent);
-                        button->callback = close_toplevel;
-                        button->user_param = (void *) toplevel;
-                }
-                if (toplevel->resizable){
-                        /* On utilise une frame du même pick_id que la toplevel
-                           pour gérer la zone de redimmensionnement (actif à
-                           l'enfoncement d'un bouton de souris et non à son
-                           relachement comme pour les boutons) */
-                        ei_widget_t *resize_zone_toplevel = ei_widget_create("frame",parent);
-                        /* Il faut libérer le pick_id alloué par la création du
-                           widget frame */
-                        tab_pick[resize_zone_toplevel->pick_id] = NULL;
-                        resize_zone_toplevel->pick_id = pick_id_toplevel;
-                        free(resize_zone_toplevel->pick_color);
-                        resize_zone_toplevel->pick_color = def_pick_color(widget->pick_id);
-                        
-                }
+                /* Pour les boutons associés à la toplevel aucune
+                   sauvegarde de leur adresse n'est nécessaire, on se
+                   servira de la structure en frères pour y accéder */
+                ei_button_t *button =(ei_button_t *)ei_widget_create("button", parent);
+                button->callback = close_toplevel;
+                button->user_param = (void *) toplevel;
+                /* On utilise une frame du même pick_id que la toplevel
+                   pour gérer la zone de redimmensionnement (actif à
+                   l'enfoncement d'un bouton de souris et non à son
+                   relachement comme pour les boutons) */
+                ei_widget_t *resize_zone_toplevel = ei_widget_create("frame",parent);
+                /* Il faut libérer le pick_id alloué par la création du
+                   widget frame */
+                tab_pick[resize_zone_toplevel->pick_id] = NULL;
+                resize_zone_toplevel->pick_id = pick_id_toplevel;
+                free(resize_zone_toplevel->pick_color);
+                resize_zone_toplevel->pick_color = def_pick_color(widget->pick_id);
         }
-
         return widget;
 }
 
@@ -154,19 +148,11 @@ void ei_widget_destroy(ei_widget_t* widget)
         }
         ei_geometrymanager_unmap(widget);
         /* Si le widget à libérer est une toplevel alors il possède
-           potentiellement des frères qu'il est nécessaire de libérer aussi
+           des frères qu'il est nécessaire de libérer aussi
            (boutons de fermeture et redimensionnement */
         if (strcmp(widget->wclass->name, "toplevel") == 0){
-                ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
-                if (toplevel->resizable){
-                        if (toplevel->closable){
-                                ei_widget_destroy(widget->next_sibling->next_sibling);
-                        }
-                        ei_widget_destroy(widget->next_sibling);
-                }
-                else if (toplevel->closable){
-                        ei_widget_destroy(widget->next_sibling);
-                }
+                ei_widget_destroy(widget->next_sibling->next_sibling);
+                ei_widget_destroy(widget->next_sibling);
         }
         /* On met a jour les fils du parent et les next_sibling des fils */
         if (widget->parent != NULL)
@@ -195,14 +181,10 @@ void ei_widget_destroy(ei_widget_t* widget)
         while (cour != NULL){
                 ei_widget_t* temp = cour;
                 if (!strcmp(temp->wclass->name, "toplevel")){
-                        if (((ei_toplevel_t *) temp)->resizable){
-                                cour = cour->next_sibling;
-                                cour->parent = NULL;
-                        }
-                        if (((ei_toplevel_t *) temp)->closable){
-                                cour = cour->next_sibling;
-                                cour->parent = NULL;
-                        }
+                        cour = cour->next_sibling;
+                        cour->parent = NULL;
+                        cour = cour->next_sibling;
+                        cour->parent = NULL;
                 }
                 temp->parent = NULL;
                 cour = cour->next_sibling;
@@ -426,9 +408,15 @@ void ei_toplevel_configure(ei_widget_t*widget, ei_size_t*requested_size,
         }
         if (closable != NULL){
                 toplevel->closable = *closable;
+                if (!toplevel->closable) {
+                        ei_geometrymanager_unmap(widget->next_sibling);
+                }
         }
         if (resizable != NULL){
                 toplevel->resizable = *resizable;
+                if (!toplevel->resizable) {
+                        ei_geometrymanager_unmap(widget->next_sibling->next_sibling);
+                }
         }
         /* On met à jour l'écran */
         ei_app_invalidate_rect(&(widget->screen_location));
