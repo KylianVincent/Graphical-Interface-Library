@@ -13,8 +13,8 @@
 #include <stdint.h>
 #include <string.h>
 
-void alloc_tab_pick(int32_t new_size){
-	
+void alloc_tab_pick(int32_t new_size)
+{
 	if (size > new_size){
 		perror("utilisation incorrecte de la fonction d'allocation de pick_id");
 		exit(1);
@@ -32,10 +32,12 @@ void alloc_tab_pick(int32_t new_size){
 	}	
 }
 
-ei_widget_t * 	ei_widget_pick (ei_point_t *where){
+ei_widget_t * 	ei_widget_pick (ei_point_t *where)
+{
 	hw_surface_lock(main_window_picking);
 	uint8_t *pixel = hw_surface_get_buffer(main_window_picking);
-	uint8_t *p = pixel + sizeof(uint32_t)*(where->y *taille_root_frame.width  + where->x);
+	uint8_t *p = pixel 
+		+sizeof(uint32_t)*(where->y*taille_root_frame.width + where->x);
 	int ir;
 	int ig;
 	int ib;
@@ -69,7 +71,9 @@ ei_color_t * def_pick_color(uint32_t pick_id)
 }
 
 /* ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name, ei_widget_t* parent); */
-ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name, ei_widget_t* parent){
+ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name, 
+			       ei_widget_t* parent)
+{
         ei_widget_t *widget = NULL;
         ei_widgetclass_t* wclass = ei_widgetclass_from_name(class_name);
         widget = (ei_widget_t *) (*wclass->allocfunc)();
@@ -91,20 +95,17 @@ ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name, ei_widget_t* pa
         widget->pick_id = i;
         widget->pick_color = def_pick_color(widget->pick_id);
 
-        if (parent != NULL) {
+        if (parent != NULL){
                 widget->parent = parent;
-                if (parent->children_tail != NULL) {
+                if (parent->children_tail != NULL){
                         parent->children_tail->next_sibling = widget;
                         parent->children_tail = widget;
-                }
-                else {
+                }else{
                         parent->children_head = widget;
                         parent->children_tail = widget;
                 }
                 widget->screen_location.top_left = widget->parent->content_rect->top_left;
-        }
-        else 
-        {
+        }else{
                 widget->screen_location.top_left = ei_point_zero();
         }
         /* widget->requested_size et widget->screen_location->size sont initialisés à 0 */
@@ -120,7 +121,7 @@ ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name, ei_widget_t* pa
                         /* Pour les boutons associés à la toplevel aucune
                            sauvegarde de leur adresse n'est nécessaire, on se
                            servira de la structure en frères pour y accéder */
-                        ei_button_t *button = (ei_button_t *) ei_widget_create("button", parent);
+                        ei_button_t *button =(ei_button_t *)ei_widget_create("button", parent);
                         button->callback = close_toplevel;
                         button->user_param = (void *) toplevel;
                 }
@@ -129,8 +130,7 @@ ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name, ei_widget_t* pa
                            pour gérer la zone de redimmensionnement (actif à
                            l'enfoncement d'un bouton de souris et non à son
                            relachement comme pour les boutons) */
-                        ei_widget_t *resize_zone_toplevel = ei_widget_create("frame",
-                                                                             parent);
+                        ei_widget_t *resize_zone_toplevel = ei_widget_create("frame",parent);
                         /* Il faut libérer le pick_id alloué par la création du
                            widget frame */
                         tab_pick[resize_zone_toplevel->pick_id] = NULL;
@@ -147,7 +147,7 @@ ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name, ei_widget_t* pa
 /* void ei_widget_destroy(ei_widget_t* widget); */
 void ei_widget_destroy(ei_widget_t* widget)
 {
-        if (widget == NULL) {
+        if (widget == NULL){
                 return;
         }
         ei_geometrymanager_unmap(widget);
@@ -174,14 +174,14 @@ void ei_widget_destroy(ei_widget_t* widget)
                 {
                         prec = prec->next_sibling;
                 }
-                if (prec == widget) {
+                if (prec == widget){
                         widget->parent->children_head = widget->next_sibling;
                         prec = NULL;
                 }
                 if (widget->parent->children_tail == widget) {
                         widget->parent->children_tail = prec;
                 }
-                if (prec != NULL) {
+                if (prec != NULL){
                         prec->next_sibling = widget->next_sibling;
                 }
         }
@@ -190,15 +190,14 @@ void ei_widget_destroy(ei_widget_t* widget)
         /* On parcourt les fils du widget et on libere widget */
         ei_widget_t* cour = widget->children_head;
         (*widget->wclass->releasefunc)(widget);
-        while (cour != NULL)
-        {
+        while (cour != NULL){
                 ei_widget_t* temp = cour;
                 if (!strcmp(temp->wclass->name, "toplevel")){
-                        if (((ei_toplevel_t *) temp)->resizable) {
+                        if (((ei_toplevel_t *) temp)->resizable){
                                 cour = cour->next_sibling;
                                 cour->parent = NULL;
                         }
-                        if (((ei_toplevel_t *) temp)->closable) {
+                        if (((ei_toplevel_t *) temp)->closable){
                                 cour = cour->next_sibling;
                                 cour->parent = NULL;
                         }
@@ -216,7 +215,8 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
                          ei_relief_t* relief, char** text, ei_font_t* text_font,
                          ei_color_t* text_color, ei_anchor_t* text_anchor,
                          ei_surface_t* img, ei_rect_t** img_rect,
-                         ei_anchor_t* img_anchor){
+                         ei_anchor_t* img_anchor)
+{
 
         ei_frame_t* frame = (ei_frame_t*) widget;        
         /* Color */
@@ -237,11 +237,11 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
                 exit(1);
         }
         if (text != NULL){
-                if (frame->text != NULL) {
+                if (frame->text != NULL){
                         free(frame->text);
                         frame->text = NULL;
                 }
-                if (*text != NULL) {
+                if (*text != NULL){
                         frame->text = calloc(strlen(*text)+1, sizeof(char));
                         strcpy(frame->text,*text);
                 }
@@ -258,8 +258,8 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
         /* Image */
         if (img != NULL){
                 frame->img = *img;
-                if (img_rect == NULL && *img != NULL) {
-                        if (frame->img_rect == NULL) {
+                if (img_rect == NULL && *img != NULL){
+                        if (frame->img_rect == NULL){
                                 frame->img_rect = calloc(1, sizeof(ei_rect_t));
                         }
                         frame->img_rect->size = hw_surface_get_size(*img);
@@ -270,17 +270,19 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
                 }
         }
         if (img_rect != NULL && frame->img != NULL){
-                if (frame->img_rect == NULL) {
+                if (frame->img_rect == NULL){
                         frame->img_rect = calloc(1, sizeof(ei_rect_t));
                 }
                 *(frame->img_rect) = **img_rect;
                 /* On vérifie que le rectangle ne dépasse pas l'image */
                 /* Sinon on le tronque pour éviter problèmes dans draw_img */
                 ei_size_t dim_img = hw_surface_get_size(frame->img);
-                if (frame->img_rect->top_left.x+frame->img_rect->size.width > dim_img.width) {
+                if (frame->img_rect->top_left.x + frame->img_rect->size.width 
+		    > dim_img.width){
                         frame->img_rect->size.width = dim_img.width-frame->img_rect->top_left.x;
                 }
-                if (frame->img_rect->top_left.y+frame->img_rect->size.height > dim_img.height) {
+                if (frame->img_rect->top_left.y+frame->img_rect->size.height 
+		    > dim_img.height){
                         frame->img_rect->size.height = dim_img.height-frame->img_rect->top_left.y;
                 }
                 if (frame->img_rect->top_left.x < 0) {
@@ -302,34 +304,36 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
                         /* Taille minimale pour l'image */
                         if (frame->img_rect != NULL) {
                                 widget->requested_size = frame->img_rect->size;
-                        }
-                        else {
+                        }else{
                                 widget->requested_size = hw_surface_get_size(*img);
                         }
                         /* On met à jour le screen location et le content_rect */
                         widget->requested_size.height += 2*frame->border_width;
                         widget->requested_size.width += 2*frame->border_width;
                         widget->screen_location.size = widget->requested_size;
-                        (*widget->wclass->geomnotifyfunc)(widget, widget->screen_location);
+                        (*widget->wclass->geomnotifyfunc)(widget, 
+							  widget->screen_location);
                 }
-                if (text != NULL && *text != NULL) {
+                if (text != NULL && *text != NULL){
                         /* Taille minimale pour le texte*/
-                        hw_text_compute_size(frame->text, frame->text_font, &(widget->requested_size.width), &(widget->requested_size.height));
+                        hw_text_compute_size(frame->text, frame->text_font, 
+					     &(widget->requested_size.width), 
+					     &(widget->requested_size.height));
                         /* On met à jour le screen location et le content_rect */
                         widget->requested_size.height += 2*frame->border_width;
                         widget->requested_size.width += 2*frame->border_width;
                         widget->screen_location.size = widget->requested_size;
-                        (*widget->wclass->geomnotifyfunc)(widget, widget->screen_location);
+                        (*widget->wclass->geomnotifyfunc)(widget,
+							  widget->screen_location);
                 }
-                /* Le cas : text != NULL et img != NULL est impossible (test antérieur) */
-        } 
-        else if (requested_size != NULL)
-        {
+/*Le cas:text != NULL et img != NULL est impossible (test antérieur)*/
+        }else if (requested_size != NULL){
                 widget->requested_size = *requested_size;
                 /* On met à jour le screen location et le content_rect */
-                widget->screen_location.size.height = widget->requested_size.height + 2*frame->border_width;
-                widget->screen_location.size.width = widget->requested_size.width + 2*frame->border_width;
-                (*widget->wclass->geomnotifyfunc)(widget, widget->screen_location);
+                widget->screen_location.size.height=widget->requested_size.height + 2*frame->border_width;
+                widget->screen_location.size.width =widget->requested_size.width + 2*frame->border_width;
+                (*widget->wclass->geomnotifyfunc)(widget, 
+						  widget->screen_location);
         }
         /* On met à jour cette partie d'écran */
         ei_app_invalidate_rect(&(widget->screen_location));
@@ -347,15 +351,17 @@ void ei_button_configure(ei_widget_t*widget, ei_size_t*requested_size,
                          ei_anchor_t*img_anchor, ei_callback_t*callback,
                          void**user_param)
 {
-        ei_frame_configure(widget, requested_size, color, border_width, relief, text, text_font, text_color, text_anchor, img, img_rect, img_anchor);
+        ei_frame_configure(widget, requested_size, color, border_width, relief,
+			   text, text_font, text_color, text_anchor, 
+			   img, img_rect, img_anchor);
         ei_button_t *button = (ei_button_t*) widget;
-        if (corner_radius != NULL) {
+        if (corner_radius != NULL){
                 button->corner_radius = *corner_radius;
         }
-        if (callback != NULL) {
+        if (callback != NULL){
                 button->callback = *callback;
         }
-        if (user_param != NULL) {
+        if (user_param != NULL){
                 button->user_param = *user_param;
         }
 }
@@ -366,7 +372,8 @@ void ei_button_configure(ei_widget_t*widget, ei_size_t*requested_size,
 void ei_toplevel_configure(ei_widget_t*widget, ei_size_t*requested_size,
                            ei_color_t*color, int*border_width, char**title,
                            ei_bool_t*closable, ei_axis_set_t*resizable,
-                           ei_size_t**min_size){
+                           ei_size_t**min_size)
+{
         ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
         if (color != NULL){
                 toplevel->color = *color;
@@ -402,8 +409,12 @@ void ei_toplevel_configure(ei_widget_t*widget, ei_size_t*requested_size,
                 *(toplevel->min_size) = **min_size;
         }
         if (requested_size != NULL){
-                int diff_w = requested_size->width - widget->requested_size.width;
-                int diff_h = requested_size->height - widget->requested_size.height;
+
+                int diff_w = requested_size->width 
+			- widget->requested_size.width;
+                int diff_h = requested_size->height 
+			- widget->requested_size.height;
+
                 widget->requested_size = *requested_size;
                 /* Mise à jour de la zone de contenu */
                 widget->content_rect->size.height += diff_h;

@@ -36,7 +36,8 @@ ei_widget_t *get_widget_of_pixel(ei_point_t where)
 }
 
 //fonction de liberation de binds event
-void free_binds_event(){
+void free_binds_event()
+{
 	ei_linked_bind_t *cour;
 	ei_linked_bind_t *tmp;
 	for (int8_t i=0; i<8; i++){
@@ -59,15 +60,18 @@ ei_bool_t handle_event(ei_event_t* event)
         while (!stop && cour != NULL) {
                 ei_linked_bind_t *next = cour->next;
                 /** Evenements externes **/
-                if (cour->widget == widget) {
-                        stop = (*cour->callback)(widget, event, cour->user_param);
-                }
-                /** Evenements interne **/
-                else if (cour->tag != NULL && !strcmp(cour->tag,widget->wclass->name)) {
-                        stop = (*cour->callback)(widget, event, cour->user_param);
-                }
-                else if (cour->tag != NULL && !strcmp(cour->tag,"all")) {
-                        stop = (*cour->callback)(widget, event, cour->user_param);
+                if (cour->widget == widget){
+                        stop = (*cour->callback)(widget, event, 
+						 cour->user_param);
+                
+			/** Evenements interne **/
+		}else if (cour->tag != NULL && !strcmp(cour->tag,
+						       widget->wclass->name)){
+                        stop = (*cour->callback)(widget, event, 
+						 cour->user_param);
+
+                }else if (cour->tag != NULL && !strcmp(cour->tag,"all")){
+                        stop = (*cour->callback)(widget, event,cour->user_param);
                 }
                 cour = next;
         }
@@ -77,9 +81,12 @@ ei_bool_t handle_event(ei_event_t* event)
 // Fonction qui quitte lorqu'on appuye sur échap
 ei_bool_t escape(ei_widget_t *widget, ei_event_t* event, void *user_param)
 {
-        if (event->type == ei_ev_keydown && event->param.key.key_sym == SDLK_ESCAPE) {
+        if (event->type == ei_ev_keydown 
+	    && event->param.key.key_sym == SDLK_ESCAPE){
+
                 ei_app_quit_request();
         }
+
         return EI_TRUE;
 }
 
@@ -88,9 +95,9 @@ ei_bool_t escape(ei_widget_t *widget, ei_event_t* event, void *user_param)
 void change_relief(ei_widget_t *widget) 
 {
         int rel = ((ei_button_t*) widget)->relief;
-        if (rel == 1) {
+        if (rel == 1){
                 ((ei_button_t*) widget)->relief++;
-        } else if (rel == 2) {
+        }else if (rel == 2){
                 ((ei_button_t*) widget)->relief--;
         }
 }
@@ -105,15 +112,22 @@ ei_bool_t click_button(ei_widget_t* widget, ei_event_t* event, void * user_param
         return EI_TRUE;
 }
 
-ei_bool_t click_moveout(ei_widget_t* widget, ei_event_t* event, void * user_param)
+ei_bool_t click_moveout(ei_widget_t* widget, ei_event_t* event, 
+			void * user_param)
 {
         ei_widget_t *ancien_widget = (ei_widget_t *) user_param;
         if (widget != ancien_widget) {
                 change_relief(ancien_widget);
-                ei_unbind(ei_ev_mouse_move, NULL, "all", click_moveout, user_param);
-                ei_unbind(ei_ev_mouse_buttonup, ancien_widget, NULL, unclick_button, NULL);
-                ei_bind(ei_ev_mouse_move, ancien_widget, NULL, click_movein, NULL);
-                ei_bind(ei_ev_mouse_buttonup, NULL, "all", unclick, user_param);
+
+                ei_unbind(ei_ev_mouse_move, NULL, "all", 
+			  click_moveout, user_param);
+                ei_unbind(ei_ev_mouse_buttonup, ancien_widget, 
+			  NULL, unclick_button, NULL);
+                ei_bind(ei_ev_mouse_move, ancien_widget, NULL, 
+			click_movein, NULL);
+                ei_bind(ei_ev_mouse_buttonup, NULL, "all", 
+			unclick, user_param);
+
 		/*optimisation affichage*/
 		ei_app_invalidate_rect(&(ancien_widget->screen_location));
                 return EI_TRUE;
@@ -135,13 +149,16 @@ ei_bool_t click_movein(ei_widget_t* widget, ei_event_t* event, void * user_param
 
 ei_bool_t unclick(ei_widget_t* widget, ei_event_t* event, void * user_param)
 {
-        ei_unbind(ei_ev_mouse_move, (ei_widget_t *) user_param, NULL, click_movein, NULL);
+        ei_unbind(ei_ev_mouse_move, (ei_widget_t *) user_param, 
+		  NULL, click_movein, NULL);
+
         ei_unbind(ei_ev_mouse_buttonup, NULL, "all", unclick, user_param);
         ei_bind(ei_ev_mouse_buttondown, NULL, "button", click_button, NULL);
         return EI_TRUE;
 }
 
-ei_bool_t unclick_button(ei_widget_t* widget, ei_event_t* event, void * user_param)
+ei_bool_t unclick_button(ei_widget_t* widget, ei_event_t* event, 
+			 void * user_param)
 {
         ei_unbind(ei_ev_mouse_move, NULL, "all", click_moveout, widget);
         ei_unbind(ei_ev_mouse_buttonup, widget, NULL, unclick_button, NULL);
@@ -151,7 +168,7 @@ ei_bool_t unclick_button(ei_widget_t* widget, ei_event_t* event, void * user_par
 	ei_app_invalidate_rect(&(widget->screen_location));
 
         ei_button_t *button = (ei_button_t *) widget;
-        if (button->callback != NULL) {
+        if (button->callback != NULL){
                 (*button->callback)(widget, event, button->user_param);
         }
 
@@ -159,11 +176,12 @@ ei_bool_t unclick_button(ei_widget_t* widget, ei_event_t* event, void * user_par
 }
 
 
-// Fonction traitante interne pour les top_level
+/*Fonction traitante interne pour les top_level*/
 
-/*** Fermeture ***/
+/*Fermeture*/
 
-ei_bool_t close_toplevel(ei_widget_t *widget, ei_event_t *event, void *user_param)
+ei_bool_t close_toplevel(ei_widget_t *widget, ei_event_t *event, 
+			 void *user_param)
 {       /*optimisation affichage*/
         ei_widget_t *toplevel = (ei_widget_t *) user_param;
 	ei_app_invalidate_rect(&(toplevel->screen_location));
@@ -171,29 +189,29 @@ ei_bool_t close_toplevel(ei_widget_t *widget, ei_event_t *event, void *user_para
         return EI_TRUE;
 }
 
-/*** Changement focus ***/
+/*Changement de Focus */
 
 void change_focus(ei_widget_t *widget)
 {
         ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
         ei_widget_t *tail = widget;
-        if (toplevel->closable) {
+        if (toplevel->closable){
                 tail = tail->next_sibling;
         }
-        if (toplevel->resizable) {
+        if (toplevel->resizable){
                 tail = tail->next_sibling;
         }
-        if (widget->parent == NULL || widget->parent->children_tail == tail) {
+        if (widget->parent == NULL || widget->parent->children_tail == tail){
                 return;
         }
+
         ei_widget_t *prec = widget->parent->children_head;
         while (prec != widget && prec->next_sibling != widget) {
                 prec = prec->next_sibling;
         }
-        if (prec == widget) {
+        if (prec == widget){
                 widget->parent->children_head = tail->next_sibling;
-        }
-        else {
+        }else{
                 prec->next_sibling = tail->next_sibling;
         }
         widget->parent->children_tail->next_sibling = widget;
@@ -204,31 +222,39 @@ void change_focus(ei_widget_t *widget)
         return;
 }
 
-/*** Déplacement ***/
+/*Déplacement*/
 
-ei_bool_t click_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param)
+ei_bool_t click_toplevel(ei_widget_t* widget, ei_event_t* event, 
+			 void * user_param)
 {
         /* Si on change le focus de la fenetre, il faut mettre à jour */
         change_focus(widget);
         /* Gestion du déplacement */
-        if (event->param.mouse.where.y < widget->screen_location.top_left.y + ((ei_toplevel_t *) widget)->height_header) {
+        if (event->param.mouse.where.y < widget->screen_location.top_left.y 
+	    + ((ei_toplevel_t *) widget)->height_header){
+
                 last_pos = event->param.mouse.where;
-                ei_unbind(ei_ev_mouse_buttondown, NULL, "toplevel", click_toplevel, NULL);
-                ei_bind(ei_ev_mouse_move, NULL, "all", move_toplevel, (void *) widget);
-                ei_bind(ei_ev_mouse_buttonup, NULL, "all", unclick_toplevel, (void *) widget);
+
+                ei_unbind(ei_ev_mouse_buttondown, NULL, "toplevel", 
+			  click_toplevel, NULL);
+                ei_bind(ei_ev_mouse_move, NULL, "all", 
+			move_toplevel, (void *) widget);
+                ei_bind(ei_ev_mouse_buttonup, NULL, "all", 
+			unclick_toplevel, (void *) widget);
+
                 return EI_TRUE;
         }
 
-        /* Gestion du redimmensionnement */
+        /* Gestion du redimensionnement */
         ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
         ei_point_t resize_corner = ei_point(widget->screen_location.size.width,
                                             widget->screen_location.size.height);
         resize_corner = ei_point_add(resize_corner,
-                                     widget->screen_location.top_left);
+				     widget->screen_location.top_left);
         int resize_zone_height;
         if (toplevel->border_width >= min_resize_zone){
                 resize_zone_height = 2*toplevel->border_width;
-        } else {
+        }else{
                 resize_zone_height = 2*min_resize_zone;
         }
         resize_corner.x -= resize_zone_height;
@@ -237,15 +263,21 @@ ei_bool_t click_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_par
         if ((event->param.mouse.where.y >= resize_corner.y)
             && (event->param.mouse.where.x >= resize_corner.x)){
                 last_pos = event->param.mouse.where;
-                ei_unbind(ei_ev_mouse_buttondown, NULL, "toplevel", click_toplevel, NULL);
-                ei_bind(ei_ev_mouse_move, NULL, "all", resize_toplevel, (void *) widget);
-                ei_bind(ei_ev_mouse_buttonup, NULL, "all", unclick_toplevel, (void *) widget);
+
+                ei_unbind(ei_ev_mouse_buttondown, NULL, "toplevel", 
+			  click_toplevel, NULL);
+                ei_bind(ei_ev_mouse_move, NULL, "all", 
+			resize_toplevel, (void *) widget);
+                ei_bind(ei_ev_mouse_buttonup, NULL, "all", 
+			unclick_toplevel, (void *) widget);
+
                 return EI_TRUE;
         }
         return EI_FALSE;
 }
 
-ei_bool_t move_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param)
+ei_bool_t move_toplevel(ei_widget_t* widget, ei_event_t* event, 
+			void * user_param)
 {
         ei_widget_t *toplevel = (ei_widget_t *) user_param;
 
@@ -256,24 +288,28 @@ ei_bool_t move_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_para
 
         /* On doit mettre à zéro la valeur de la position relative */
         float zero = 0.0;
-        ei_place(toplevel, NULL, &new_pos_x, &new_pos_y, NULL, NULL, &zero, &zero, NULL, NULL);
+        ei_place(toplevel, NULL, &new_pos_x, &new_pos_y, NULL, NULL, 
+		 &zero, &zero, NULL, NULL);
 
         last_pos = event->param.mouse.where;
         return EI_TRUE;
 }
 
 
-ei_bool_t unclick_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param)
+ei_bool_t unclick_toplevel(ei_widget_t* widget, ei_event_t* event, 
+			   void * user_param)
 {
         ei_unbind(ei_ev_mouse_move, NULL, "all", move_toplevel, user_param);
         ei_unbind(ei_ev_mouse_move, NULL, "all", resize_toplevel, user_param);
-        ei_unbind(ei_ev_mouse_buttonup, NULL, "all", unclick_toplevel, user_param);
+        ei_unbind(ei_ev_mouse_buttonup, NULL, "all", unclick_toplevel, 
+		  user_param);
         ei_bind(ei_ev_mouse_buttondown, NULL, "toplevel", click_toplevel, NULL);
         return EI_TRUE;
 }
 
-/*** Redimensionnement ***/
-ei_bool_t resize_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param){
+/*Redimensionement*/
+ei_bool_t resize_toplevel(ei_widget_t* widget, ei_event_t* event, 
+			  void * user_param){
         ei_widget_t *widget_bis = (ei_widget_t *) user_param;
         ei_toplevel_t *toplevel = (ei_toplevel_t *) widget_bis;
         int diff_x = event->param.mouse.where.x - last_pos.x;
@@ -281,7 +317,7 @@ ei_bool_t resize_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_pa
         int new_size_width = widget_bis->content_rect->size.width + diff_x;
         int new_size_height = widget_bis->content_rect->size.height + diff_y;
 
-        /* Calcul du point nord-est de la zone de redimmensionnement */
+        /* Calcul du point nord-est de la zone de redimensionement */
         ei_point_t resize_corner_min = widget_bis->content_rect->top_left;
         int bords = toplevel->border_width;
         int decalage = (bords >= min_resize_zone)?
@@ -316,7 +352,8 @@ ei_bool_t resize_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_pa
         }
         /* On doit mettre à zéro la valeur de la taille relative */
         float zero = 0.0;
-        ei_place(widget_bis, NULL, NULL, NULL, &new_size_width, &new_size_height, NULL, NULL, &zero, &zero);
+        ei_place(widget_bis, NULL, NULL, NULL, &new_size_width, 
+		 &new_size_height, NULL, NULL, &zero, &zero);
         return EI_TRUE;
 }
 

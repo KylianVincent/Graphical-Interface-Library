@@ -16,7 +16,8 @@ void init_picking(){
 	size=256;
 }
 
-ei_rect_t union_rect( ei_rect_t rect1, ei_rect_t rect2){
+ei_rect_t union_rect( ei_rect_t rect1, ei_rect_t rect2)
+{
 	ei_rect_t result;
 
 	result.top_left.x = (rect1.top_left.x<=rect2.top_left.x)?
@@ -109,7 +110,8 @@ void free_linked_rects(ei_linked_rect_t **list_rect)
 }
 
 
-ei_point_t ancrage_text_img(struct ei_widget_t* widget){
+ei_point_t ancrage_text_img(struct ei_widget_t* widget)
+{
 
 	/*simplification expressions*/
 
@@ -132,7 +134,8 @@ ei_point_t ancrage_text_img(struct ei_widget_t* widget){
 
 	if (frame->text != NULL){
 		
-		hw_text_compute_size(frame->text,frame->text_font, &width_ancr, &height_ancr);
+		hw_text_compute_size(frame->text,frame->text_font, 
+				     &width_ancr, &height_ancr);
 		anchor = frame->text_anchor;
 
 	}else if(frame->img != NULL){
@@ -209,11 +212,13 @@ ei_point_t ancrage_text_img(struct ei_widget_t* widget){
 
 /*fonction de dessin de texte sur surface*/
 
-void draw_texte(ei_widget_t *widget, ei_surface_t surface, ei_rect_t *clipper){
+void draw_texte(ei_widget_t *widget, ei_surface_t surface, ei_rect_t *clipper)
+{
 	
 	ei_frame_t *frame=(ei_frame_t*) widget;
 	
-	if (frame->text != NULL && clipper->size.height > 0 && clipper->size.width > 0){
+	if (frame->text != NULL && clipper->size.height > 0 
+	    && clipper->size.width > 0){
 
 		ei_point_t ancrage= ancrage_text_img(widget);
 
@@ -227,30 +232,44 @@ void draw_texte(ei_widget_t *widget, ei_surface_t surface, ei_rect_t *clipper){
 }
 
 
-void draw_img(ei_widget_t *widget, ei_surface_t surface, ei_rect_t* clipper){
+void draw_img(ei_widget_t *widget, ei_surface_t surface, ei_rect_t* clipper)
+{
         ei_frame_t *frame=(ei_frame_t*) widget;
-        if (frame->img != NULL && clipper->size.height > 0 && clipper->size.width > 0)
+        if (frame->img != NULL && clipper->size.height > 0 
+	    && clipper->size.width > 0)
         {
                 /* On calcule les rectangles à fournir à ei_copy_surface */
                 /* Car elle doit prendre des rectangles de même taille */
                 ei_rect_t dest, src;
                 dest.top_left = ancrage_text_img(widget);
                 src.top_left = frame->img_rect->top_left;
-                int h1 = widget->content_rect->top_left.y+widget->content_rect->size.height-dest.top_left.y;
+
+                int h1 = widget->content_rect->top_left.y
+			+widget->content_rect->size.height-dest.top_left.y;
+
                 int h2 = frame->img_rect->size.height;
                 dest.size.height = (h1<=h2)?h1:h2;
-                int w1 = widget->content_rect->top_left.x+widget->content_rect->size.width-dest.top_left.x;
+
+                int w1 = widget->content_rect->top_left.x
+			+widget->content_rect->size.width-dest.top_left.x;
+
                 int w2 = frame->img_rect->size.width;
                 dest.size.width = (w1<=w2)?w1:w2;
-                /* On doit aussi vérifier que dest.top_left appartient a content_rect */
-                if (dest.top_left.x < widget->content_rect->top_left.x) {
-                        int temp = widget->content_rect->top_left.x - dest.top_left.x;
+ /* On doit aussi vérifier que dest.top_left appartient a content_rect */
+                if (dest.top_left.x < widget->content_rect->top_left.x){
+
+                        int temp = widget->content_rect->top_left.x 
+				- dest.top_left.x;
+
                         dest.size.width -= temp;
                         src.top_left.x += temp;
                         dest.top_left.x = widget->content_rect->top_left.x;
                 }
                 if (dest.top_left.y < widget->content_rect->top_left.y) {
-                        int temp = widget->content_rect->top_left.y - dest.top_left.y;
+
+                        int temp = widget->content_rect->top_left.y 
+				- dest.top_left.y;
+
                         dest.size.height -= temp;
                         src.top_left.y += temp;
                         dest.top_left.y = widget->content_rect->top_left.y;
@@ -261,7 +280,8 @@ void draw_img(ei_widget_t *widget, ei_surface_t surface, ei_rect_t* clipper){
                 src.top_left.y += temp.top_left.y - dest.top_left.y;
                 dest = temp;
                 src.size = dest.size;
-                int erreur=ei_copy_surface(surface, &dest, frame->img, &src, EI_TRUE);
+                int erreur=ei_copy_surface(surface, &dest, frame->img, 
+					   &src, EI_TRUE);
                 if (erreur){
                         perror("Problème d'insertion d'image.\n");
                         exit(1);
