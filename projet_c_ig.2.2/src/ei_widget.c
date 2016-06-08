@@ -16,12 +16,12 @@
 void alloc_tab_pick(int32_t new_size)
 {
 	if (size > new_size){
-		perror("utilisation incorrecte de la fonction d'allocation de pick_id");
+		perror("Redimensionement inutile.");
 		exit(1);
 	}
 	ei_widget_t **tmp=tab_pick;
 	if ((tab_pick=calloc(new_size, sizeof(ei_widget_t*)))==NULL){
-		perror("probleme allocation tableau pick_id");
+		perror("Probleme allocation tableau pick_id");
 		exit(1);
 	}
 	if (tmp != NULL){
@@ -50,8 +50,9 @@ ei_widget_t * 	ei_widget_pick (ei_point_t *where)
 	uint32_t v = *(ig+p);
 	uint32_t b = *(ib+p);
 	uint32_t pick_id= r + (v<<8) + (b<<16);
+
 	if (pick_id > size){
-		perror("acces incorrect");
+		perror("Acces incorrect");
 		exit(1);
 	}
 	return tab_pick[pick_id];
@@ -79,7 +80,7 @@ ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name,
         widget = (ei_widget_t *) (*wclass->allocfunc)();
         widget->wclass = wclass;
 
-	/*calcul de la pick color*/
+	/*calcul de la pick_color*/
 	if (tab_pick == NULL){
 		alloc_tab_pick(size);
 	}
@@ -87,6 +88,7 @@ ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name,
 	while (tab_pick[i] != NULL && i<size){
 		i++;
 	}
+	/*On a trop de widget: on redimensionne notre tableau (2*taille)*/
 	if ( i >= size-1){
 		alloc_tab_pick(2*size);
 		size=2*size;
