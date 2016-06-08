@@ -149,12 +149,22 @@ void entry_drawfunc(struct ei_widget_t* widget,
         ei_draw_polygon(pick_surface, exterior, *(widget->pick_color), clipper);
         
         /* Affichage du texte */
-
         ei_rect_t text_clipper = intersect_clipper(*clipper, *(widget->content_rect));
+        
+        /* Si le texte est plus grand que le champ de saisie on le décale pour
+           afficher la fin de la chaine et couper le début*/
+        ei_point_t text_point = widget->content_rect->top_left;
+        if (entry->text != NULL){
+                ei_size_t text_size;
+                hw_text_compute_size(entry->text, entry->text_font, &(text_size.width), &(text_size.height));
+                if (text_size.width > widget->content_rect->size.width){
+                        text_point.x -= (text_size.width - widget->content_rect->size.width);
+                }
+        }
 
         if (entry->text != NULL) {
                 ei_draw_text(surface,
-                             &(widget->content_rect->top_left),
+                             &(text_point),
                              entry->text,
                              entry->text_font,
                              &(entry->text_color),
