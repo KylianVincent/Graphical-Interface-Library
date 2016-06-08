@@ -66,7 +66,8 @@ endif
 
 TARGETS		=	${LIBEI} \
 			minimal frame frame_button button hello_world \
-			toplevel puzzle minesweeper two048 parsing multiple_widget
+			toplevel puzzle minesweeper two048 parsing multiple_widget \
+			entry
 all : ${TARGETS}
 
 

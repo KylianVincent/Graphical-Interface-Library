@@ -61,10 +61,10 @@ void entry_geomnotifyfunc (struct ei_widget_t *widget, ei_rect_t rect)
                            faut allouer la place nécessaire au content_rect */
                         widget->content_rect = calloc(1, sizeof(ei_rect_t));
                 }
-        widget->content_rect->top_left.x = widget->screen_location.top_left.x + 1;
-        widget->content_rect->top_left.x = widget->screen_location.top_left.y + 1;
-        widget->content_rect->size.width = widget->screen_location.size.width - 2;
-        widget->content_rect->size.height = widget->screen_location.size.height - 2;
+                widget->content_rect->top_left.x = widget->screen_location.top_left.x + 1;
+                widget->content_rect->top_left.y = widget->screen_location.top_left.y + 1;
+                widget->content_rect->size.width = widget->screen_location.size.width - 2;
+                widget->content_rect->size.height = widget->screen_location.size.height - 2;
         }
 }
 
@@ -111,13 +111,40 @@ void entry_drawfunc(struct ei_widget_t* widget,
         ei_linked_point_t *exterior = rounded_frame(widget->screen_location, 
 						    0, 0);
         ei_linked_point_t *interior = rounded_frame(*(widget->content_rect), 
-						    0, 0);
-        ei_color_t outline = {0x00, 0x00, 0x00, 0x00};
+						    0, 0); 
+
+        /* Calcul de la géométrie des halors extérieurs */
+        ei_point_t halo_interior_point = ei_point(widget->screen_location.top_left.x - 1,
+                                                  widget->screen_location.top_left.y - 1);
+        ei_size_t halo_interior_size = ei_size(widget->screen_location.size.width + 2,
+                                               widget->screen_location.size.height + 2);
+        ei_rect_t halo_interior_rect = ei_rect(halo_interior_point, halo_interior_size);
+        ei_linked_point_t *halo_interior = rounded_frame(halo_interior_rect, 
+                                                         0, 0);
+        ei_color_t halo_interior_color = {0x00, 0x99, 0xFF, 0xFF};
+
+        
+        ei_point_t halo_exterior_point = ei_point(widget->screen_location.top_left.x - 3,
+                                                  widget->screen_location.top_left.y - 3);
+        ei_size_t halo_exterior_size = ei_size(widget->screen_location.size.width + 6,
+                                               widget->screen_location.size.height + 6);
+        ei_rect_t halo_exterior_rect = ei_rect(halo_exterior_point, halo_exterior_size);
+        ei_linked_point_t *halo_exterior = rounded_frame(halo_exterior_rect, 
+                                                         0, 0);
+        ei_color_t halo_exterior_color = {0x00, 0x99, 0xFF, 0x44};
+
+        ei_color_t outline = {0x00, 0x00, 0x00, 0xFF};
 
         /* Tracé des surfaces */
 	hw_surface_lock(surface);
 	hw_surface_lock(pick_surface);
-        ei_draw_polygon(surface, exterior, outline, clipper);
+        if (focus == widget){
+                ei_draw_polygon(surface, halo_exterior, halo_exterior_color, clipper);
+                ei_draw_polygon(surface, halo_interior, halo_interior_color, clipper);
+        } else {
+                ei_draw_polygon(surface, exterior, outline, clipper);
+        }
+                
         ei_draw_polygon(surface, interior, entry->color, clipper);
         ei_draw_polygon(pick_surface, exterior, *(widget->pick_color), clipper);
         
@@ -157,7 +184,7 @@ void entry_setdefaultsfunc(struct ei_widget_t* widget)
         int temp;
         hw_text_compute_size("A", entry->text_font, &(temp),
                              &(widget->requested_size.height));
-        widget->requested_size.width = 100;
+        widget->requested_size.width = 200;
 }
 
 
