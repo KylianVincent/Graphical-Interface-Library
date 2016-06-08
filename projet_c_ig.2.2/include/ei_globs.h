@@ -15,6 +15,7 @@ int min_resize_zone;
 
 /* Focus d'un texte */
 ei_widget_t *focus;
+ei_bool_t capital;
 
 /*picking*/
 ei_widget_t **tab_pick;
