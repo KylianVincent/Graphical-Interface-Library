@@ -542,12 +542,13 @@ void toplevel_drawfunc(struct ei_widget_t* widget,
 
         /* On affiche le titre dans l'en_tête */
         ei_color_t white = {0xFF, 0xFF, 0xFF, 0xFF};
+	ei_rect_t text_clipper= intersect_clipper(*(widget->parent->content_rect), widget->screen_location);
         ei_draw_text(surface,
                      &(title_top_left),
                      toplevel->title,
                      NULL,
                      &white,
-                     &(widget->screen_location));
+                     &text_clipper);
         
         hw_surface_unlock(surface);
         hw_surface_unlock(pick_surface);
