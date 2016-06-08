@@ -8,6 +8,7 @@
 #include "ei_event.h"
 #include "ei_eventmanager.h"
 #include "ei_globs.h"
+#include "ei_entry.h"
 #include <stdlib.h>
 #include <stdio.h>
 
