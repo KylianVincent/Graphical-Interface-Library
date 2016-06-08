@@ -300,8 +300,8 @@ ei_linked_point_t* rounded_frame(ei_rect_t rect, int radius, int8_t mode)
 /* Eclairit ou assombrit en fonction de sign (1 ou -1) */
 ei_color_t eclaircir_assombrir(ei_color_t color, uint8_t val, int8_t sign)
 {
-        if (sign == 0){
-                sign = 1;
+	if (sign == 0) {
+                sign = -1;
         }
         int16_t r = color.red + sign*val;
         int16_t g = color.green + sign*val;
@@ -535,7 +535,7 @@ void toplevel_drawfunc(struct ei_widget_t* widget,
 	hw_surface_lock(surface);
 	hw_surface_lock(pick_surface);
         ei_draw_polygon(surface, exterior, eclaircir_assombrir(toplevel->color,
-							       100,-1), clipper);
+							       100,-1),clipper);
         ei_draw_polygon(surface, interior, toplevel->color, clipper);
         ei_draw_polygon(pick_surface, exterior, *(widget->pick_color), clipper);
 

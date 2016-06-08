@@ -209,10 +209,6 @@ void ei_widget_destroy(ei_widget_t* widget)
         }
 }
 
-
-/* ei_widget_t* ei_widget_pick(ei_point_t*	where); */
-
-
 /* --------------- EI_FRAME_CONFIGURE ---------------- */
 
 void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
@@ -230,6 +226,10 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
         /* Relief */
         if (relief != NULL){
                 frame->relief = *relief;
+        }
+	/* Border */
+        if (border_width != NULL){
+                frame->border_width = *border_width;
         }
         /* Text */
         if ((text != NULL) && (img != NULL)){
@@ -300,45 +300,37 @@ void ei_frame_configure	(ei_widget_t* widget, ei_size_t* requested_size,
                    il ne faut pas modifier sa taille */
                 if (img != NULL && *img != NULL){
                         /* Taille minimale pour l'image */
-                        widget->requested_size = frame->img_rect->size;
-                        widget->requested_size.height += frame->border_width*2;
-                        widget->requested_size.width += frame->border_width*2;
+                        if (frame->img_rect != NULL) {
+                                widget->requested_size = frame->img_rect->size;
+                        }
+                        else {
+                                widget->requested_size = hw_surface_get_size(*img);
+                        }
+                        /* On met à jour le screen location et le content_rect */
+                        widget->requested_size.height += 2*frame->border_width;
+                        widget->requested_size.width += 2*frame->border_width;
                         widget->screen_location.size = widget->requested_size;
-			widget->content_rect->size=frame->img_rect->size;
+                        (*widget->wclass->geomnotifyfunc)(widget, widget->screen_location);
                 }
                 if (text != NULL && *text != NULL) {
                         /* Taille minimale pour le texte*/
                         hw_text_compute_size(frame->text, frame->text_font, &(widget->requested_size.width), &(widget->requested_size.height));
-                       
-			widget->content_rect->size=widget->requested_size;
-			 /* On prend en compte les bordures */
-                        widget->requested_size.height += frame->border_width*2;
-                        widget->requested_size.width += frame->border_width*2;
+                        /* On met à jour le screen location et le content_rect */
+                        widget->requested_size.height += 2*frame->border_width;
+                        widget->requested_size.width += 2*frame->border_width;
                         widget->screen_location.size = widget->requested_size;
-			
+                        (*widget->wclass->geomnotifyfunc)(widget, widget->screen_location);
                 }
                 /* Le cas : text != NULL et img != NULL est impossible (test antérieur) */
         } 
         else if (requested_size != NULL)
         {
                 widget->requested_size = *requested_size;
-		widget->content_rect->size = widget->requested_size;
-                widget->screen_location.size.width = widget->requested_size.width + 2*frame->border_width;
+                /* On met à jour le screen location et le content_rect */
                 widget->screen_location.size.height = widget->requested_size.height + 2*frame->border_width;
+                widget->screen_location.size.width = widget->requested_size.width + 2*frame->border_width;
+                (*widget->wclass->geomnotifyfunc)(widget, widget->screen_location);
         }
-	/* Border */
-        if (border_width != NULL){
-                int b = *border_width;
-                frame->border_width = b;
-
-		if (widget->content_rect == &(widget->screen_location)){
-			widget->content_rect=calloc(1, sizeof(ei_rect_t));
-		}
-		widget->content_rect->top_left.x= widget->screen_location.top_left.x + b;
-		widget->content_rect->top_left.y= widget->screen_location.top_left.y + b;
-		widget->content_rect->size.width= widget->screen_location.size.width -2*b;
-		widget->content_rect->size.height= widget->screen_location.size.height -2*b;
-	}
         /* On met à jour cette partie d'écran */
         ei_app_invalidate_rect(&(widget->screen_location));
 }
@@ -379,16 +371,6 @@ void ei_toplevel_configure(ei_widget_t*widget, ei_size_t*requested_size,
         if (color != NULL){
                 toplevel->color = *color;
         }
-        if (requested_size != NULL){
-                int diff_w = requested_size->width - widget->requested_size.width;
-                int diff_h = requested_size->height - widget->requested_size.height;
-                widget->requested_size = *requested_size;
-                /* Mise à jour de la zone de contenu */
-                widget->content_rect->size.height += diff_h;
-                widget->content_rect->size.width += diff_w;
-                widget->screen_location.size.height += diff_h;
-                widget->screen_location.size.width += diff_w;
-        }
         if (border_width != NULL){
                 int diff_b = *border_width - toplevel->border_width;
                 toplevel->border_width = *border_width;
@@ -413,17 +395,27 @@ void ei_toplevel_configure(ei_widget_t*widget, ei_size_t*requested_size,
                              &(title_size.height));
                 toplevel->height_header = title_size.height;
         }
-        if (closable != NULL){
-                toplevel->closable = *closable;
-        }
-        if (resizable != NULL){
-                toplevel->resizable = *resizable;
-        }
         if (min_size != NULL){
                 if (toplevel->min_size == NULL) {
                         toplevel->min_size = calloc(1, sizeof(ei_size_t));
                 }
                 *(toplevel->min_size) = **min_size;
+        }
+        if (requested_size != NULL){
+                int diff_w = requested_size->width - widget->requested_size.width;
+                int diff_h = requested_size->height - widget->requested_size.height;
+                widget->requested_size = *requested_size;
+                /* Mise à jour de la zone de contenu */
+                widget->content_rect->size.height += diff_h;
+                widget->content_rect->size.width += diff_w;
+                widget->screen_location.size.height += diff_h;
+                widget->screen_location.size.width += diff_w;
+        }
+        if (closable != NULL){
+                toplevel->closable = *closable;
+        }
+        if (resizable != NULL){
+                toplevel->resizable = *resizable;
         }
         /* On met à jour l'écran */
         ei_app_invalidate_rect(&(widget->screen_location));

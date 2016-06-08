@@ -12,14 +12,16 @@
 ei_geometrymanager_t *geometrymanagers = NULL;
 
 /* void   ei_geometrymanager_register (ei_geometrymanager_t* geometrymanager); */
-void   ei_geometrymanager_register (ei_geometrymanager_t* geometrymanager){
+void   ei_geometrymanager_register (ei_geometrymanager_t* geometrymanager)
+{
         /* Pour enregistrer un geometry manager externe */
         geometrymanager->next = geometrymanagers;
         geometrymanagers = geometrymanager;
 }
 
 /* ei_geometrymanager_t* ei_geometrymanager_from_name (ei_geometrymanager_name_t name); */
-ei_geometrymanager_t* ei_geometrymanager_from_name (ei_geometrymanager_name_t name){
+ei_geometrymanager_t* ei_geometrymanager_from_name (ei_geometrymanager_name_t name)
+{
         ei_geometrymanager_t *cour = geometrymanagers;
         while (cour != NULL){
                 if (strcmp(cour->name, name) == 0){
@@ -32,7 +34,8 @@ ei_geometrymanager_t* ei_geometrymanager_from_name (ei_geometrymanager_name_t na
 }
 
 /* void   ei_geometrymanager_unmap (ei_widget_t*  widget); */
-void   ei_geometrymanager_unmap (ei_widget_t*  widget){
+void   ei_geometrymanager_unmap (ei_widget_t*  widget)
+{
         if (widget->geom_params != NULL){
                 /* Release du widget */
                 (*widget->geom_params->manager->releasefunc)(widget);
@@ -58,18 +61,12 @@ void   ei_geometrymanager_unmap (ei_widget_t*  widget){
                         ei_geometrymanager_unmap(widget->next_sibling);
                 }
         }
-        
-        /* On unmap les fils du widget */
-        /* ei_widget_t* cour = widget->children_head; */
-        /* while (cour != NULL) { */
-        /*         ei_geometrymanager_unmap(cour); */
-        /*         cour = cour->next_sibling; */
-        /* } */
 }
 
 
 /* void    ei_register_placer_manager  (); */
-void    ei_register_placer_manager  (){
+void ei_register_placer_manager  ()
+{
         ei_geometrymanager_t *placer = NULL;
         placer = calloc(1, sizeof(ei_geometrymanager_t));
         strcpy(placer->name, "placer");
@@ -78,7 +75,6 @@ void    ei_register_placer_manager  (){
 
         placer->next = geometrymanagers;
         geometrymanagers = placer;
-
 }
 
 /* void   ei_place   (ei_widget_t*  widget, */
@@ -91,7 +87,7 @@ void    ei_register_placer_manager  (){
 /*         float*   rel_y, */
 /*         float*   rel_width, */
 /*         float*   rel_height); */
-void   ei_place   (ei_widget_t*  widget,
+void ei_place (ei_widget_t*  widget,
         ei_anchor_t*  anchor,
         int*   x,
         int*   y,
@@ -100,8 +96,8 @@ void   ei_place   (ei_widget_t*  widget,
         float*   rel_x,
         float*   rel_y,
         float*   rel_width,
-        float*   rel_height){
-
+        float*   rel_height)
+{
         /* -- Gestion de l'affiliation à un geometry manager -- */
         if (widget->geom_params != NULL && strcmp(widget->geom_params->manager->name, "placer") != 0){
                 /* Appel de la fonction de release */
