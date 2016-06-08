@@ -277,7 +277,7 @@ ei_linked_point_t* rounded_frame(ei_rect_t rect, int radius, int8_t mode)
 ei_color_t eclaircir_assombrir(ei_color_t color, uint8_t val, int8_t sign)
 {
         if (sign == 0) {
-                sign = 1;
+                sign = -1;
         }
         int16_t r = color.red + sign*val;
         int16_t g = color.green + sign*val;
