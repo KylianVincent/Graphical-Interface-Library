@@ -14,7 +14,8 @@ ei_linked_point_t* rounded_frame(ei_rect_t rect, int radius, int8_t mode);
 
 /* ----------FRAME------------*/
 
-void* frame_allocfunc(){
+void* frame_allocfunc()
+{
 
 	ei_frame_t *frame = calloc(1, sizeof(ei_frame_t));
 	if (frame != NULL){
@@ -26,7 +27,8 @@ void* frame_allocfunc(){
 
 
 
-void frame_releasefunc(struct ei_widget_t* widget){ 
+void frame_releasefunc(struct ei_widget_t* widget)
+{ 
 
         if (widget != NULL){
 		free(widget->pick_color);
@@ -48,7 +50,8 @@ void frame_releasefunc(struct ei_widget_t* widget){
 void frame_drawfunc(struct ei_widget_t*	widget,
 		    ei_surface_t		surface,
 		    ei_surface_t		pick_surface,
-		    ei_rect_t*		clipper){ 
+		    ei_rect_t*		clipper)
+{ 
 	
 	ei_frame_t *frame=(ei_frame_t*)widget;
 	/*Création de la surface principale*/
@@ -116,7 +119,8 @@ void frame_drawfunc(struct ei_widget_t*	widget,
 }
 
 
-void frame_setdefaultsfunc(struct ei_widget_t* widget){
+void frame_setdefaultsfunc(struct ei_widget_t* widget)
+{
 	ei_frame_t* frame  = (ei_frame_t*) widget; 
 	frame->color= ei_default_background_color;
 	frame->border_width=0;
@@ -130,7 +134,8 @@ void frame_setdefaultsfunc(struct ei_widget_t* widget){
 	frame->img_anchor=ei_anc_center;
 }
 
-void frame_geomnotifyfunc(struct ei_widget_t *widget, ei_rect_t rect){
+void frame_geomnotifyfunc(struct ei_widget_t *widget, ei_rect_t rect)
+{
 	ei_frame_t * frame=(ei_frame_t*)widget;
 	if (widget != NULL){
 		int b=frame->border_width;
@@ -429,7 +434,8 @@ void button_geomnotifyfunc(ei_widget_t *widget, ei_rect_t rect)
 
 
 /* --------------TOPLEVEL-------------- */
-void toplevel_geomnotifyfunc (struct ei_widget_t *widget, ei_rect_t rect){
+void toplevel_geomnotifyfunc (struct ei_widget_t *widget, ei_rect_t rect)
+{
         if (widget != NULL){
                 if (widget->content_rect == &(widget->screen_location)){
                         /* Le content_rect pointe vers la screen_location, il
@@ -448,7 +454,8 @@ void toplevel_geomnotifyfunc (struct ei_widget_t *widget, ei_rect_t rect){
         }
 }
 
-void* toplevel_allocfunc (){
+void* toplevel_allocfunc ()
+{
         ei_toplevel_t* toplevel = calloc(1, sizeof(ei_toplevel_t));
         if (toplevel == NULL){
                 perror("Impossible d'allouer l'espace pour une toplevel.\n");
@@ -457,7 +464,8 @@ void* toplevel_allocfunc (){
         return (void*) toplevel;
 }
 
-void toplevel_releasefunc (struct ei_widget_t* widget){
+void toplevel_releasefunc (struct ei_widget_t* widget)
+{
         if (widget != NULL){
                 free(widget->pick_color);
                 ei_toplevel_t* toplevel  = (ei_toplevel_t*) widget;
@@ -479,7 +487,8 @@ void toplevel_releasefunc (struct ei_widget_t* widget){
 void toplevel_drawfunc(struct ei_widget_t* widget,
 		     ei_surface_t		surface,
 		     ei_surface_t		pick_surface,
-                       ei_rect_t*		clipper){
+                       ei_rect_t*		clipper)
+{
         ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
         
         /* Calcul de la géométrie du cadre extérieur */
@@ -558,7 +567,8 @@ void toplevel_drawfunc(struct ei_widget_t* widget,
 
 }
 
-void toplevel_setdefaultsfunc(struct ei_widget_t* widget){
+void toplevel_setdefaultsfunc(struct ei_widget_t* widget)
+{
         ei_toplevel_t* toplevel = (ei_toplevel_t *) widget;
         
         toplevel->color = ei_default_background_color;
