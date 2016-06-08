@@ -193,14 +193,8 @@ ei_bool_t close_toplevel(ei_widget_t *widget, ei_event_t *event,
 
 void change_focus(ei_widget_t *widget)
 {
-        ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
         ei_widget_t *tail = widget;
-        if (toplevel->closable){
-                tail = tail->next_sibling;
-        }
-        if (toplevel->resizable){
-                tail = tail->next_sibling;
-        }
+        tail = tail->next_sibling->next_sibling;
         if (widget->parent == NULL || widget->parent->children_tail == tail){
                 return;
         }

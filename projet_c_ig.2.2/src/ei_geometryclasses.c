@@ -142,6 +142,61 @@ void placer_screen_location(struct ei_widget_t *widget)
         }
 }
 
+void placer_button_toplevel(ei_widget_t *widget)
+{
+        ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
+        ei_widget_t *close_button = widget->next_sibling;
+        ei_anchor_t close_button_anch = ei_anc_center;
+        ei_color_t red = {0xFF, 0x00, 0x00, 0xFF};
+        int radius_header = toplevel->height_header/2;
+        int radius_close_button = toplevel->height_header/4;
+        int border_close_button = toplevel->height_header/8;
+        ei_size_t close_button_size = ei_size(radius_header,
+                                              radius_header);
+        ei_point_t close_button_point = ei_point(radius_header,
+                                                 radius_header);
+        close_button_point = ei_point_add(close_button_point,
+                                          widget->screen_location.top_left);
+        ei_button_configure(close_button, &close_button_size,
+                            &red, &border_close_button,
+                            &radius_close_button, NULL, NULL,
+                            NULL, NULL, NULL, NULL, NULL, NULL,
+                            NULL, NULL);
+        ei_place(close_button, &close_button_anch,
+                 &(close_button_point.x),
+                 &(close_button_point.y), NULL, NULL, NULL, NULL,
+                 NULL, NULL);
+}
+
+void placer_frame_toplevel(ei_widget_t *widget)
+{
+        ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
+        ei_widget_t *resize_zone = widget->next_sibling->next_sibling;
+        ei_color_t resize_zone_color = eclaircir_assombrir(toplevel->color,100, -1);
+        ei_anchor_t resize_zone_anch = ei_anc_southeast;
+        ei_size_t resize_zone_size;
+        if (toplevel->border_width >= min_resize_zone){
+                resize_zone_size = ei_size(2*toplevel->border_width,
+                                           2*toplevel->border_width);
+        } else {
+                resize_zone_size = ei_size(2*min_resize_zone,
+                                           2*min_resize_zone);
+        }
+                        
+        ei_point_t resize_zone_point = ei_point(widget->screen_location.size.width,
+                                                widget->screen_location.size.height);
+        resize_zone_point = ei_point_add(resize_zone_point, 
+                                         widget->screen_location.top_left);
+        int resize_zone_border = 0;
+        ei_frame_configure(resize_zone, &resize_zone_size,
+                           &(resize_zone_color),
+                           &resize_zone_border, NULL, NULL,
+                           NULL, NULL, NULL, NULL, NULL, NULL);
+        ei_place(resize_zone, &resize_zone_anch,
+                 &(resize_zone_point.x), &(resize_zone_point.y),
+                 NULL, NULL, NULL, NULL, NULL, NULL);
+}
+
 /* void placer_runfunc(struct ei_widget_t *widget); */
 void placer_runfunc(struct ei_widget_t *widget)
 {
@@ -156,61 +211,10 @@ void placer_runfunc(struct ei_widget_t *widget)
                 /* On doit placer le bouton et le redimensionnement */
                 ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
                 if (toplevel->closable == EI_TRUE){
-                        ei_widget_t *close_button = widget->next_sibling;
-                        ei_anchor_t close_button_anch = ei_anc_center;
-                        ei_color_t red = {0xFF, 0x00, 0x00, 0xFF};
-                        int radius_header = toplevel->height_header/2;
-                        int radius_close_button = toplevel->height_header/4;
-                        int border_close_button = toplevel->height_header/8;
-                        ei_size_t close_button_size = ei_size(radius_header,
-                                                              radius_header);
-                        ei_point_t close_button_point = ei_point(radius_header,
-                                                                 radius_header);
-                        close_button_point = ei_point_add(close_button_point,
-                                                          widget->screen_location.top_left);
-                        ei_button_configure(close_button, &close_button_size,
-                                            &red, &border_close_button,
-                                            &radius_close_button, NULL, NULL,
-                                            NULL, NULL, NULL, NULL, NULL, NULL,
-                                            NULL, NULL);
-                        ei_place(close_button, &close_button_anch,
-                                 &(close_button_point.x),
-                                 &(close_button_point.y), NULL, NULL, NULL, NULL,
-                                 NULL, NULL);
+                        placer_button_toplevel(widget);
                 }
                 if  (toplevel->resizable){
-                        ei_widget_t *resize_zone;
-                        resize_zone = widget->next_sibling;
-                        if (toplevel->closable == EI_TRUE){
-                                /* Si le toplevel avait un bouton de fermeture,
-                                   la frame de redimmensionnement est son
-                                   deuxième fils, sinon c'est le premier */
-                                resize_zone = resize_zone->next_sibling;
-                        }
-                        ei_color_t resize_zone_color = eclaircir_assombrir(toplevel->color,
-                                                                           100, -1);
-                        ei_anchor_t resize_zone_anch = ei_anc_southeast;
-                        ei_size_t resize_zone_size;
-                        if (toplevel->border_width >= min_resize_zone){
-                                resize_zone_size = ei_size(2*toplevel->border_width,
-                                                           2*toplevel->border_width);
-                        } else {
-                                resize_zone_size = ei_size(2*min_resize_zone,
-                                                           2*min_resize_zone);
-                        }
-                        
-                        ei_point_t resize_zone_point = ei_point(widget->screen_location.size.width,
-                                                                widget->screen_location.size.height);
-                        resize_zone_point = ei_point_add(resize_zone_point, 
-                                                         widget->screen_location.top_left);
-                        int resize_zone_border = 0;
-                        ei_frame_configure(resize_zone, &resize_zone_size,
-                                           &(resize_zone_color),
-                                           &resize_zone_border, NULL, NULL,
-                                           NULL, NULL, NULL, NULL, NULL, NULL);
-                        ei_place(resize_zone, &resize_zone_anch,
-                                 &(resize_zone_point.x), &(resize_zone_point.y),
-                                 NULL, NULL, NULL, NULL, NULL, NULL);
+                        placer_frame_toplevel(widget);
                 }
         }
         
