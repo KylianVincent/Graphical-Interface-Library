@@ -6,7 +6,9 @@
 #include "ei_application.h"
 #include "ei_widget.h"
 #include "ei_globs.h"
+#include "ei_entry.h"
 #include <math.h>
+#include <string.h>
 
 ei_linked_bind_t **binds_event;
 /* Utile pour le déplacement et redimmensionnement de fenetre */
@@ -17,6 +19,8 @@ void init_binds_event()
         binds_event = calloc(8, sizeof(ei_linked_bind_t *));
         ei_bind(ei_ev_mouse_buttondown, NULL, "button", click_button, NULL);
         ei_bind(ei_ev_mouse_buttondown, NULL, "toplevel", click_toplevel, NULL);
+        ei_bind(ei_ev_mouse_buttondown, NULL, "entry", focus_entry, NULL);
+        ei_bind(ei_ev_keydown, NULL, "all", treat_key, NULL);
         ei_bind(ei_ev_keydown, NULL, "all", escape, NULL);
 }
 
@@ -314,4 +318,42 @@ ei_bool_t resize_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_pa
         float zero = 0.0;
         ei_place(widget_bis, NULL, NULL, NULL, &new_size_width, &new_size_height, NULL, NULL, &zero, &zero);
         return EI_TRUE;
+}
+
+/*----------- ENTRY ---------------*/
+
+ei_bool_t focus_entry(ei_widget_t* widget, ei_event_t* event, void * user_param)
+{
+        ei_unbind(ei_ev_mouse_buttondown, NULL, "all", unfocus_entry, focus);
+        focus = widget;
+        ei_bind(ei_ev_mouse_buttondown, NULL, "all", unfocus_entry, focus);
+        return EI_TRUE;
+}
+
+ei_bool_t unfocus_entry(ei_widget_t* widget, ei_event_t* event, void * user_param)
+{
+        ei_unbind(ei_ev_mouse_buttondown, NULL, "all", unfocus_entry, focus);
+        focus = NULL;
+        return EI_TRUE;
+}
+
+ei_bool_t treat_key(ei_widget_t* widget, ei_event_t* event, void * user_param)
+{
+        if (focus != NULL) {
+                if (event->param.key.key_sym >= SDLK_a && 
+                    event->param.key.key_sym <= SDLK_z)
+                {
+                        ei_entry_t *entry = (ei_entry_t *) focus;
+                        int len = strlen(entry->text);
+                        len++;
+                        char *temp = entry->text;
+                        entry->text = calloc(len+1, sizeof(char));
+                        strcpy(entry->text, temp);
+                        free(temp);
+                        temp = entry->text;
+                        temp[len-1] = event->param.key.key_sym;
+                        return EI_TRUE;
+                }
+        }
+        return EI_FALSE;
 }

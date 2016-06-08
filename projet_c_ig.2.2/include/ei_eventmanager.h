@@ -61,3 +61,9 @@ ei_bool_t unclick_toplevel(ei_widget_t* widget, ei_event_t* event,
 
 ei_bool_t resize_toplevel(ei_widget_t* widget, ei_event_t* event, 
 			  void * user_param);
+
+ei_bool_t unfocus_entry(ei_widget_t* widget, ei_event_t* event, void * user_param);
+
+ei_bool_t treat_key(ei_widget_t* widget, ei_event_t* event, void * user_param);
+
+ei_bool_t focus_entry(ei_widget_t* widget, ei_event_t* event, void * user_param);

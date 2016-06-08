@@ -14,7 +14,7 @@ CCFLAGS		:= -c ${OPTFLAGS} -Wall -std=c99
 # The list of objects to include in the library
 
 
-LIBEIOBJS	:= 	${OBJDIR}/ei_application.o ${OBJDIR}/ei_geometrymanager.o ${OBJDIR}/ei_widget.o ${OBJDIR}/ei_event.o ${OBJDIR}/ei_widgetclass.o ${OBJDIR}/ei_classes.o ${OBJDIR}/ei_geometryclasses.o ${OBJDIR}/ei_eventmanager.o ${OBJDIR}/ei_globs.o
+LIBEIOBJS	:= 	${OBJDIR}/ei_application.o ${OBJDIR}/ei_geometrymanager.o ${OBJDIR}/ei_widget.o ${OBJDIR}/ei_event.o ${OBJDIR}/ei_widgetclass.o ${OBJDIR}/ei_classes.o ${OBJDIR}/ei_geometryclasses.o ${OBJDIR}/ei_eventmanager.o ${OBJDIR}/ei_globs.o ${OBJDIR}/ei_entry.o 
 
 
 
@@ -107,6 +107,14 @@ toplevel : ${OBJDIR}/toplevel.o ${LIBEIOBJS} ${LIBEIBASE} ${LIBEI}
 
 ${OBJDIR}/toplevel.o : ${TESTS}/toplevel.c
 	${CC} ${CCFLAGS} ${INCFLAGS} ${TESTS}/toplevel.c -o ${OBJDIR}/toplevel.o
+
+# entry
+
+entry : ${OBJDIR}/entry.o ${LIBEIOBJS} ${LIBEIBASE} ${LIBEI}
+	${LINK} -o entry ${OBJDIR}/entry.o ${LIBEIOBJS} ${LIBEI} ${LIBS}
+
+${OBJDIR}/entry.o : ${TESTS}/entry.c
+	${CC} ${CCFLAGS} ${INCFLAGS} ${TESTS}/entry.c -o ${OBJDIR}/entry.o
 
 # button
 
