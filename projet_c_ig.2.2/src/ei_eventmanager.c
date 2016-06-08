@@ -194,7 +194,7 @@ void change_focus(ei_widget_t *widget)
 {
         ei_widget_t *tail = widget;
         tail = tail->next_sibling->next_sibling;
-        if (widget->parent == NULL || widget->parent->children_tail == tail){
+        if (widget->parent == NULL || widget->parent->children_tail == widget){
                 return;
         }
 
@@ -207,9 +207,12 @@ void change_focus(ei_widget_t *widget)
         }else{
                 prec->next_sibling = tail->next_sibling;
         }
-        widget->parent->children_tail->next_sibling = widget;
+        ei_widget_t *cour = widget->parent->children_tail;
+        while (cour->next_sibling != NULL)
+                cour = cour->next_sibling;
+        cour->next_sibling = widget;
         tail->next_sibling = NULL;
-        widget->parent->children_tail = tail;
+        widget->parent->children_tail = widget;
         /* On ajoute le rectangle à mettre à jour */
 	ei_app_invalidate_rect(&(widget->screen_location));
         return;

@@ -100,7 +100,10 @@ ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name,
         if (parent != NULL){
                 widget->parent = parent;
                 if (parent->children_tail != NULL){
-                        parent->children_tail->next_sibling = widget;
+                        ei_widget_t *cour = parent->children_tail;
+                        while (cour->next_sibling != NULL)
+                                cour = cour->next_sibling;
+                        cour->next_sibling = widget;
                         parent->children_tail = widget;
                 }else{
                         parent->children_head = widget;
@@ -136,9 +139,35 @@ ei_widget_t* ei_widget_create (ei_widgetclass_name_t class_name,
                 resize_zone_toplevel->pick_id = pick_id_toplevel;
                 free(resize_zone_toplevel->pick_color);
                 resize_zone_toplevel->pick_color = def_pick_color(widget->pick_id);
+                if (widget->parent != NULL)
+                {
+                        widget->parent->children_tail = widget;
+                }
         }
         return widget;
 }
+
+
+void update_children_tail(ei_widget_t *parent)
+{
+        if (parent != NULL && parent->children_tail != NULL &&
+            !strcmp(parent->children_tail->wclass->name,"frame"))
+        {
+                ei_widget_t *cour = parent->children_head;
+                ei_widget_t *prec = parent->children_head;
+                ei_widget_t *prec_prec = parent->children_head;
+                while (cour != NULL && cour->next_sibling != NULL)
+                {
+                        prec_prec = prec;
+                        prec = cour;
+                        cour = cour->next_sibling;
+                }
+                if (!strcmp(prec_prec->wclass->name,"toplevel")) {
+                        parent->children_tail = prec_prec;
+                }
+        }
+}
+
 
 /* void ei_widget_destroy(ei_widget_t* widget); */
 void ei_widget_destroy(ei_widget_t* widget)
@@ -155,19 +184,20 @@ void ei_widget_destroy(ei_widget_t* widget)
                 ei_widget_destroy(widget->next_sibling);
         }
         /* On met a jour les fils du parent et les next_sibling des fils */
-        if (widget->parent != NULL)
+        ei_widget_t *parent = widget->parent;
+        if (parent != NULL)
         {
-                ei_widget_t* prec = widget->parent->children_head;
+                ei_widget_t* prec = parent->children_head;
                 while (prec != widget && prec->next_sibling != widget)
                 {
                         prec = prec->next_sibling;
                 }
                 if (prec == widget){
-                        widget->parent->children_head = widget->next_sibling;
+                        parent->children_head = widget->next_sibling;
                         prec = NULL;
                 }
-                if (widget->parent->children_tail == widget) {
-                        widget->parent->children_tail = prec;
+                if (parent->children_tail == widget) {
+                        parent->children_tail = prec;
                 }
                 if (prec != NULL){
                         prec->next_sibling = widget->next_sibling;
@@ -190,6 +220,7 @@ void ei_widget_destroy(ei_widget_t* widget)
                 cour = cour->next_sibling;
                 ei_widget_destroy(temp);
         }
+        update_children_tail(parent);
 }
 
 /* --------------- EI_FRAME_CONFIGURE ---------------- */

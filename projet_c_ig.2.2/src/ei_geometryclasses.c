@@ -224,6 +224,9 @@ void placer_runfunc(struct ei_widget_t *widget)
                 if (cour->geom_params != NULL){
                         (*cour->geom_params->manager->runfunc)(cour);
                 }
+                if (!strcmp(cour->wclass->name,"toplevel")) {
+                        cour = cour->next_sibling->next_sibling;
+                }
                 cour = cour->next_sibling;
         }
 }
