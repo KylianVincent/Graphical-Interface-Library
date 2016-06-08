@@ -59,18 +59,6 @@ int ei_main(int argc, char** argv)
         toplevel_y += 50;
         ei_place(toplevel2, NULL, &toplevel2_x, &toplevel2_y, NULL, NULL, NULL, NULL, NULL, NULL);
 
-	/* Create, configure and place the frame on screen. */
-	/* frame = ei_widget_create("frame", toplevel); */
-	/* ei_frame_configure(frame, &frame_size, &frame_color, */
-	/* 		    &frame_border_width, &frame_relief, NULL, NULL, NULL, NULL, */
-	/* 		    &img, &rect_img, &anch_img); */
-	/* ei_place(frame, NULL, &frame_x, &frame_y, NULL, NULL, NULL, NULL, NULL, NULL ); */
-        /* ei_widget_t* button; */
-        /* button = ei_widget_create("button", frame); */
-        /* char* text = "Cliquez ici"; */
-        /* ei_anchor_t anch = ei_anc_center; */
-        /* ei_button_configure(button, NULL, &root_bgcol, NULL, NULL, NULL, &text, NULL, NULL, &anch, NULL, NULL, NULL, NULL, NULL); */
-        /* ei_place(button, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL); */
 	/* Run the application's main loop. */
 	ei_app_run();
 
