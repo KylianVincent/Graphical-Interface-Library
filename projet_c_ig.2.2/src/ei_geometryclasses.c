@@ -155,8 +155,10 @@ void placer_button_toplevel(ei_widget_t *widget)
                                               radius_header);
         ei_point_t close_button_point = ei_point(radius_header,
                                                  radius_header);
-        close_button_point = ei_point_add(close_button_point,
-                                          widget->screen_location.top_left);
+        close_button_point.x += widget->screen_location.top_left.x - 
+                widget->parent->content_rect->top_left.x;
+        close_button_point.y += widget->screen_location.top_left.y - 
+                widget->parent->content_rect->top_left.y;
         ei_button_configure(close_button, &close_button_size,
                             &red, &border_close_button,
                             &radius_close_button, NULL, NULL,
@@ -185,8 +187,10 @@ void placer_frame_toplevel(ei_widget_t *widget)
                         
         ei_point_t resize_zone_point = ei_point(widget->screen_location.size.width,
                                                 widget->screen_location.size.height);
-        resize_zone_point = ei_point_add(resize_zone_point, 
-                                         widget->screen_location.top_left);
+        resize_zone_point.x += widget->screen_location.top_left.x -
+                widget->parent->content_rect->top_left.x;
+        resize_zone_point.y += widget->screen_location.top_left.y -
+                widget->parent->content_rect->top_left.y;
         int resize_zone_border = 0;
         ei_frame_configure(resize_zone, &resize_zone_size,
                            &(resize_zone_color),
