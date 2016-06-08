@@ -149,13 +149,16 @@ void entry_drawfunc(struct ei_widget_t* widget,
         ei_draw_polygon(pick_surface, exterior, *(widget->pick_color), clipper);
         
         /* Affichage du texte */
+
+        ei_rect_t text_clipper = intersect_clipper(*clipper, *(widget->content_rect));
+
         if (entry->text != NULL) {
                 ei_draw_text(surface,
                              &(widget->content_rect->top_left),
                              entry->text,
                              entry->text_font,
                              &(entry->text_color),
-                             clipper);
+                             &(text_clipper));
         }
         
         hw_surface_unlock(surface);
