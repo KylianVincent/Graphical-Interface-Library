@@ -53,7 +53,7 @@ int ei_main(int argc, char** argv)
         ei_toplevel_configure(toplevel, &toplevel_size, &toplevel_color, &toplevel_border, NULL, &toplevel_closable, &toplevel_resizable, &(toplevel_min_size));
         ei_place(toplevel, NULL, &toplevel_x, &toplevel_y, NULL, NULL, NULL, NULL, NULL, NULL);
 	/* Create, configure and place the toplevel on screen. */
-        toplevel2 = ei_widget_create("toplevel", ei_app_root_widget());
+        toplevel2 = ei_widget_create("toplevel", toplevel);
         ei_toplevel_configure(toplevel2, &toplevel2_size, &toplevel_color, &toplevel_border, NULL, NULL, NULL, &(toplevel_min_size));
         toplevel_x += 50;
         toplevel_y += 50;
