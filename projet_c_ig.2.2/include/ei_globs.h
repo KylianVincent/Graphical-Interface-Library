@@ -13,6 +13,9 @@ ei_size_t taille_root_frame;
 /* Taille de la zone de redimensionnement */
 int min_resize_zone;
 
+/* Focus d'un texte */
+ei_widget_t *focus;
+
 /*picking*/
 ei_widget_t **tab_pick;
 int32_t size;

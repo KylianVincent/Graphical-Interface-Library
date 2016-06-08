@@ -14,7 +14,7 @@ CCFLAGS		:= -c ${OPTFLAGS} -Wall -std=c99
 # The list of objects to include in the library
 
 
-LIBEIOBJS	:= 	${OBJDIR}/ei_application.o ${OBJDIR}/ei_geometrymanager.o ${OBJDIR}/ei_widget.o ${OBJDIR}/ei_event.o ${OBJDIR}/ei_widgetclass.o ${OBJDIR}/ei_classes.o ${OBJDIR}/ei_geometryclasses.o ${OBJDIR}/ei_eventmanager.o ${OBJDIR}/ei_globs.o
+LIBEIOBJS	:= 	${OBJDIR}/ei_application.o ${OBJDIR}/ei_geometrymanager.o ${OBJDIR}/ei_widget.o ${OBJDIR}/ei_event.o ${OBJDIR}/ei_widgetclass.o ${OBJDIR}/ei_classes.o ${OBJDIR}/ei_geometryclasses.o ${OBJDIR}/ei_eventmanager.o ${OBJDIR}/ei_globs.o ${OBJDIR}/ei_entry.o 
 
 
 
@@ -66,7 +66,7 @@ endif
 
 TARGETS		=	${LIBEI} \
 			minimal frame frame_button button hello_world \
-			toplevel puzzle minesweeper two048 parsing
+			toplevel puzzle minesweeper two048 parsing multiple_widget
 all : ${TARGETS}
 
 
@@ -92,6 +92,14 @@ frame : ${OBJDIR}/frame.o ${LIBEIOBJS} ${LIBEIBASE} ${LIBEI}
 ${OBJDIR}/frame.o : ${TESTS}/frame.c
 	${CC} ${CCFLAGS} ${INCFLAGS} ${TESTS}/frame.c -o ${OBJDIR}/frame.o
 
+# multiple_widget
+
+multiple_widget : ${OBJDIR}/multiple_widget.o ${LIBEIOBJS} ${LIBEIBASE} ${LIBEI}
+	${LINK} -o multiple_widget ${OBJDIR}/multiple_widget.o ${LIBEIOBJS} ${LIBEI} ${LIBS}
+
+${OBJDIR}/multiple_widget.o : ${TESTS}/multiple_widget.c
+	${CC} ${CCFLAGS} ${INCFLAGS} ${TESTS}/multiple_widget.c -o ${OBJDIR}/multiple_widget.o
+
 # frame_button
 
 frame_button : ${OBJDIR}/frame_button.o ${LIBEIOBJS} ${LIBEIBASE} ${LIBEI}
@@ -107,6 +115,14 @@ toplevel : ${OBJDIR}/toplevel.o ${LIBEIOBJS} ${LIBEIBASE} ${LIBEI}
 
 ${OBJDIR}/toplevel.o : ${TESTS}/toplevel.c
 	${CC} ${CCFLAGS} ${INCFLAGS} ${TESTS}/toplevel.c -o ${OBJDIR}/toplevel.o
+
+# entry
+
+entry : ${OBJDIR}/entry.o ${LIBEIOBJS} ${LIBEIBASE} ${LIBEI}
+	${LINK} -o entry ${OBJDIR}/entry.o ${LIBEIOBJS} ${LIBEI} ${LIBS}
+
+${OBJDIR}/entry.o : ${TESTS}/entry.c
+	${CC} ${CCFLAGS} ${INCFLAGS} ${TESTS}/entry.c -o ${OBJDIR}/entry.o
 
 # button
 
