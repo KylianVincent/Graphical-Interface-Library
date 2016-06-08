@@ -165,6 +165,7 @@ void entry_setdefaultsfunc(struct ei_widget_t* widget)
 void ei_entry_register_class()
 {
         focus = NULL;
+        capital = EI_FALSE;
         ei_widgetclass_t *entry = NULL;
         entry = calloc(1, sizeof(ei_entry_t));
         if (entry == NULL){

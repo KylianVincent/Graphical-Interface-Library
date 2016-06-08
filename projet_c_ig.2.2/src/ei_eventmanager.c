@@ -20,7 +20,6 @@ void init_binds_event()
         ei_bind(ei_ev_mouse_buttondown, NULL, "button", click_button, NULL);
         ei_bind(ei_ev_mouse_buttondown, NULL, "toplevel", click_toplevel, NULL);
         ei_bind(ei_ev_mouse_buttondown, NULL, "entry", focus_entry, NULL);
-        ei_bind(ei_ev_keydown, NULL, "all", treat_key, NULL);
         ei_bind(ei_ev_keydown, NULL, "all", escape, NULL);
 }
 
@@ -82,12 +81,12 @@ ei_bool_t handle_event(ei_event_t* event)
 ei_bool_t escape(ei_widget_t *widget, ei_event_t* event, void *user_param)
 {
         if (event->type == ei_ev_keydown 
-	    && event->param.key.key_sym == SDLK_ESCAPE){
-
+	    && event->param.key.key_sym == SDLK_ESCAPE)
+        {
                 ei_app_quit_request();
+                return EI_TRUE;
         }
-
-        return EI_TRUE;
+        return EI_FALSE;
 }
 
 // Fonction traitante interne pour les boutons
@@ -361,26 +360,45 @@ ei_bool_t resize_toplevel(ei_widget_t* widget, ei_event_t* event,
 
 ei_bool_t focus_entry(ei_widget_t* widget, ei_event_t* event, void * user_param)
 {
-        ei_unbind(ei_ev_mouse_buttondown, NULL, "all", unfocus_entry, focus);
+        ei_unbind(ei_ev_mouse_buttondown, NULL, "entry", focus_entry, NULL);
         focus = widget;
-        ei_bind(ei_ev_mouse_buttondown, NULL, "all", unfocus_entry, focus);
+        ei_bind(ei_ev_keydown, NULL, "all", treat_key_down, NULL);
+        ei_bind(ei_ev_keyup, NULL, "all", treat_key_up, NULL);
+        ei_bind(ei_ev_mouse_buttondown, NULL, "all", unfocus_entry, NULL);
         return EI_TRUE;
 }
 
 ei_bool_t unfocus_entry(ei_widget_t* widget, ei_event_t* event, void * user_param)
 {
-        ei_unbind(ei_ev_mouse_buttondown, NULL, "all", unfocus_entry, focus);
-        focus = NULL;
-        return EI_TRUE;
+        if (strcmp(widget->wclass->name,"entry")) {
+                ei_unbind(ei_ev_mouse_buttondown, NULL, "all", unfocus_entry, NULL);
+                ei_unbind(ei_ev_keydown, NULL, "all", treat_key_down, NULL);
+                ei_unbind(ei_ev_keyup, NULL, "all", treat_key_up, NULL);
+                ei_bind(ei_ev_mouse_buttondown, NULL, "entry", focus_entry, NULL);
+                focus = NULL;
+                return EI_TRUE;
+        }
+        else if (widget != focus) {
+                focus = widget;
+                return EI_TRUE;
+        }
+        return EI_FALSE;
 }
 
-ei_bool_t treat_key(ei_widget_t* widget, ei_event_t* event, void * user_param)
+ei_bool_t treat_key_down(ei_widget_t* widget, ei_event_t* event, void * user_param)
 {
         if (focus != NULL) {
-                if (event->param.key.key_sym >= SDLK_a && 
-                    event->param.key.key_sym <= SDLK_z)
+                ei_entry_t *entry = (ei_entry_t *) focus;
+                if ((event->param.key.key_sym >= SDLK_a && 
+                     event->param.key.key_sym <= SDLK_z) ||
+                        event->param.key.key_sym == SDLK_SPACE)
                 {
-                        ei_entry_t *entry = (ei_entry_t *) focus;
+                        int majuscule = 0;
+                        if (event->param.key.key_sym != SDLK_SPACE &&
+                            capital)
+                        {
+                                majuscule = 'A'-'a';
+                        }
                         if (entry->text != NULL) {
                                 int len = strlen(entry->text);
                                 len++;
@@ -389,13 +407,47 @@ ei_bool_t treat_key(ei_widget_t* widget, ei_event_t* event, void * user_param)
                                 strcpy(entry->text, temp);
                                 free(temp);
                                 temp = entry->text;
-                                temp[len-1] = event->param.key.key_sym;
+                                temp[len-1] = event->param.key.key_sym+majuscule;
                         }
                         else {
                                 entry->text = calloc(2, sizeof(char));
                                 char *temp = entry->text;
-                                temp[0] = event->param.key.key_sym;
+                                temp[0] = event->param.key.key_sym+majuscule;
                         }
+                        return EI_TRUE;
+                }
+                else if (event->param.key.key_sym == SDLK_BACKSPACE &&
+                    entry->text != NULL) {
+                        int len = strlen(entry->text);
+                        if (len > 1) {
+                                len--;
+                                char *txt = entry->text;
+                                txt[len] = '\0';
+                        }
+                        else {
+                                free(entry->text);
+                                entry->text = NULL;
+                        }
+                        return EI_TRUE;
+                }
+                else if (event->param.key.key_sym == SDLK_LSHIFT ||
+                         event->param.key.key_sym == SDLK_RSHIFT)
+                {
+                        capital = (capital)?EI_FALSE:EI_TRUE;
+                        return EI_TRUE;
+                }
+        }
+        return EI_FALSE;
+}
+
+ei_bool_t treat_key_up(ei_widget_t* widget, ei_event_t* event, void * user_param)
+{
+        if (focus != NULL) {
+                ei_entry_t *entry = (ei_entry_t *) focus;
+                if (event->param.key.key_sym == SDLK_LSHIFT ||
+                    event->param.key.key_sym == SDLK_RSHIFT)
+                {
+                        capital = (capital)?EI_FALSE:EI_TRUE;
                         return EI_TRUE;
                 }
         }
