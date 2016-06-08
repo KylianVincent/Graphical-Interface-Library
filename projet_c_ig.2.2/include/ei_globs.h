@@ -4,6 +4,7 @@
 #include "hw_interface.h"
 #include "ei_utils.h"
 
+/*-------VARIABLES GLOBALES-------*/
 /*root_frame*/
 ei_surface_t main_window;
 ei_surface_t main_window_picking;
@@ -17,6 +18,7 @@ ei_widget_t **tab_pick;
 int32_t size;
 void init_picking();
 
+/*-------FONCTIONS UTILES-------*/
 /*optimisation affichage*/
 ei_rect_t union_rect( ei_rect_t rect1, ei_rect_t rect2);
 

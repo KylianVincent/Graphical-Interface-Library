@@ -17,36 +17,47 @@ typedef struct ei_linked_bind_t {
 void init_binds_event();
 
 ei_linked_bind_t **get_binds_event();
-//liberation de la structure binds_event
+
+/*Liberation de la structure binds_event*/
 void free_binds_event();
-// Fonction calculant renvoyant le widget correspondant à un pixel
+
+/*Fonction calculant et renvoyant le widget correspondant à un pixel donné*/
 ei_widget_t *get_widget_of_pixel(ei_point_t where);
 
-// Fonction qui traite un évènement
+/*Fonction traitant un évènement*/
 ei_bool_t handle_event(ei_event_t* event);
 
-// Fonction qui quitte lorqu'on appuye sur échappe
+/*Fonction quittant le programme lors d'un appui sur échap*/
 ei_bool_t escape(ei_widget_t *widget, ei_event_t* event, void *user_param);
 
-// Fonction traitante interne pour les boutons
-ei_bool_t click_button(ei_widget_t* widget, ei_event_t* event, void * user_param);
+/*Fonctions traitantes internes pour les boutons*/
+ei_bool_t click_button(ei_widget_t* widget, ei_event_t* event, 
+		       void * user_param);
 
-ei_bool_t click_moveout(ei_widget_t* widget, ei_event_t* event, void * user_param);
+ei_bool_t click_moveout(ei_widget_t* widget, ei_event_t* event, 
+			void * user_param);
 
-ei_bool_t click_movein(ei_widget_t* widget, ei_event_t* event, void * user_param);
+ei_bool_t click_movein(ei_widget_t* widget, ei_event_t* event, 
+		       void * user_param);
 
 ei_bool_t unclick(ei_widget_t* widget, ei_event_t* event, void * user_param);
 
-ei_bool_t unclick_button(ei_widget_t* widget, ei_event_t* event, void * user_param);
+ei_bool_t unclick_button(ei_widget_t* widget, ei_event_t* event, 
+			 void * user_param);
 
-// Fonction traitante interne pour les top_level
+/*Fonctions traitantes internes pour les top_levels*/
 
-ei_bool_t close_toplevel(ei_widget_t *widget, ei_event_t *event, void *user_param);
+ei_bool_t close_toplevel(ei_widget_t *widget, ei_event_t *event, 
+			 void *user_param);
 
-ei_bool_t click_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param);
+ei_bool_t click_toplevel(ei_widget_t* widget, ei_event_t* event, 
+			 void * user_param);
 
-ei_bool_t move_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param);
+ei_bool_t move_toplevel(ei_widget_t* widget, ei_event_t* event, 
+			void * user_param);
 
-ei_bool_t unclick_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param);
+ei_bool_t unclick_toplevel(ei_widget_t* widget, ei_event_t* event, 
+			   void * user_param);
 
-ei_bool_t resize_toplevel(ei_widget_t* widget, ei_event_t* event, void * user_param);
+ei_bool_t resize_toplevel(ei_widget_t* widget, ei_event_t* event, 
+			  void * user_param);

@@ -18,11 +18,11 @@ typedef struct ei_placer_param_t{
 } ei_placer_param_t;
 
 /* -- Fonctions auxiliaires -- */
-/* Calcul des coordonnées du point d'angle top_left en fonction du point d'ancrage pour un widget*/
+/* Calcul des coordonnées du point top_left en fonction du point d'ancrage défini pour un widget*/
 ei_point_t calcul_point_ancrage(ei_rect_t* rect, ei_anchor_t *anchor);
 
-/* -- Fonctions particulières au geometry manager "placer" -- */
-void placer_runfunc(struct ei_widget_t *widget);
+/*Fonctions particulières au geometry manager "placer"*/
 
+void placer_runfunc(struct ei_widget_t *widget);
 
 void placer_releasefunc(struct ei_widget_t *widget);

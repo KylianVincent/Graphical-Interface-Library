@@ -28,7 +28,9 @@ void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen)
 
         hw_init();
 	main_window = hw_create_window(main_window_size, fullscreen);
-	main_window_picking =hw_surface_create(main_window,main_window_size,EI_TRUE);
+
+	main_window_picking = hw_surface_create(main_window, main_window_size,
+						EI_TRUE);
         taille_root_frame = *main_window_size;
         /* Creation du geometry manager "placer" */
         ei_register_placer_manager();
@@ -42,8 +44,13 @@ void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen)
 
         /* Initialisation de root_frame */
         root_frame = ei_widget_create("frame", NULL);
-        ei_frame_configure(root_frame, main_window_size, &ei_default_background_color, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-        ei_place(root_frame, NULL, NULL, NULL, &(main_window_size->width), &(main_window_size->height), NULL, NULL, NULL, NULL);
+
+        ei_frame_configure(root_frame, main_window_size, 
+			   &ei_default_background_color, NULL, NULL, NULL, NULL,
+			   NULL, NULL, NULL, NULL, NULL);
+
+        ei_place(root_frame, NULL, NULL, NULL, &(main_window_size->width), 
+		 &(main_window_size->height), NULL, NULL, NULL, NULL);
         
 }
 
@@ -79,11 +86,13 @@ void ei_app_run_rec(ei_widget_t* w, ei_rect_t* clipper)
 
         if (w->geom_params != NULL){        
                 /* Dessin du widget */
-                (*w->wclass->drawfunc)(w, main_window, main_window_picking, clipper);
+                (*w->wclass->drawfunc)(w, main_window, main_window_picking,
+				       clipper);
         }
         ei_widget_t* cour = w->children_head;
         while (cour != NULL) {
-                ei_rect_t new_clip = intersect_clipper(*clipper, *(w->content_rect));
+                ei_rect_t new_clip = intersect_clipper(*clipper,
+						       *(w->content_rect));
                 ei_app_run_rec(cour, &new_clip);
                 cour = cour->next_sibling;
         }
@@ -100,8 +109,9 @@ void ei_app_run(){
                 if (event->type != ei_ev_none && handle_event(event)) {
                         ei_app_run_rec(root_frame, root_frame->content_rect);
                         treat_updates(update_rects);
-                        hw_surface_update_rects(main_window,update_rects);
-                        hw_surface_update_rects(main_window_picking,update_rects);
+                        hw_surface_update_rects(main_window, update_rects);
+                        hw_surface_update_rects(main_window_picking, 
+						update_rects);
 			free_linked_rects(&update_rects);
                 }
         }
