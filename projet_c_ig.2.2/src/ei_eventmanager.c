@@ -181,7 +181,8 @@ ei_bool_t unclick_button(ei_widget_t* widget, ei_event_t* event,
 
 ei_bool_t close_toplevel(ei_widget_t *widget, ei_event_t *event, 
 			 void *user_param)
-{       /*optimisation affichage*/
+{       
+        /*optimisation affichage*/
         ei_widget_t *toplevel = (ei_widget_t *) user_param;
 	ei_app_invalidate_rect(&(toplevel->screen_location));
         ei_widget_destroy(toplevel);
@@ -393,30 +394,38 @@ ei_bool_t treat_key_down(ei_widget_t* widget, ei_event_t* event, void * user_par
 {
         if (focus != NULL) {
                 ei_entry_t *entry = (ei_entry_t *) focus;
-                if ((event->param.key.key_sym >= SDLK_a && 
+                if ((event->param.key.key_sym >= SDLK_EXCLAIM && 
                      event->param.key.key_sym <= SDLK_z) ||
                         event->param.key.key_sym == SDLK_SPACE)
                 {
-                        int majuscule = 0;
-                        if (event->param.key.key_sym != SDLK_SPACE &&
-                            capital)
+                        /* Le texte ne doit pas dépasser la taille maximale
+                           définie (0 signifie une taille non limitée */
+                        if (entry->text == NULL ||
+                            entry->char_max == 0 ||
+                            strlen(entry->text) < entry->char_max)
                         {
-                                majuscule = 'A'-'a';
-                        }
-                        if (entry->text != NULL) {
-                                int len = strlen(entry->text);
-                                len++;
-                                char *temp = entry->text;
-                                entry->text = calloc(len+1, sizeof(char));
-                                strcpy(entry->text, temp);
-                                free(temp);
-                                temp = entry->text;
-                                temp[len-1] = event->param.key.key_sym+majuscule;
-                        }
-                        else {
-                                entry->text = calloc(2, sizeof(char));
-                                char *temp = entry->text;
-                                temp[0] = event->param.key.key_sym+majuscule;
+                                int majuscule = 0;
+                                if (event->param.key.key_sym != SDLK_SPACE &&
+                                    event->param.key.key_sym >= SDLK_a &&
+                                    capital)
+                                {
+                                        majuscule = 'A'-'a';
+                                }
+                                if (entry->text != NULL) {
+                                        int len = strlen(entry->text);
+                                        len++;
+                                        char *temp = entry->text;
+                                        entry->text = calloc(len+1, sizeof(char));
+                                        strcpy(entry->text, temp);
+                                        free(temp);
+                                        temp = entry->text;
+                                        temp[len-1] = event->param.key.key_sym+majuscule;
+                                }
+                                else {
+                                        entry->text = calloc(2, sizeof(char));
+                                        char *temp = entry->text;
+                                        temp[0] = event->param.key.key_sym+majuscule;
+                                }
                         }
                         return EI_TRUE;
                 }

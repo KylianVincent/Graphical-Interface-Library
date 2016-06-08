@@ -50,6 +50,7 @@ int ei_main(int argc, char** argv)
 	int		entry_y			= 0;
 	float		entry_rel_x		= 0.5;
 	float		entry_rel_y		= 0.8;
+	int		entry_char_max		= 30;
 
 /* Create the application and change the color of the background. */
 	ei_app_create(&screen_size, EI_FALSE);
@@ -70,7 +71,7 @@ int ei_main(int argc, char** argv)
         
 	/* Create, configure and place the entry on screen. */
         entry = ei_widget_create("entry", frame);
-        ei_entry_configure(entry, &entry_size, NULL, NULL, NULL, NULL, NULL);
+        ei_entry_configure(entry, &entry_size, NULL, NULL, NULL, NULL, &entry_char_max);
         ei_place(entry, &entry_anchor, &entry_x, &entry_y, NULL, NULL, &entry_rel_x, &entry_rel_y, NULL, NULL);
 	/* Run the application's main loop. */
 	ei_app_run();
