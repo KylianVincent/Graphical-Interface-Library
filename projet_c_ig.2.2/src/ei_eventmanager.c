@@ -28,7 +28,7 @@ ei_linked_bind_t **get_binds_event()
         return binds_event;
 }
 
-// Fonction calculant renvoyant le widget correspondant à un pixel
+// Fonction renvoyant le widget correspondant à un pixel
 ei_widget_t *get_widget_of_pixel(ei_point_t where)
 {
 	return ei_widget_pick(&where);	
