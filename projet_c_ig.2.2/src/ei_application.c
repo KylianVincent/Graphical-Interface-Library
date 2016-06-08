@@ -12,8 +12,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-ei_surface_t main_window;
-ei_surface_t main_window_picking;
 ei_widget_t* root_frame=NULL;
 ei_bool_t run = EI_TRUE;
 ei_linked_rect_t *update_rects=NULL;
