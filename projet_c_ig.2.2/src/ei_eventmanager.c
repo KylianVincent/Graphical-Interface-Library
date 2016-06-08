@@ -246,6 +246,9 @@ ei_bool_t click_toplevel(ei_widget_t* widget, ei_event_t* event,
 
         /* Gestion du redimensionnement */
         ei_toplevel_t *toplevel = (ei_toplevel_t *) widget;
+        if (!toplevel->resizable) {
+                return EI_FALSE;
+        }
         ei_point_t resize_corner = ei_point(widget->screen_location.size.width,
                                             widget->screen_location.size.height);
         resize_corner = ei_point_add(resize_corner,
@@ -313,14 +316,13 @@ ei_bool_t resize_toplevel(ei_widget_t* widget, ei_event_t* event,
         ei_toplevel_t *toplevel = (ei_toplevel_t *) widget_bis;
         int diff_x = event->param.mouse.where.x - last_pos.x;
         int diff_y = event->param.mouse.where.y - last_pos.y;
-        int new_size_width = widget_bis->content_rect->size.width + diff_x;
-        int new_size_height = widget_bis->content_rect->size.height + diff_y;
+        int new_size_width = widget_bis->content_rect->size.width;
+        int new_size_height = widget_bis->content_rect->size.height;
 
         /* Calcul du point nord-est de la zone de redimensionement */
         ei_point_t resize_corner_min = widget_bis->content_rect->top_left;
         int bords = toplevel->border_width;
-        int decalage = (bords >= min_resize_zone)?
-                2*bords:2*min_resize_zone;
+        int decalage = (bords >= min_resize_zone)?2*bords:2*min_resize_zone;
         resize_corner_min.x += toplevel->min_size->width + bords - decalage;
         resize_corner_min.y += toplevel->min_size->height + bords - decalage;
 
@@ -329,6 +331,7 @@ ei_bool_t resize_toplevel(ei_widget_t* widget, ei_event_t* event,
         if (toplevel->resizable == ei_axis_x
                      || toplevel->resizable == ei_axis_both)
         {
+                new_size_width += diff_x;
                 if (event->param.mouse.where.x < resize_corner_min.x) {
                         new_size_width = toplevel->min_size->width;
                         last_pos.x = resize_corner_min.x;
@@ -341,6 +344,7 @@ ei_bool_t resize_toplevel(ei_widget_t* widget, ei_event_t* event,
         if (toplevel->resizable == ei_axis_y
                 || toplevel->resizable == ei_axis_both)
         {
+                new_size_height += diff_y;
                 if (event->param.mouse.where.y < resize_corner_min.y) {
                         new_size_height = toplevel->min_size->height;
                         last_pos.y = resize_corner_min.y;
@@ -443,7 +447,6 @@ ei_bool_t treat_key_down(ei_widget_t* widget, ei_event_t* event, void * user_par
 ei_bool_t treat_key_up(ei_widget_t* widget, ei_event_t* event, void * user_param)
 {
         if (focus != NULL) {
-                ei_entry_t *entry = (ei_entry_t *) focus;
                 if (event->param.key.key_sym == SDLK_LSHIFT ||
                     event->param.key.key_sym == SDLK_RSHIFT)
                 {
