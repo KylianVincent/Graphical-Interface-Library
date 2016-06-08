@@ -1,3 +1,4 @@
+#include "ei_entry.h"
 #include "ei_types.h"
 #include "ei_classes.h"
 #include "ei_widgetclass.h"
@@ -107,7 +108,7 @@ void entry_drawfunc(struct ei_widget_t* widget,
 		     ei_rect_t*		clipper)
 {
         ei_entry_t *entry = (ei_entry_t *) widget;
-        ei_linked_point_t *exterior = rounded_frame(*(widget->screen_location), 
+        ei_linked_point_t *exterior = rounded_frame(widget->screen_location, 
 						    0, 0);
         ei_linked_point_t *interior = rounded_frame(*(widget->content_rect), 
 						    0, 0);
@@ -121,12 +122,14 @@ void entry_drawfunc(struct ei_widget_t* widget,
         ei_draw_polygon(pick_surface, exterior, *(widget->pick_color), clipper);
         
         /* Affichage du texte */
-        ei_draw_text(surface,
-                     widget->content_rect->top_left,
-                     entry->text,
-                     entry->text_font,
-                     entry->text_color,
-                     *(widget->content_rect));
+        if (entry->text != NULL) {
+                ei_draw_text(surface,
+                             &(widget->content_rect->top_left),
+                             entry->text,
+                             entry->text_font,
+                             &(entry->text_color),
+                             clipper);
+        }
         
         hw_surface_unlock(surface);
         hw_surface_unlock(pick_surface);
@@ -141,7 +144,8 @@ void entry_drawfunc(struct ei_widget_t* widget,
 void entry_setdefaultsfunc(struct ei_widget_t* widget)
 {
         ei_entry_t* entry = (ei_entry_t*) widget;
-        entry->color = {0xFF, 0xFF, 0xFF, 0xFF};
+        ei_color_t white = {0xFF, 0xFF, 0xFF, 0xFF};
+        entry->color = white;
         entry->text = NULL;
         entry->text_font = ei_default_font;
         entry->text_color = ei_font_default_color;
@@ -151,7 +155,7 @@ void entry_setdefaultsfunc(struct ei_widget_t* widget)
         /* Pour la hauteur on prend la taille d'une majuscule dans la fonte
            condidérée */
         int temp;
-        hw_text_compute_size("A", *text_font, &(temp),
+        hw_text_compute_size("A", entry->text_font, &(temp),
                              &(widget->requested_size.height));
         widget->requested_size.width = 100;
 }

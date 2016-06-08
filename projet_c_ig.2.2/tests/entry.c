@@ -6,6 +6,7 @@
 #include "hw_interface.h"
 #include "ei_widget.h"
 #include "ei_geometrymanager.h"
+#include "ei_entry.h"
 
 
 /*
@@ -26,13 +27,14 @@ int ei_main(int argc, char** argv)
 	ei_relief_t	entry_relief		= ei_relief_raised;
 	int		entry_border_width	= 6;
 
-
+/* Create the application and change the color of the background. */
+	ei_app_create(&screen_size, EI_FALSE);
 	/* Create the application and change the color of the background. */
 	ei_frame_configure(ei_app_root_widget(), NULL, &root_bgcol, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
         
 	/* Create, configure and place the entry on screen. */
         entry = ei_widget_create("entry", ei_app_root_widget());
-        ei_entry_configure(entry, &entry_size, NULL, NULL, NULL, NULL, NULL, NULL);
+        ei_entry_configure(entry, &entry_size, NULL, NULL, NULL, NULL, NULL);
         ei_place(entry, NULL, &entry_x, &entry_y, NULL, NULL, NULL, NULL, NULL, NULL);
 	/* Run the application's main loop. */
 	ei_app_run();

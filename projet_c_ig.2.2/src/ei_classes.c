@@ -3,14 +3,6 @@
 #include <math.h>
 #include <string.h>
 
-/*-------FONCTIONS AUXILIAIRES-------------*/
-
-void free_linked_point(ei_linked_point_t* pts);
-
-/* Trace un bouton complet ou seulement la partie haut ou basse */
-/* mode = 0 : complet  //  mode = -1 : basse  //  mode = 1 : haute  */
-ei_linked_point_t* rounded_frame(ei_rect_t rect, int radius, int8_t mode);
-
 
 /* ----------FRAME------------*/
 

@@ -59,8 +59,13 @@ typedef struct ei_toplevel_t{
         int 			height_header;
 }ei_toplevel_t;
 
+/*-------FONCTIONS AUXILIAIRES-------------*/
 
-/*si ancrage vaut null ou ei_anc_none, alors cas pas défault (northwest)*/
+void free_linked_point(ei_linked_point_t* pts);
+
+/* Trace un bouton complet ou seulement la partie haut ou basse */
+/* mode = 0 : complet  //  mode = -1 : basse  //  mode = 1 : haute  */
+ei_linked_point_t* rounded_frame(ei_rect_t rect, int radius, int8_t mode);
 
 /* Change la couleur sur chaque octet de val */
 /* Eclairci ou assombri en fonction de sign (1 ou -1) */

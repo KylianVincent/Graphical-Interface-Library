@@ -39,6 +39,7 @@ void ei_app_create(ei_size_t* main_window_size, ei_bool_t fullscreen)
         ei_frame_register_class();
         ei_button_register_class();
         ei_toplevel_register_class();
+        ei_entry_register_class();
         /* Initialisation du tableau de binds */
         init_binds_event();
 

@@ -381,14 +381,21 @@ ei_bool_t treat_key(ei_widget_t* widget, ei_event_t* event, void * user_param)
                     event->param.key.key_sym <= SDLK_z)
                 {
                         ei_entry_t *entry = (ei_entry_t *) focus;
-                        int len = strlen(entry->text);
-                        len++;
-                        char *temp = entry->text;
-                        entry->text = calloc(len+1, sizeof(char));
-                        strcpy(entry->text, temp);
-                        free(temp);
-                        temp = entry->text;
-                        temp[len-1] = event->param.key.key_sym;
+                        if (entry->text != NULL) {
+                                int len = strlen(entry->text);
+                                len++;
+                                char *temp = entry->text;
+                                entry->text = calloc(len+1, sizeof(char));
+                                strcpy(entry->text, temp);
+                                free(temp);
+                                temp = entry->text;
+                                temp[len-1] = event->param.key.key_sym;
+                        }
+                        else {
+                                entry->text = calloc(2, sizeof(char));
+                                char *temp = entry->text;
+                                temp[0] = event->param.key.key_sym;
+                        }
                         return EI_TRUE;
                 }
         }
