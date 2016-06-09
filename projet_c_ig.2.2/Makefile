@@ -103,11 +103,11 @@ ${OBJDIR}/multiple_widget.o : ${TESTS}/multiple_widget.c
 
 # frame_button
 
-windows : ${OBJDIR}/windows.o ${LIBEIOBJS} ${LIBEIBASE} ${LIBEI}
-	${LINK} -o windows ${OBJDIR}/windows.o ${LIBEIOBJS} ${LIBEI} ${LIBS}
+frame_button : ${OBJDIR}/frame_button.o ${LIBEIOBJS} ${LIBEIBASE} ${LIBEI}
+	${LINK} -o frame_button ${OBJDIR}/frame_button.o ${LIBEIOBJS} ${LIBEI} ${LIBS}
 
-${OBJDIR}/windows.o : ${TESTS}/windows.c
-	${CC} ${CCFLAGS} ${INCFLAGS} ${TESTS}/windows.c -o ${OBJDIR}/windows.o
+${OBJDIR}/frame_button.o : ${TESTS}/frame_button.c
+	${CC} ${CCFLAGS} ${INCFLAGS} ${TESTS}/frame_button.c -o ${OBJDIR}/frame_button.o
 
 # toplevel
 
